@@ -1,0 +1,42 @@
+{
+  "display_name": "Miner Union",
+  "theme": "Organised labour in amber and steel: the hands that actually dig the worlds the corporations sell, and they have not forgotten it.",
+  "tiers": {
+    "outsider": 0,
+    "associate": 100,
+    "member": 400,
+    "trusted": 1000,
+    "inner_circle": 2500
+  },
+  "rewards": {
+    "associate": [
+      { "type": "item", "id": "minecraft:coal", "count": 16 },
+      { "type": "cosmetic", "cosmetic": "banner_pattern" }
+    ],
+    "trusted": [
+      { "type": "item", "id": "minecraft:iron_ingot", "count": 8 },
+      { "type": "item", "id": "minecraft:copper_ingot", "count": 8 }
+    ],
+    "inner_circle": [
+      { "type": "item", "id": "minecraft:diamond", "count": 2 },
+      { "type": "cosmetic", "cosmetic": "trim_material" }
+    ]
+  },
+  "enemies": [
+    "nerofactions:nero_corporation"
+  ],
+  "trade": [
+    {
+      "tag": "c:ores",
+      "by_tier": { "associate": 0.95, "member": 0.9, "trusted": 0.85, "inner_circle": 0.8 }
+    },
+    {
+      "tag": "c:ingots",
+      "by_tier": { "member": 0.95, "trusted": 0.9, "inner_circle": 0.85 }
+    }
+  ],
+  "cosmetics": {
+    "banner_pattern": "nerofactions:miner_union",
+    "trim_material": "nerofactions:miner_union"
+  }
+}

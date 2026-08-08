@@ -1,0 +1,9 @@
+{
+  "_comment": "Deliberate 0.1.0 scope: NO custom textures exist for NeroFactions, so the terminal reuses the vanilla lodestone texture set via texture references only. Recorded for the changelog.",
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "minecraft:block/lodestone_top",
+    "side": "minecraft:block/lodestone_side",
+    "particle": "minecraft:block/lodestone_side"
+  }
+}

@@ -337,7 +337,9 @@ public final class FactionDefinitions {
             }
             previous = threshold;
         }
-        return cleaned.size() == faction.tiers().size()
+        // Compare by content, not size: keys are lower-cased above, so an odd-case ladder of the
+        // same size must still be replaced — threshold() looks tiers up by the lower-case name.
+        return cleaned.equals(faction.tiers())
                 ? faction
                 : faction.withTiers(Collections.unmodifiableMap(cleaned));
     }
@@ -354,6 +356,12 @@ public final class FactionDefinitions {
                 changed = true;
                 continue;
             }
+            // rewardsFor() looks tables up by the lower-case json name, so the key is normalised
+            // here the same way validateTiers normalises the ladder's.
+            String tierKey = table.getKey().toLowerCase(Locale.ROOT);
+            if (!tierKey.equals(table.getKey())) {
+                changed = true;
+            }
             List<RewardEntry> keptEntries = new ArrayList<>(table.getValue().size());
             for (RewardEntry entry : table.getValue()) {
                 Optional<String> problem = entry.problem(itemExists, faction.cosmetics().isPresent());
@@ -365,7 +373,7 @@ public final class FactionDefinitions {
                     keptEntries.add(entry);
                 }
             }
-            cleaned.put(table.getKey(), List.copyOf(keptEntries));
+            cleaned.put(tierKey, List.copyOf(keptEntries));
         }
         return changed ? faction.withRewards(Collections.unmodifiableMap(cleaned)) : faction;
     }
@@ -392,11 +400,16 @@ public final class FactionDefinitions {
                             + multiplier + " at \"" + entry.getKey() + "\" clamped to " + clamped, false);
                     changed = true;
                 }
-                byTier.put(entry.getKey(), clamped);
+                // multiplierFor() looks tiers up by the lower-case json name — normalise like
+                // validateTiers does.
+                byTier.put(entry.getKey().toLowerCase(Locale.ROOT), clamped);
             }
-            cleaned.add(byTier.equals(modifier.byTier())
-                    ? modifier
-                    : new TradeModifier(modifier.tag(), Collections.unmodifiableMap(byTier)));
+            if (byTier.equals(modifier.byTier())) {
+                cleaned.add(modifier);
+            } else {
+                cleaned.add(new TradeModifier(modifier.tag(), Collections.unmodifiableMap(byTier)));
+                changed = true;
+            }
         }
         return changed ? faction.withTrade(List.copyOf(cleaned)) : faction;
     }

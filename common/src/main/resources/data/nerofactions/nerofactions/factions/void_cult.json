@@ -1,0 +1,42 @@
+{
+  "display_name": "Void Cult",
+  "theme": "Purple-black devotees of the alien dark between the stars, convinced it is listening — and lately, convinced it has begun to answer.",
+  "tiers": {
+    "outsider": 0,
+    "associate": 100,
+    "member": 400,
+    "trusted": 1000,
+    "inner_circle": 2500
+  },
+  "rewards": {
+    "associate": [
+      { "type": "item", "id": "minecraft:amethyst_shard", "count": 8 },
+      { "type": "cosmetic", "cosmetic": "banner_pattern" }
+    ],
+    "trusted": [
+      { "type": "item", "id": "minecraft:ender_pearl", "count": 4 }
+    ],
+    "inner_circle": [
+      { "type": "item", "id": "minecraft:ender_eye", "count": 2 },
+      { "type": "cosmetic", "cosmetic": "trim_material" }
+    ]
+  },
+  "enemies": [
+    "nerofactions:space_guild",
+    "nerofactions:terraforming_authority"
+  ],
+  "trade": [
+    {
+      "tag": "c:gems/amethyst",
+      "by_tier": { "associate": 0.95, "member": 0.9, "trusted": 0.85, "inner_circle": 0.8 }
+    },
+    {
+      "tag": "c:ender_pearls",
+      "by_tier": { "member": 0.9, "trusted": 0.85, "inner_circle": 0.8 }
+    }
+  ],
+  "cosmetics": {
+    "banner_pattern": "nerofactions:void_cult",
+    "trim_material": "nerofactions:void_cult"
+  }
+}

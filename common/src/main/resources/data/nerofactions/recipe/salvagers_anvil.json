@@ -1,0 +1,23 @@
+{
+  "_comment": "Salvagers perk: a Trusted-tier anvil reforged from wreck salvage — one iron block and three ingots instead of vanilla's three blocks and four ingots. One fleet's write-off, another's workshop. No core_gate; standing alone unlocks it.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:salvagers",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "key": {
+      "B": "minecraft:iron_block",
+      "I": "minecraft:iron_ingot"
+    },
+    "pattern": [
+      " B ",
+      " I ",
+      "III"
+    ],
+    "result": {
+      "id": "minecraft:anvil",
+      "count": 1
+    }
+  }
+}

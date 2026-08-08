@@ -1,0 +1,24 @@
+{
+  "_comment": "Nero Corporation perk: corporate branding. A name tag is uncraftable in vanilla; Trusted associates of the corporation can print their own from paper, string and a gold nugget. No core_gate; standing alone unlocks it.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:nero_corporation",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+      "S": "minecraft:string",
+      "P": "minecraft:paper",
+      "G": "minecraft:gold_nugget"
+    },
+    "pattern": [
+      "S",
+      "P",
+      "G"
+    ],
+    "result": {
+      "id": "minecraft:name_tag",
+      "count": 1
+    }
+  }
+}

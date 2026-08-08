@@ -2,8 +2,10 @@ package za.co.neroland.nerofactions.data;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.mojang.serialization.Codec;
@@ -134,7 +136,7 @@ public final class FactionReputationState extends SavedData implements Reputatio
         }
     }
 
-    // --- test seams (package-private, the ecosystem convention — no reflection) ----------------
+    // --- package-private seams (tests, retention sweep, DSAR export — no reflection) -----------
 
     synchronized int rowCount() {
         return players.size();
@@ -142,6 +144,20 @@ public final class FactionReputationState extends SavedData implements Reputatio
 
     synchronized boolean hasRow(UUID player) {
         return players.containsKey(player);
+    }
+
+    /** Every player with any stored standing — the retention sweep's candidate list. A copy. */
+    synchronized Set<UUID> knownPlayers() {
+        return new LinkedHashSet<>(players.keySet());
+    }
+
+    /**
+     * The player's whole row (faction id string → standing) for the DSAR export
+     * ({@link PlayerDataExport}) — a copy, empty for an unknown player, never logged.
+     */
+    synchronized Map<String, Integer> standingsOf(UUID player) {
+        Map<String, Integer> row = players.get(player);
+        return row == null ? Map.of() : new LinkedHashMap<>(row);
     }
 
     // --- persistence ----------------------------------------------------------------------------

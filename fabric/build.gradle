@@ -53,6 +53,15 @@ dependencies {
         compileOnly "mezz.jei:jei-${mc}-fabric-api:${jeiVersion}"
         runtimeOnly "mezz.jei:jei-${mc}-fabric:${jeiVersion}"
     }
+
+    // NeroEconomy — OPTIONAL sibling, compile-time only (the Stage 4 price-modifier bridge).
+    // compileOnly + a single runtime isModLoaded("neroeconomy") guard is the ecosystem rule for
+    // soft integrations (no reflection): integration/economy/* is the only code importing
+    // za.co.neroland.neroeconomy types and is never classloaded when the mod is absent, so
+    // fabric.mod.json only "suggests" it and nothing of NeroEconomy ships in this jar. NeroEconomy
+    // publishes no maven artifact (it has no maven-publish config), so this resolves the sibling
+    // repo's built jar directly — build ../neroeconomy's matching cell first if it is missing.
+    compileOnly files("${rootProject.projectDir}/../neroeconomy/fabric/versions/${mc}/build/libs/neroeconomy-fabric-${mc}-${rootProject.neroeconomy_version}.jar")
 }
 
 // Expand fabric.mod.json from src/main/templates into a generated resources dir.

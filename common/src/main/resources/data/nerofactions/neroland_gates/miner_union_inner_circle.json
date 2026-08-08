@@ -1,0 +1,5 @@
+{
+  "scope": "player",
+  "requires": ["nerolandcore:industrial_power"],
+  "title": "Miner Union Inner Circle"
+}

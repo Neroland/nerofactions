@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "nerofactions:block/trade_terminal" }
+  }
+}

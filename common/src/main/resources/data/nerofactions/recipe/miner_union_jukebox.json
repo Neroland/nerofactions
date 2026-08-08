@@ -1,0 +1,23 @@
+{
+  "_comment": "Miner Union perk: a Member-tier jukebox built around a copper ingot instead of a diamond — union rates on entertainment. No core_gate; standing alone unlocks it.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:miner_union",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+      "P": "#minecraft:planks",
+      "C": "minecraft:copper_ingot"
+    },
+    "pattern": [
+      "PPP",
+      "PCP",
+      "PPP"
+    ],
+    "result": {
+      "id": "minecraft:jukebox",
+      "count": 1
+    }
+  }
+}

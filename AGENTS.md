@@ -5,13 +5,46 @@
 ## The mod
 
 - **NeroFactions** — part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
-  **0.1.0 in progress** — the reputation and allegiance mod. The Core-wired foundation (platform
-  seams, config, telemetry, network channel) and the reputation provider (persistent
-  `FactionReputationState` bound to Core's `ReputationApi`, erasure-hooked) are done;
-  factions/tiers/membership are next.
+  **0.1.0-beta.1 prepared** — the reputation and allegiance mod. The Core-wired foundation (platform
+  seams, config, telemetry, network channel), the reputation provider (persistent
+  `FactionReputationState` bound to Core's `ReputationApi`, erasure-hooked), and the faction layer
+  (seven datapack faction definitions with tiers/rewards/enemies/trade, membership with
+  single-allegiance + cooldown + switch penalty, real-time reputation decay, weighted/capped
+  reputation sources with enemy bleed, `/nerofactions reload-check`), and the unlock-gating layer
+  (tier crossings on Core's shared `ThresholdEvents` bus as `nerofactions:reputation_tier`, seven
+  player-scoped inner-circle progression gates composing Core's arc, and the server-authoritative
+  `nerofactions:gated` recipe condition), and the soft-integration
+  layer (feature-detected once at init, no reflection: the NeroQuests contract verified live —
+  `neroquests:reputation` rewards + `custom_event` tier gating — plus the internal combat
+  reputation trigger so Core-only servers earn standing, the compile-only NeroEconomy
+  price-modifier bridge with capped speciality discounts / enemy surcharges, and the NeroEvents
+  `Source.EVENT` seam; faction wallets deferred until NeroEconomy persists non-player accounts),
+  and the content/presentation layer (the shared vanilla-textured trade terminal block — member-only
+  vanilla merchant shops per faction, `Source.TRADE` earning, guarded through the `MenuOpener`
+  seam — the once-ever watermark-idempotent tier-reward engine, cosmetics as pre-styled vanilla
+  banners per faction, seven themed gated recipes — one per faction — and the full `/nerofactions`
+  tree: `standing`/`factions`/`join`/`leave` player-facing plus exact `admin grant/revoke/reset`;
+  ADMIN awards no longer enemy-bleed; no custom art/banner patterns/trims/gear items in 0.1.0 by
+  scope decision), and the POPIA/GDPR compliance layer (Core's `ErasureConformance` harness run in
+  the test suite against both stores — provider-override check included; the single
+  `NeroFactionsData.eraseLocal` erasure path also clearing the transient terminal session; the
+  mod's own daily `retentionDays` inactivity sweep off Core's shared `PlayerActivity` record,
+  default 365; the `/nerofactions data export` DSAR command — full JSON, click-to-copy, no file
+  writes, no logging; zero player-identity logging repo-wide, so no action-log opt-out is needed —
+  PRIVACY.md states that posture; PRIVACY.md finalised), and the link module (the read-only
+  `nerofactions` NeroLink module, schema 1 — requester-scoped `standing` + `membership` snapshots
+  read off the live stores with no decay-on-read, **no actions by policy** — allegiance is never
+  mutable remotely — and per-player `standing` tier-change events fed after the bus/reward/gate
+  chain via `TierCrossings`' single consumer seam; `linkModuleEnabled` kill switch; PRIVACY.md
+  covers it) are done, and docs/release prep (Stage 8) shipped: README, CHANGELOG (with the
+  full "Not in this release" cut list), USING-CORE.md, the nine-page player/admin wiki and
+  honest store descriptions all describe the source as built. **Status: 0.1.0-beta.1
+  prepared; runtime verification pending — see `PLAN-0.1.0.md`; wiki written.** Release
+  prerequisite: Neroland Core 1.11.0 is pinned but not yet published (resolves from Maven
+  Local only), so Core must ship before this repo's CI can build or a release can be tagged.
 - Mod id: **`nerofactions`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerofactions`. Author: **Neroland**.
-- Version: **0.0.1-alpha.1**.
+- Version: **0.1.0-beta.1** (bumped for release prep; untagged).
 - Targets **MC 26.1.2 AND 26.2** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"6 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 
@@ -74,6 +107,10 @@
   wiki as part of "done"; code without a matching wiki update is incomplete.
 - One page per topic; keep `wiki/Home.md` as the index that links every page, with relative links
   between pages. Validate Markdown via the gradle MCP `markdown_check` (honours `.markdownlint.json`).
+- **The wiki is PUBLIC**: `wiki.yml` publishes `wiki/*.md` verbatim to the GitHub wiki with **no CI
+  guard**. Never reference private planning files (plans/prompts/internal checklists), never use
+  `../` links (they break on the published wiki — link repo files by full GitHub URL), and keep the
+  tone player/server-admin facing.
 - The wiki is **per-mod** — document only NeroFactions here; cross-mod / ecosystem concepts belong in the
   relevant other mod's own wiki.
 

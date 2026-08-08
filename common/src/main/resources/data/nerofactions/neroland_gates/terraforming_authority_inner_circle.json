@@ -1,0 +1,5 @@
+{
+  "scope": "player",
+  "requires": ["nerolandcore:first_colony"],
+  "title": "Terraforming Authority Inner Circle"
+}

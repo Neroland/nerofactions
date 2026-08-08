@@ -1,0 +1,22 @@
+{
+  "_comment": "Free Colonists perk: an Associate-tier lantern from a torch and four iron nuggets instead of eight — settlers light their homesteads on half rations. The lowest-tier gated recipe on purpose: the colonists welcome newcomers. No core_gate.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:free_colonists",
+  "tier": "associate",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+      "N": "minecraft:iron_nugget",
+      "T": "minecraft:torch"
+    },
+    "pattern": [
+      "N N",
+      "NTN"
+    ],
+    "result": {
+      "id": "minecraft:lantern",
+      "count": 1
+    }
+  }
+}

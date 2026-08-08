@@ -1,0 +1,23 @@
+{
+  "_comment": "Void Cult perk: a Trusted-tier ender chest from five obsidian and a pearl instead of eight obsidian and an eye — the dark between the stars keeps their belongings. Requires Core's first_colony arc gate: the cult only shares this rite with the established.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:void_cult",
+  "tier": "trusted",
+  "core_gate": "nerolandcore:first_colony",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+      "O": "minecraft:obsidian",
+      "P": "minecraft:ender_pearl"
+    },
+    "pattern": [
+      "OPO",
+      "OOO"
+    ],
+    "result": {
+      "id": "minecraft:ender_chest",
+      "count": 1
+    }
+  }
+}

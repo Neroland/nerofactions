@@ -22,5 +22,9 @@
     "java": ">=21",
     "fabric-api": "*",
     "nerolandcore": ">=${nerolandcore_version} <2.0.0"
+  },
+  "suggests": {
+    "neroquests": "*",
+    "neroeconomy": "*"
   }
 }

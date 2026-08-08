@@ -58,6 +58,15 @@ public final class ServerReputationProvider implements ReputationProvider {
         }
     }
 
+    /**
+     * The currently bound server, or {@code null} between worlds. The read-only seam Stage 3's
+     * tier-crossing publisher uses to resolve faction definitions and online players from a
+     * context (Core's {@code ReputationEvents}) that carries no server of its own.
+     */
+    public MinecraftServer boundServer() {
+        return server;
+    }
+
     @Override
     public int getReputation(UUID player, Identifier faction) {
         FactionReputationState state = boundState("read");

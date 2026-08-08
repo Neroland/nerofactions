@@ -1,0 +1,22 @@
+{
+  "_comment": "Terraforming Authority perk: a Member-tier grass block — literally terraforming in a crafting grid (grass blocks are uncraftable in vanilla). Bone meal over dirt, the Authority way. No core_gate; standing alone unlocks it.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:terraforming_authority",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "building",
+    "key": {
+      "B": "minecraft:bone_meal",
+      "D": "minecraft:dirt"
+    },
+    "pattern": [
+      "B",
+      "D"
+    ],
+    "result": {
+      "id": "minecraft:grass_block",
+      "count": 1
+    }
+  }
+}

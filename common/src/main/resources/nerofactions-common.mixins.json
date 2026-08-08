@@ -3,7 +3,10 @@
   "minVersion": "0.8",
   "package": "za.co.neroland.nerofactions.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "CraftingMenuMixin",
+    "ResultSlotMixin"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1

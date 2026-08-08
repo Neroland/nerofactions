@@ -5,9 +5,15 @@ import org.slf4j.LoggerFactory;
 
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.data.NeroFactionsData;
+import za.co.neroland.nerofactions.integration.Integrations;
+import za.co.neroland.nerofactions.link.FactionsLinkModule;
 import za.co.neroland.nerofactions.network.FactionsNetwork;
 import za.co.neroland.nerofactions.platform.Services;
+import za.co.neroland.nerofactions.registry.NeroFactionsBlocks;
+import za.co.neroland.nerofactions.registry.NeroFactionsItems;
+import za.co.neroland.nerofactions.registry.NeroFactionsRecipes;
 import za.co.neroland.nerofactions.reputation.ServerReputationProvider;
+import za.co.neroland.nerofactions.reputation.TierCrossings;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
 
 /**
@@ -53,9 +59,16 @@ public final class NeroFactionsCommon {
         //    NeroFactions Sentry project exists yet, so this is a hard no-op today).
         NeroFactionsTelemetry.init();
 
-        // 3. (later stages) Registries and content — reputation providers, faction definitions,
-        //    items/blocks if any. Ordered before the data layer so stores can name registered
-        //    content, and on Fabric "before" is literal.
+        // 3. Registries, through Core's RegistrationProvider (NeoForge/Forge entry points drive
+        //    them via RegistrationProvider.attach; on Fabric these calls ARE the registration).
+        //    Blocks before items (the block item names the block, and on Fabric "before" is
+        //    literal); the recipe serializer alongside; everything joins Core's shared creative
+        //    tab — NeroFactions has no tab of its own (Core reads the tab lazily when displayed).
+        //    Ordered before the data layer so stores can name registered content.
+        NeroFactionsBlocks.init();
+        NeroFactionsItems.init();
+        NeroFactionsRecipes.init();
+        NeroFactionsItems.addToCreativeTab();
 
         // 4. Player-data erasure registration + the real Core reputation provider — registered
         //    before any faction data can exist, because registering late is how an erasure request
@@ -70,9 +83,27 @@ public final class NeroFactionsCommon {
         //    declares nothing — later stages add their payloads inside FactionsNetwork.init().
         FactionsNetwork.init();
 
-        // 6. (later stages) The NeroLink module goes LAST, so a companion client is never told
-        //    about something before the mod itself has finished reacting to it, and its own init
+        // 6. The tier-crossing publisher: subscribes (once) to Core's ReputationEvents and
+        //    republishes tier-boundary changes on the shared ThresholdEvents bus
+        //    (nerofactions:reputation_tier), composing inner-circle arrivals into Core's
+        //    progression gates. After the data layer (crossings read faction definitions and the
+        //    bound provider), before the link module so a companion client can never observe a
+        //    standing change before the ecosystem has.
+        TierCrossings.init();
+
+        // 7. Sibling-mod soft integrations: NeroQuests (contract-only — reward + threshold-event
+        //    halves already flow through Core seams) and NeroEconomy (the price-modifier bridge,
+        //    compileOnly + structurally classload-isolated). Feature-detected exactly ONCE here,
+        //    never per interaction, and LinkageError-guarded so a sibling changing shape can never
+        //    take the faction layer down. After the data layer and tier crossings — the price
+        //    modifier reads the bound provider and faction definitions the moment the market asks.
+        Integrations.init();
+
+        // 8. The NeroLink module goes LAST, so a companion client is never told about something
+        //    before the mod itself has finished reacting to it (its tier-change events are also
+        //    fed after the bus/reward/gate chain, via TierCrossings' consumer seam). Its own init
         //    swallows any failure — a broken link module must never take the faction layer down
-        //    with it.
+        //    with it. Read-only by policy: snapshots + events, no actions.
+        FactionsLinkModule.init();
     }
 }

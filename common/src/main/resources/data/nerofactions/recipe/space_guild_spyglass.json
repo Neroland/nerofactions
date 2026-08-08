@@ -1,0 +1,23 @@
+{
+  "_comment": "Space Guild perk: a Trusted-tier discounted spyglass (one copper instead of two), only after the player has reached orbit. Exercises the optional core_gate field.",
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:space_guild",
+  "tier": "trusted",
+  "core_gate": "nerolandcore:reached_orbit",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "key": {
+      "A": "minecraft:amethyst_shard",
+      "C": "minecraft:copper_ingot"
+    },
+    "pattern": [
+      "A",
+      "C"
+    ],
+    "result": {
+      "id": "minecraft:spyglass",
+      "count": 1
+    }
+  }
+}

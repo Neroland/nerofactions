@@ -51,30 +51,94 @@ nothing is ever sent before the config — and therefore your choice — has bee
 
 ## Reputation and membership data (gameplay data, stored in your world)
 
-Separately from error reporting, NeroFactions' core gameplay stores per-player faction standing.
-This is not an optional or opt-in feature — reputation **is** the mod — so this section documents
-exactly what that data is and how it is protected.
+Separately from error reporting, NeroFactions' core gameplay stores per-player faction standing
+and faction membership. This is not an optional or opt-in feature — reputation and allegiance
+**are** the mod — so this section documents exactly what that data is and how it is protected.
 
-- **What is stored:** your player UUID mapped to an integer standing per faction — nothing else.
-  No names, no IP addresses, no coordinates, no chat, no timestamps. A standing of zero is never
-  stored: on disk, a player the mod has never seen and a player at neutral standing are
-  identical.
+- **What is stored — reputation:** your player UUID mapped to an integer standing per faction —
+  nothing else. No names, no IP addresses, no coordinates, no chat, no timestamps. A standing of
+  zero is never stored: on disk, a player the mod has never seen and a player at neutral standing
+  are identical.
+- **What is stored — membership:** your player UUID mapped to the faction(s) you currently belong
+  to with the time you joined, the time you left any faction whose standing is still decaying,
+  the time your join cooldown ends, per-faction per-source daily counters of reputation
+  earned that day (used to enforce the daily earning caps), and a per-faction granted-reward
+  watermark — the highest reputation tier whose one-time rewards you have already received, kept
+  so the same rewards can never be paid twice. No names, no IP addresses, no
+  coordinates, no chat. Each timestamp exists only to make one gameplay rule computable (decay,
+  cooldown, daily caps) and is deleted as soon as its purpose lapses — a left faction is dropped
+  the moment its standing finishes decaying to zero, an elapsed cooldown is cleared, and
+  yesterday's counters are discarded on the first earning of a new day. A player whose records
+  have all lapsed is removed from the store entirely, indistinguishable from a player the mod
+  has never seen.
+- **What is announced in-game:** when your standing crosses a tier boundary, NeroFactions
+  announces it to other installed Neroland mods on Neroland Core's shared in-process event bus —
+  and that announcement deliberately carries only the faction id, the tier reached or lost, its
+  threshold and the direction, **never your UUID, name, or any other player identifier**: the
+  shared bus names systems, not people, and nothing on it leaves the game process.
+- **What other installed Neroland mods may read:** with NeroEconomy installed, NeroFactions
+  computes your personal market price multiplier by reading your own standing in memory on the
+  server at the moment a price is quoted — that read stores nothing new, is never logged against
+  your identity, and nothing about it leaves the game process.
+- **NeroLink companion module (read-only):** if the server also runs the separate NeroLink bridge
+  mod, a companion app you have paired can read **your own** NeroFactions record through it — your
+  standings with their resolved tiers, your memberships, your join cooldown and the left-faction
+  decay bookkeeping. Every response is scoped to the requesting player's own UUID before it leaves
+  this mod: there is no roster, no aggregate, and no parameter that could name another player, and
+  the scope is never widened for operators — an admin's companion app sees the admin's own data
+  and nobody else's. The module is deliberately **read-only** and registers **no actions**:
+  joining or leaving a faction is an in-world decision and can never be triggered remotely, and
+  reputation can never be written from outside the game. The only live events it publishes are
+  your own tier changes, which Neroland Core routes to your own sessions alone; the event payload
+  names the faction and the tier — never a UUID, name, or any other player identifier. The module
+  stores nothing of its own and raises no persistent alerts. A server can switch it off entirely
+  with `linkModuleEnabled=false` in `config/nerofactions.properties`.
 - **Where it is stored:** inside the world save of the server or single-player world you play on.
   It is never sent to the developers or to any external service. Neroland Core's crash-recovery
-  system keeps a "last-known-good" backup copy of the same store, also inside the world save.
-- **Erasure:** the store is registered with Neroland Core's shared per-player data-erasure hook,
-  so a single erasure request purges your NeroFactions standing alongside your data in every
-  other Neroland mod — and the recovery backup copy is refreshed in the same request, so erased
-  rows do not linger there. The same shared hook powers Neroland Core's inactivity retention
-  sweep, which (when the server enables it) also purges this store for long-inactive players.
+  system keeps a "last-known-good" backup copy of the same stores, also inside the world save.
+- **Erasure:** both stores are registered with Neroland Core's shared per-player data-erasure
+  hook, so a **single** erasure request purges your NeroFactions standing *and* membership
+  records (memberships, join/leave timestamps, cooldown, daily counters, the granted-reward
+  watermark) *and* the trade terminal's in-memory session row alongside your data in
+  every other Neroland mod — and each store's recovery backup copy is refreshed in the same
+  request, so erased rows do not linger there. In-game, any player can erase their own data with
+  `/neroland data eraseme`, and a server operator can erase any player's (including a departed
+  player's, by UUID) with `/neroland data erase <uuid>`. This wiring is **conformance-tested**:
+  the mod's test suite runs Neroland Core's erasure-conformance harness against both stores on
+  every build, proving a request leaves nothing behind and that a failure could not pass
+  silently.
+- **Automatic retention limit:** NeroFactions runs its own daily inactivity sweep. If a player
+  has not logged in for `retentionDays` (server config, default **365**, `0` disables), their
+  NeroFactions data — everything listed above, recovery backups included — is purged
+  automatically through the same erasure path. Inactivity is measured against Neroland Core's
+  shared last-seen record, so the sweep introduces no new personal data; a player with no
+  last-seen record is never auto-purged. This complements Neroland Core's ecosystem-wide sweep
+  (`dataRetentionDays`, opt-in, plus the operator command `/neroland data purge-inactive`),
+  which also reaches NeroFactions through the shared hook.
+- **Export (access to your data):** `/nerofactions data export` hands any player their complete
+  NeroFactions record — every field of both stores, exactly as stored — as JSON in chat with a
+  click-to-copy component. Nothing is written to disk and nothing is logged. A server operator
+  can run `/nerofactions data export <player>` to answer an access request from a departed
+  player.
+- **No action logging:** NeroFactions keeps **no log of player actions** — trades, joins,
+  leaves and reputation changes are not written to any log file, and no log line anywhere in
+  the mod carries a player name or UUID (erasure and the retention sweep log anonymous counts
+  only). There is therefore nothing to opt out of. If a future version ever adds action
+  logging, it will ship with a per-player opt-out in the same release.
 - **No tombstone:** erasure leaves nothing behind that is derived from your identity — not even a
-  hashed or pseudonymised marker. If an erased player returns, they simply start from neutral
-  standing (0) with every faction. This also means erasure clears *negative* standing; that is an
-  accepted consequence of the right to erasure.
-- **Retention:** standings persist with the world until erased as above. A faction-specific
-  inactivity purge is planned for the membership feature and will be documented here when it
-  ships; faction *membership* itself is not yet stored — this page will be updated before any
-  release that stores it.
+  hashed or pseudonymised marker. If an erased player returns, they simply start factionless at
+  neutral standing (0) with every faction, with no cooldown. This also means erasure clears
+  *negative* standing; that is an accepted consequence of the right to erasure.
+- **Retention:** standings and membership records persist with the world until erased as above
+  or until the automatic inactivity sweep purges them, except the self-lapsing records described
+  under "What is stored — membership", which delete
+  themselves as the mod runs. The granted-reward watermark is the one record that does not
+  self-lapse — its whole purpose is remembering that a reward was already paid — so it persists
+  until erasure. (Erasure therefore also restores reward eligibility; that is an accepted
+  consequence of a tombstone-free erasure.)
+- **Not stored at all:** the faction trade terminal remembers which of your factions it last
+  showed you only in server memory for the current session — never written to disk, wiped when
+  the server stops.
 
 ## Legal basis and your rights (GDPR / POPIA)
 
@@ -83,20 +147,28 @@ s11(1)(f)): keeping the mod functional and crash-free, using the minimum data ne
 are engineered to contain no directly identifying personal information, are stored in the EU,
 and are retained only for Sentry's standard retention period before automatic deletion.
 
+The reputation and membership records above are likewise processed on the basis of legitimate
+interest — they are the gameplay itself, minimised to a UUID plus the integers and timestamps
+each rule needs, never leave the world save, and carry in-game self-service for the key rights:
+access via `/nerofactions data export`, erasure via `/neroland data eraseme`, and an automatic
+retention limit.
+
 To exercise any data-subject right (access, deletion, objection), contact
-**[info@neroland.co.za](mailto:info@neroland.co.za)** with the approximate date/time of the
-crash so the matching event can be located and removed. Sentry acts as a data processor; see
+**[info@neroland.co.za](mailto:info@neroland.co.za)** — for a crash report, include the
+approximate date/time of the crash so the matching event can be located and removed; for
+world-save data on a server you play on, the in-game commands above answer immediately. Sentry
+acts as a data processor for error reports; see
 the [Sentry privacy policy](https://sentry.io/privacy/) and
 [data processing addendum](https://sentry.io/legal/dpa/).
 
 ## Changes to this policy
 
-NeroFactions stores exactly one kind of player-attributable data of its own — the per-player
-faction reputation described above, registered with Neroland Core's shared per-player
-data-erasure hook so a single erasure request purges a player's NeroFactions data alongside
-every other Neroland mod. When a future version starts storing anything new (such as faction
-membership), this page will be updated **before** that version is released, with the change
-called out in the changelog. Likewise, if a future version ever collects additional telemetry,
+NeroFactions stores exactly two kinds of player-attributable data of its own — the per-player
+faction reputation and the per-player faction membership records described above, both
+registered with Neroland Core's shared per-player data-erasure hook so a single erasure request
+purges a player's NeroFactions data alongside every other Neroland mod. When a future version
+starts storing anything new, this page will be updated **before** that version is released,
+with the change called out in the changelog. Likewise, if a future version ever collects additional telemetry,
 this page will be updated before release and the same opt-out (`telemetryEnabled = false`) will
 continue to cover everything error reporting sends.
 
