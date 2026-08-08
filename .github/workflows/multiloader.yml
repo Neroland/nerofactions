@@ -73,7 +73,7 @@ jobs:
           distribution: "temurin"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # Forge's userdev decompile (ForgeGradle Mavenizer) produces ~1.2 GB under
       # ~/.gradle/caches/minecraftforge. setup-gradle does cache GRADLE_USER_HOME, but its key is
