@@ -69,7 +69,7 @@ jobs:
 
       - name: Setup Gradle
         if: steps.resolve.outputs.changed == 'true'
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Validate multiloader build
         id: build
@@ -128,7 +128,7 @@ jobs:
 
       - name: Setup Gradle
         if: steps.resolve.outputs.changed == 'true'
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Validate multiloader build (failures expected on a jump)
         id: build
