@@ -10,6 +10,10 @@ public final class NeroFactionsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         NeroFactionsCommon.LOGGER.info("[NeroFactions] Fabric bootstrap");
+        // Common init declares the payloads; the registration below consumes those declarations,
+        // so the ordering is mandatory on every loader.
         NeroFactionsCommon.init();
+        FabricFactionsNetwork.registerCommon();
+        FabricFactionsEvents.register();
     }
 }

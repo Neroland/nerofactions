@@ -5,8 +5,10 @@
 ## The mod
 
 - **NeroFactions** — part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
-  This repository is currently a **barebones multiloader skeleton** (no gameplay content yet); add
-  shared content under `common/` and wire it through each loader entry point.
+  **0.1.0 in progress** — the reputation and allegiance mod. The Core-wired foundation (platform
+  seams, config, telemetry, network channel) and the reputation provider (persistent
+  `FactionReputationState` bound to Core's `ReputationApi`, erasure-hooked) are done;
+  factions/tiers/membership are next.
 - Mod id: **`nerofactions`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerofactions`. Author: **Neroland**.
 - Version: **0.0.1-alpha.1**.
@@ -72,8 +74,8 @@
   wiki as part of "done"; code without a matching wiki update is incomplete.
 - One page per topic; keep `wiki/Home.md` as the index that links every page, with relative links
   between pages. Validate Markdown via the gradle MCP `markdown_check` (honours `.markdownlint.json`).
-- The wiki is **per-mod** — document only NeroFactions here; cross-mod / ecosystem concepts live in the
-  umbrella docs and are referenced by relative path.
+- The wiki is **per-mod** — document only NeroFactions here; cross-mod / ecosystem concepts belong in the
+  relevant other mod's own wiki.
 
 ## DO NOT
 

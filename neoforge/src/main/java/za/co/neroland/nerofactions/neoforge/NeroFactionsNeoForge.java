@@ -12,6 +12,9 @@ public final class NeroFactionsNeoForge {
 
     public NeroFactionsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         NeroFactionsCommon.LOGGER.info("[NeroFactions] NeoForge bootstrap");
+        // Common init declares the payloads; the registration below consumes those declarations.
         NeroFactionsCommon.init();
+        NeoForgeFactionsNetwork.register(modEventBus);
+        NeoForgeFactionsEvents.register();
     }
 }

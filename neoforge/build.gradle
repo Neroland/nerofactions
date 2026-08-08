@@ -13,6 +13,7 @@ plugins {
 def mc = stonecutter.current.version
 def neoVersion = project.findProperty("neo_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
+def nerolandcoreVersion = project.findProperty('nerolandcore_version')
 
 // This node's projectDir is <loader>/versions/<v>; the authoritative loader source +
 // templates live in the BRANCH root (neoforge/). Resolve branch-root paths via the parent.
@@ -30,7 +31,30 @@ repositories {
 sourceSets.main.java.srcDir rootProject.ext.commonJava
 sourceSets.main.resources.srcDir rootProject.ext.commonResources
 
+// Plain-JVM unit tests (JUnit 5, no game bootstrap). The shared tests live in
+// common/src/test/java but — since `common` is not a Gradle project (see settings.gradle) —
+// they are WIRED here, in the neoforge nodes only: ModDevGradle cleanly exposes the modding
+// classpath to extra source sets via addModdingDependenciesTo (below), which Loom/ForgeGradle
+// have no equivalent for. Run with `gradlew :neoforge:<mc>:test`; `build`/`check` runs them
+// automatically. (Same pattern as ../neroland-core.)
+sourceSets.test.java.srcDir "${rootProject.projectDir}/common/src/test/java"
+
 dependencies {
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
+
+dependencies {
+    // Neroland Core — REQUIRED shared foundation (config schema, reputation, data erasure,
+    // progression gates, threshold events, link SPI). Core ships as its own mod and loads BEFORE
+    // NeroFactions (see neoforge.mods.toml, ordering = AFTER); it is never bundled.
+    implementation "za.co.neroland.nerolandcore:nerolandcore-neoforge-${mc}:${nerolandcoreVersion}"
+
     // Sentry SDK embedded via NeoForge JarJar so players need no extra download (JarJar dedupes if
     // another mod also ships Sentry). Adds it to the compile classpath AND the mod jar.
     jarJar(implementation('io.sentry:sentry:8.45.0'))
@@ -58,6 +82,10 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
         mod_authors            : rootProject.mod_authors,
         mod_license            : rootProject.mod_license,
         minecraft_version_range: "[${mc},)",
+        // Floor at the compiled Core version: a too-old Core would be missing APIs NeroFactions
+        // links against, which surfaces as a NoSuchMethodError deep in gameplay instead of a clean
+        // "update Neroland Core" loader message.
+        nerolandcore_version_range: "[${nerolandcoreVersion},2.0)",
     ]
     inputs.properties(props)
     expand(props)
@@ -69,6 +97,10 @@ sourceSets.main.resources.srcDir generateModMetadata
 neoForge {
     version = neoVersion
     ideSyncTask generateModMetadata
+
+    // Give the unit-test source set the same (de-obfuscated) Minecraft + NeoForge classpath as
+    // main, so tests can construct game-typed objects without a running server.
+    addModdingDependenciesTo sourceSets.test
 
     def at = rootProject.file('common/src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {

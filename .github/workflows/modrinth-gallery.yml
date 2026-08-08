@@ -30,7 +30,7 @@ jobs:
       DIR: neoforge/versions/26.2/runs/client/screenshots/nerofactions
       # Gallery order; the first present file becomes the featured card. Any PNG not listed here is
       # appended afterwards in alphabetical order, so new shots still sync without editing this.
-      ORDER: "rocket_t4 rockets greenxertz_vista cindara_basin glacira_frost orbital_station terraform_after terraform_before machines solar pipes quarry_operating creatures star_guide launch_controller suits meteor_site blocks"
+      ORDER: "factions_overview reputation_board faction_ranks emissary standing_hud unlocks blocks"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -61,64 +61,22 @@ jobs:
           # Curated, evocative titles + descriptions per shot. Any shot not listed here falls back to a
           # prettified filename + a generic description, so new captures still sync cleanly.
           declare -A TITLE=(
-            [rocket_t4]="Heavy Launch Complex"
-            [rockets]="The Full Fleet"
-            [rocket_t1]="First Flight"
-            [rocket_o2]="Oxygen Fuelling"
-            [travel_node]="Travel Node"
-            [launch_controller]="Launch Controller"
-            [greenxertz_vista]="Greenxertz"
-            [cindara_basin]="Cindara"
-            [glacira_frost]="Glacira"
-            [orbital_station]="Orbital Station"
-            [terraform_after]="Terraformed: Living World"
-            [terraform_before]="Before Terraforming"
-            [machines]="The Machine Hall"
-            [machines_power]="Power Line"
-            [machines_refinery]="Fuel Refinery"
-            [solar]="Solar Arrays"
-            [solar_field]="Solar Field"
-            [pipes]="Universal Pipes"
-            [quarry_operating]="The Quarry"
-            [quarry_big]="Deep Claim"
-            [quarry_landmarks]="Quarry Landmarks"
-            [creatures]="Native Life"
-            [creatures_closeup]="Creatures Up Close"
-            [star_guide]="Star Guide"
-            [suits]="Survival Suits"
-            [meteor_site]="Meteor Strike"
+            [factions_overview]="The Factions"
+            [reputation_board]="Reputation Standing"
+            [faction_ranks]="Rank Progression"
+            [emissary]="Faction Emissary"
+            [standing_hud]="Standing at a Glance"
+            [unlocks]="Reputation Unlocks"
             [blocks]="Block Showcase"
-            [blocks_angle]="Blocks, Angled View"
           )
           declare -A DESC=(
-            [rocket_t4]="A Tier 4 rocket fuelled on its 5x5 pad with the animated service gantry alongside - the apex of the launch progression."
-            [rockets]="All four rocket tiers on the pad formations they each require, from the single-pad Tier 1 to the Heavy Launch Complex."
-            [rocket_t1]="The entry-tier Tier 1 rocket on its single launch pad with a pad-side fuel tank."
-            [rocket_o2]="A gas line topping up a docked rocket's onboard oxygen tank before launch."
-            [travel_node]="A commissioned landing pad - name-tag any launch pad to register a pad-to-pad destination."
-            [launch_controller]="The holographic pad-builder console projecting a Tier 3 footprint preview, materials loaded and ready to assemble."
-            [greenxertz_vista]="The verdant steel-and-quartz world of Greenxertz, home to Xertz Stalkers and Quartz Crawlers."
-            [cindara_basin]="A volcanic basin of cindrite and ash on Cindara, where Cinder Stalkers prowl the dark."
-            [glacira_frost]="The frozen moon Glacira, its glacite glittering against the starfield under the watch of Frost Striders."
-            [orbital_station]="A founded station - floor, walls and a bound Station Core - adrift in the orbital void."
-            [terraform_after]="Barren ground reborn as a neon-emerald meadow with grass, trees and grazing Meadow Lopers."
-            [terraform_before]="The same plot before the Terraformer runs - bare coarse earth awaiting life."
-            [machines]="Generators, grinder, refinery and terraformer all running, laced together with Universal Pipes."
-            [machines_power]="A Combustion Generator feeding a Nerosium Grinder, with a Passive Generator topping up the grid."
-            [machines_refinery]="Coal and catalyst refined into rocket fuel and piped straight into a holding tank."
-            [solar]="Single panels and seam-joined fields across all three tiers, decks tracking the sun in unison."
-            [solar_field]="Multiple panels tiling into one continuous sun-tracking surface."
-            [pipes]="One pipe, four resource layers - energy, fluid, gas and items flowing from source to sink."
-            [quarry_operating]="A powered quarry mid-dig: glowing frame, tracking drill head and a deepening pit."
-            [quarry_big]="A 33x33 quarry claim, its frame ring spanning the horizon."
-            [quarry_landmarks]="Three landmarks projecting marker lasers to stake out a dig area."
-            [creatures]="The native creatures of the NeroFactions worlds, from Xertz Stalkers to Woolly Drifts."
-            [creatures_closeup]="A closer look down the line of native fauna."
-            [star_guide]="The Star Guide progression pedestal, its next-step hologram spinning above an installed guide."
-            [suits]="Every survival suit on display: Oxygen, Tier 2, Thermal and Cryo."
-            [meteor_site]="A crash crater around a loot-bearing meteor core, a frozen meteor hanging overhead."
+            [factions_overview]="The factions of the Neroland ecosystem side by side - each with its own identity, ranks and rewards."
+            [reputation_board]="A player's reputation standing across every faction, from hostile through neutral to allied."
+            [faction_ranks]="The rank ladder within a faction - reputation earned unlocks each tier in turn."
+            [emissary]="A faction emissary, the in-world point of contact for standing, ranks and unlocks."
+            [standing_hud]="The at-a-glance standing readout showing current reputation and progress to the next rank."
+            [unlocks]="Content gated behind faction reputation - earn standing to open it up."
             [blocks]="Every NeroFactions block, floated for a clear look at all six faces."
-            [blocks_angle]="The block showcase grid from a low three-quarter angle."
           )
 
           # Build the ordered file list: preferred names first (if present), then any remaining PNGs.
@@ -154,7 +112,7 @@ jobs:
           for f in "${files[@]}"; do
             base=$(basename "$f" .png)
             title=${TITLE[$base]:-$(echo "$base" | sed -E 's/[-_]/ /g; s/\b(.)/\u\1/g')}
-            desc=${DESC[$base]:-"A scene from the NeroFactions space-tech mod."}
+            desc=${DESC[$base]:-"A scene from NeroFactions, the reputation and allegiance mod."}
             tenc=$(jq -rn --arg t "$title" '$t|@uri')
             denc=$(jq -rn --arg d "$desc" '$d|@uri')
             featured=false

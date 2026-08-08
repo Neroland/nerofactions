@@ -11,6 +11,10 @@ public final class NeroFactionsForge {
 
     public NeroFactionsForge(FMLJavaModLoadingContext context) {
         NeroFactionsCommon.LOGGER.info("[NeroFactions] Forge bootstrap");
+        // Common init declares the payloads; the channel below is sealed the moment it is built,
+        // so that ordering is mandatory on Forge.
         NeroFactionsCommon.init();
+        ForgeFactionsNetwork.register();
+        ForgeFactionsEvents.register();
     }
 }
