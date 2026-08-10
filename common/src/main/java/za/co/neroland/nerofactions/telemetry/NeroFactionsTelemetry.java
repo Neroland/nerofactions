@@ -55,11 +55,10 @@ public final class NeroFactionsTelemetry {
      * anywhere</b> and no network connection is opened, regardless of the {@code telemetryEnabled}
      * config value.
      *
-     * <p>NeroFactions has <b>no Sentry project yet</b>, so {@link #DSN} still IS this placeholder
-     * and this branch is live: telemetry is fully wired but inert in every build. When a real
-     * NeroFactions DSN lands, <b>do not remove the guard</b> — it is what keeps a fork, a stripped
-     * build or a half-configured branch silent instead of crashing on SDK init or reporting into
-     * somebody else's project.
+     * <p>{@link #DSN} now carries the real NeroFactions project key, so this branch no longer
+     * fires in stock builds — but <b>do not remove the guard</b>: it is what keeps a fork, a
+     * stripped build or a half-configured branch silent instead of crashing on SDK init or
+     * reporting into somebody else's project.
      * ===================================================================================
      */
     private static final String PLACEHOLDER_DSN = "https://REPLACE-ME@sentry.invalid/0";
@@ -67,10 +66,11 @@ public final class NeroFactionsTelemetry {
     /**
      * Sentry DSN — a public client key (write-only ingest), safe to ship in the jar. It grants
      * permission to SEND events and nothing else: it cannot read issues, and it identifies the
-     * NeroFactions project, never a player. Currently the placeholder — no NeroFactions Sentry
-     * project exists, so telemetry is a hard no-op (see the guard above).
+     * NeroFactions project, never a player. Opt-out via {@code telemetryEnabled=false} in
+     * {@code config/nerofactions.properties}; see PRIVACY.md for the full disclosure.
      */
-    private static final String DSN = "https://REPLACE-ME@sentry.invalid/0";
+    private static final String DSN =
+            "https://3687dcd48ac7a7d2bea15f57e809ae0b@o4511183823241216.ingest.de.sentry.io/4511888466378832";
 
     /** Stack traces must contain this package for an event to be sent. */
     private static final String PACKAGE_MARKER = "za.co.neroland.nerofactions";
@@ -94,8 +94,8 @@ public final class NeroFactionsTelemetry {
     }
 
     /**
-     * True while the shipped DSN is the placeholder (currently: always — NeroFactions has no Sentry
-     * project yet), in which case telemetry stays wired but inert.
+     * True while the shipped DSN is the placeholder (no longer the case in stock builds), in which
+     * case telemetry stays wired but inert.
      */
     private static boolean dsnIsPlaceholder() {
         return PLACEHOLDER_DSN.equals(DSN);

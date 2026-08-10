@@ -211,9 +211,10 @@ one is at hand, that is worth a single click-test, but do not gate the release o
 
 ## Release readiness (after the checks pass)
 
-- [ ] Create the NeroFactions Sentry project, set the real DSN + repo secret, and update
-      `PRIVACY.md`'s placeholder-DSN note **in the same release** (never claim it is inert
-      once a real DSN lands).
+- [x] ~~Create the NeroFactions Sentry project and set the real DSN~~ — done: the project
+      DSN is compiled in and `PRIVACY.md`/wiki/store copy now describe telemetry as active
+      with the opt-out. Still to do: set the `SENTRY_AUTH_TOKEN`-style repo secret if
+      `publish.yml`'s Sentry-release step needs it.
 - [ ] Confirm `publish.yml` carries the ecosystem conventions (CurseForge direct-curl
       upload, `max-parallel: 1`, 5xx retry loop; Modrinth v3 environment-metadata PATCH).
 - [ ] Neroland Core **1.11.0 published** (prerequisite above) and resolvable from CI.

@@ -11,7 +11,7 @@ never force it on or off.
 
 | Key | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
-| `telemetryEnabled` | boolean | `true` | — | Send anonymous, NeroFactions-only crash reports (Sentry, EU servers): stack trace, mod/MC/loader/OS/Java versions, the list of other installed mods, this mod's config and anonymous stability data — **never** IPs, usernames, UUIDs, world data, faction membership, reputation values or chat; file paths are scrubbed of your account name. `false` opts out of all of it. **Current builds ship a placeholder reporting key, so nothing is sent at all either way.** See [Privacy](Privacy). |
+| `telemetryEnabled` | boolean | `true` | — | Send anonymous, NeroFactions-only crash reports (Sentry, EU servers): stack trace, mod/MC/loader/OS/Java versions, the list of other installed mods, this mod's config and anonymous stability data — **never** IPs, usernames, UUIDs, world data, faction membership, reputation values or chat; file paths are scrubbed of your account name. `false` opts out of all of it; nothing is sent while disabled, and nothing is ever sent before your config choice has loaded. See [Privacy](Privacy). |
 
 ## Link module
 

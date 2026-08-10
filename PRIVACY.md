@@ -5,11 +5,11 @@ the mod can be found and fixed. This page is the full disclosure required by Cur
 moderation rules for mods that use an external analytics/error service, and it documents how
 the system is designed to comply with the GDPR (EU) and POPIA (South Africa).
 
-> **Note:** error reporting only becomes active once NeroFactions' own Sentry DSN is configured
-> in the build (`NeroFactionsTelemetry.DSN`). That field is currently a **placeholder**, so
-> today's builds send **nothing**, ever — no report leaves your machine and no network
-> connection is opened, regardless of the settings below. If a future release configures a real
-> DSN, error reporting becomes active as described on this page, and the same opt-out applies.
+> **Note:** error reporting is **active by default** in official builds as described on this
+> page, and can be switched off at any time with `telemetryEnabled = false` (see
+> [How to opt out](#how-to-opt-out)). Builds whose `NeroFactionsTelemetry.DSN` field is the
+> placeholder (forks, source builds) send **nothing**, ever — no report leaves the machine and
+> no network connection is opened, regardless of the settings below.
 
 ## What is collected (error reporting)
 
@@ -174,9 +174,8 @@ continue to cover everything error reporting sends.
 
 ---
 
-> **Telemetry notice:** NeroFactions is wired to send anonymous error reports (stack trace +
-> mod/game versions only — never IPs, usernames, UUIDs, or world data) to the developers via
-> Sentry (EU servers) so crashes can be fixed — but current builds ship a placeholder DSN, so
-> **nothing is actually sent**. Opt out any time by setting `telemetryEnabled = false` in
-> `config/nerofactions.properties`. Full details:
+> **Telemetry notice:** NeroFactions sends anonymous error reports (stack trace + mod/game
+> versions only — never IPs, usernames, UUIDs, or world data) to the developers via Sentry
+> (EU servers) so crashes can be fixed. Opt out any time by setting `telemetryEnabled = false`
+> in `config/nerofactions.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).

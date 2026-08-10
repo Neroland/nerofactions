@@ -63,10 +63,9 @@ logging, it will ship with a per-player opt-out in the same release.
 
 ## Crash telemetry
 
-NeroFactions is wired for optional, anonymous, NeroFactions-only crash reporting (Sentry,
+NeroFactions ships optional, anonymous, NeroFactions-only crash reporting (Sentry,
 EU servers): stack trace and version facts only — never IPs, usernames, UUIDs, world data,
-faction membership or reputation values. It is opt-out via `telemetryEnabled=false` in
-`config/nerofactions.properties`. **Current builds ship a placeholder reporting key, so
-nothing is ever sent, ever** — the system only becomes active if a future release
-configures a real key, and the same opt-out will govern it then. Full details in
+faction membership or reputation values. It is **on by default** and opt-out via
+`telemetryEnabled=false` in `config/nerofactions.properties`; nothing is sent while
+disabled, and nothing is ever sent before your config choice has loaded. Full details in
 [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).

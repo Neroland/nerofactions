@@ -150,9 +150,9 @@ green and the test suite (including Core's erasure-conformance harness) passes.
   `surchargeCapPercent`, default 25%). The bridge class loads only when NeroEconomy is
   present; the shipped jars contain no NeroEconomy classes.
 - **Telemetry**: opt-out, anonymous, NeroFactions-only Sentry crash reporting
-  (`telemetryEnabled`, client-local). Current builds ship a **placeholder DSN, so nothing is
-  ever sent** — the wiring is inert until a real project DSN lands, and the same opt-out
-  will govern it then. Full disclosure in `PRIVACY.md`.
+  (`telemetryEnabled`, client-local), **active by default** in official builds — the mod ships
+  its own project DSN (EU ingest). Source/fork builds with the placeholder DSN send nothing.
+  Full disclosure in `PRIVACY.md`.
 
 #### Documentation
 

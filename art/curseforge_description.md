@@ -51,11 +51,10 @@ Reputation and membership are stored **inside your world save, keyed by player U
 
 ---
 
-> **Telemetry notice:** NeroFactions is wired to send anonymous error reports (stack trace +
-> mod/game versions only — never IPs, usernames, UUIDs, or world data) to the developers via
-> Sentry (EU servers) so crashes can be fixed — but current builds ship a placeholder DSN, so
-> **nothing is actually sent**. Opt out any time by setting `telemetryEnabled = false` in
-> `config/nerofactions.properties`. Full details:
+> **Telemetry notice:** NeroFactions sends anonymous error reports (stack trace + mod/game
+> versions only — never IPs, usernames, UUIDs, or world data) to the developers via Sentry
+> (EU servers) so crashes can be fixed. Opt out any time by setting `telemetryEnabled = false`
+> in `config/nerofactions.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).
 
 *Created by Neroland. The project logo was made with the help of AI image tools; this release contains no other custom art — in-game visuals reuse vanilla Minecraft assets.*
