@@ -136,7 +136,11 @@ public final class RewardGrants {
             return;
         }
         // Vanilla give behaviour: fill the inventory, drop the remainder at the player's feet.
+        //? if >=26.3 {
+        /*player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+        *///?} else {
         player.getInventory().placeItemBackInInventory(stack);
+        //?}
     }
 
     /** The ItemStack one reward entry resolves to (empty when it cannot be built). */

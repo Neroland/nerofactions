@@ -76,7 +76,11 @@ import za.co.neroland.nerolandcore.reputation.ReputationApi;
  */
 public final class GatedRecipe implements CraftingRecipe {
 
+    //? if >=26.3 {
+    /*private static final Codec<CraftingRecipe> WRAPPED_CODEC = Recipe.DIRECT_CODEC.comapFlatMap(
+    *///?} else {
     private static final Codec<CraftingRecipe> WRAPPED_CODEC = Recipe.CODEC.comapFlatMap(
+    //?}
             recipe -> recipe instanceof CraftingRecipe crafting
                     ? DataResult.success(crafting)
                     : DataResult.error(() -> "nerofactions:gated can only wrap a crafting recipe"),

@@ -48,7 +48,7 @@ machines and no custom GUIs. The full list of deliberate cuts is in the
 ## Requirements
 
 - **Minecraft** 26.1.2 or 26.2, on **NeoForge**, **MinecraftForge/Forge** or **Fabric**
-  (the "6 cells").
+  (the "9 cells").
 - **Neroland Core 1.11.0 or newer** — required, loads first. NeroFactions will refuse to
   load against an older Core.
 - Java 25 (the requirement of MC 26.x itself).
@@ -78,9 +78,9 @@ pack authors, privacy, and the link module).
 
 ```sh
 ./gradlew :fabric:26.2:build          # one cell
-./gradlew :neoforge:26.1.2:build :neoforge:26.2:build \
-          :forge:26.1.2:build :forge:26.2:build \
-          :fabric:26.1.2:build :fabric:26.2:build   # all six
+./gradlew :neoforge:26.1.2:build :neoforge:26.2:build :neoforge:26.3:build \
+          :forge:26.1.2:build :forge:26.2:build :forge:26.3:build \
+          :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build   # all nine
 ```
 
 See [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) for agent and contributor context,
