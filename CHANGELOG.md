@@ -7,6 +7,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0-beta.1] - 2026-09-24
+
+EMI compatibility. No gameplay, id, tag or config change.
+
+### Added
+
+- **EMI support.** Faction-gated crafting recipes stay hidden in EMI, as they already are in JEI and the
+  recipe book, so locked recipes are not advertised to players who have not earned them. EMI skips them
+  because they are never placeable. Every other NeroFactions recipe is vanilla crafting, which EMI shows
+  on its own, so nothing needed a plugin. The build now compiles against the community EMI Unofficial
+  Port (Unstable), the only EMI build for Minecraft 26.x, and dev clients load it with `-PwithEmi`
+  (default runs stay JEI-only). EMI stays optional.
+
 ## [0.2.0-beta.1] - 2026-09-20
 
 Minecraft **26.3** support, plus the changes previously listed under *Unreleased*.
@@ -232,7 +245,8 @@ accident — and so store pages and the wiki stay honest:
 - Barebones multiloader skeleton: the six-cell Gradle build (NeoForge / Forge / Fabric ×
   Minecraft 26.1.2 / 26.2), CI workflows, and empty mod entry points. No gameplay content.
 
-[Unreleased]: https://github.com/Neroland/nerofactions/compare/v0.1.0-beta.1...HEAD
+[Unreleased]: https://github.com/Neroland/nerofactions/compare/v0.3.0-beta.1...HEAD
+[0.3.0-beta.1]: https://github.com/Neroland/nerofactions/compare/v0.2.0-beta.1...v0.3.0-beta.1
 [0.2.0-beta.1]: https://github.com/Neroland/nerofactions/releases/tag/v0.2.0-beta.1
 [0.1.0-beta.1]: https://github.com/Neroland/nerofactions/compare/v0.0.1-alpha.1...v0.1.0-beta.1
 [0.0.1-alpha.1]: https://github.com/Neroland/nerofactions/releases/tag/v0.0.1-alpha.1
