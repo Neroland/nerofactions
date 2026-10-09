@@ -1,3 +1,11 @@
+[![NeroLink App — Beta](https://img.shields.io/badge/NeroLink_App-Now_in_Beta-60d4e8?style=for-the-badge)](https://nerolandmc.net/nerolink/#beta) [![Explore the Neroland ecosystem](https://img.shields.io/badge/Explore-The_Neroland_Ecosystem-1a5a6c?style=for-the-badge)](https://nerolandmc.net/ecosystem/)
+
+> 📱 **NeroLink App Beta — your Neroland world on your phone.** Check energy, alerts and machines live, claim quest rewards and search your storage without logging in. **[Join the beta at nerolandmc.net →](https://nerolandmc.net/nerolink/#beta)**
+>
+> 🌌 **Explore the Neroland ecosystem.** See how NeroFactions fits together with the rest of the Nero mods — every mod, wiki and changelog in one place. **[View the ecosystem at nerolandmc.net →](https://nerolandmc.net/ecosystem/)** · [NeroFactions on the website](https://nerolandmc.net/mods/nerofactions/)
+
+---
+
 # NeroFactions
 
 **Pick a side — seven joinable factions, earned reputation, and unlocks that make allegiance a real long-term choice.**
