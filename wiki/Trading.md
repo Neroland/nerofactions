@@ -60,6 +60,27 @@ Every completed trade awards TRADE reputation with the faction — `tradeAwardBa
 your faction its speciality goods **is** the gather-and-deliver loop. Set
 `tradeAwardBase=0` to make terminals purely commercial.
 
+## The credit counter (with a credit economy)
+
+When the server runs a credit economy (NeroEconomy), using a terminal also posts a clickable
+**[Credit counter]** line in chat. It lists the same curated goods your tier unlocks, priced in
+credits at your faction's rate (`terminalCreditsPerEmerald`, default 8 credits per emerald of list
+price). Click a line, or run `/nerofactions terminal buy <offer>`, while you stand at that
+terminal. You are charged first and get the goods only if the charge went through; if it is
+refused you are told why. Credit purchases earn the same trade standing as emerald trades.
+
+## Market sales earn standing too
+
+With NeroEconomy 0.3.0 or newer, selling one of your faction's speciality goods on the market
+(the board, a shop, an auto-trader or an auction) also earns trade standing with that faction —
+`saleAwardBase` (default 1) through the same trade weight and daily cap.
+
+## Faction treasuries
+
+With NeroEconomy 0.3.0 or newer each faction has a credit treasury. See
+[Commands](Commands) for `/nerofactions treasury`. Market discounts from faction standing are
+capped at the market fee by NeroEconomy (2 % by default); the treasury does not top up the rest.
+
 ## For server admins
 
 - One block, no block entity: terminals hold no inventory and no state, so they are free to

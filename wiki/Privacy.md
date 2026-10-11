@@ -58,6 +58,10 @@ logging, it will ship with a per-player opt-out in the same release.
   tier, never a player**; nothing on that bus leaves the game process.
 - With NeroEconomy installed, your standing is read in memory at the moment a price is
   quoted — nothing new is stored and nothing is logged.
+- Treasury dues and payouts and credit-counter purchases are booked on NeroEconomy's ledger
+  (exported and erased with your economy data). Treasuries are keyed by faction, never by a
+  player. A market sale is used once to award trade reputation and is not kept; the buyer is
+  never known.
 - A paired companion app can read **your own** record through the read-only
   [link module](Link-Module) — never anyone else's, and it can change nothing.
 

@@ -52,6 +52,13 @@ real-time day. Admin grants have neither.
 | `combatAwardBase` | int | `2` | 0–1000 | Base reputation awarded (before the combat weight and daily cap) with **each faction the player is a member of** when they kill a hostile monster. `0` disables the internal combat trigger entirely. |
 | `tradeAwardBase` | int | `2` | 0–100 | Base reputation awarded (before the trade weight and daily cap) with a faction each time the player completes a trade at its trade terminal. `0` disables the terminal's reputation earning entirely. |
 
+## Economy features
+
+| Key | Type | Default | Range | Meaning |
+| --- | --- | --- | --- | --- |
+| `saleAwardBase` | int | `1` | 0–100 | With NeroEconomy 0.3.0+: base reputation awarded (before the trade weight and daily cap) with each faction the seller belongs to when they sell one of that faction's speciality goods on the market. `0` disables sale reputation. |
+| `terminalCreditsPerEmerald` | int | `8` | 0–10000 | With a credit economy installed: credits one emerald of terminal list price is worth on the trade terminal's credit counter, before faction rates. `0` turns the credit counter off; emerald trades are unaffected. |
+
 ## Market pricing (with NeroEconomy installed)
 
 These two keys also clamp the trade terminal's own exchange rates, so one pair of knobs

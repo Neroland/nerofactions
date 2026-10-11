@@ -10,6 +10,7 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -35,6 +36,7 @@ import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
 import za.co.neroland.nerofactions.cosmetics.FactionBanners;
+import za.co.neroland.nerofactions.integration.FactionEconomy;
 import za.co.neroland.nerofactions.membership.FactionDecay;
 import za.co.neroland.nerofactions.membership.FactionMembership;
 import za.co.neroland.nerofactions.menu.MenuOpener;
@@ -118,6 +120,17 @@ public class TradeTerminalBlock extends Block {
                     "message.nerofactions.terminal.switched", faction.displayName()));
         }
         openShop(serverPlayer, level, pos, faction, offers);
+        // The credit counter (economy installed): remember this terminal so the buy command only
+        // sells while the player stands here, and offer the catalogue with one click.
+        TerminalSessions.rememberTerminal(playerId, level.dimension().identifier(), pos.asLong());
+        if (FactionEconomy.creditsAvailable() && NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get() > 0) {
+            Component open = Component.translatable("message.nerofactions.terminal.credit_counter.open")
+                    .withStyle(style -> style
+                            .withUnderlined(true)
+                            .withClickEvent(new ClickEvent.RunCommand("/nerofactions terminal credits")));
+            serverPlayer.sendSystemMessage(
+                    Component.translatable("message.nerofactions.terminal.credit_counter", open));
+        }
         return InteractionResult.SUCCESS;
     }
 

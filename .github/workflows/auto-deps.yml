@@ -38,6 +38,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  packages: read   # resolve Neroland Core and NeroEconomy (compileOnly) from GitHub Packages
 
 concurrency:
   group: auto-deps
@@ -75,6 +76,9 @@ jobs:
         id: build
         if: steps.resolve.outputs.changed == 'true'
         continue-on-error: true
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           chmod +x ./gradlew
           ./gradlew ${{ steps.resolve.outputs.build_tasks }} --stacktrace
@@ -134,6 +138,9 @@ jobs:
         id: build
         if: steps.resolve.outputs.changed == 'true'
         continue-on-error: true
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           chmod +x ./gradlew
           ./gradlew ${{ steps.resolve.outputs.build_tasks }} --stacktrace

@@ -32,6 +32,7 @@ public final class Integrations {
     private static volatile boolean questsPresent;
     private static volatile boolean economyPresent;
     private static volatile boolean economyPricingRegistered;
+    private static volatile boolean economySiblingApiReady;
     private static volatile boolean detected;
 
     private Integrations() {
@@ -60,6 +61,17 @@ public final class Integrations {
                 NeroFactionsCommon.LOGGER.warn(
                         "[NeroFactions] NeroEconomy is present but its pricing API could not be "
                                 + "reached; faction pricing is disabled and everything else runs on.", e);
+            }
+            try {
+                // Same bridge class, same guard: treasuries, the credit counter and sale reputation
+                // (NeroEconomy sibling API 1+, claimed here at common init as the API requires).
+                economySiblingApiReady = za.co.neroland.nerofactions.integration.economy.EconomyIntegration
+                        .registerSiblingApi();
+            } catch (LinkageError | RuntimeException e) {
+                economySiblingApiReady = false;
+                NeroFactionsCommon.LOGGER.warn(
+                        "[NeroFactions] NeroEconomy's sibling API could not be reached; faction "
+                                + "treasuries and sale reputation are disabled.", e);
             }
         } else {
             NeroFactionsCommon.LOGGER.info(
@@ -92,6 +104,14 @@ public final class Integrations {
 
     public static boolean economyPresent() {
         return economyPresent;
+    }
+
+    /**
+     * True only when NeroEconomy's sibling API (version 1+) linked and the {@code nerofactions}
+     * caller was claimed: faction treasuries, the credit counter and sale reputation are live.
+     */
+    public static boolean economySiblingApiReady() {
+        return economySiblingApiReady;
     }
 
     /** True only when the price modifier actually registered (present AND the API linked). */

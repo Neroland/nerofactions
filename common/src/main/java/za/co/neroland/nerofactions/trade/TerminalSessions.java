@@ -23,6 +23,19 @@ public final class TerminalSessions {
 
     private static final Map<UUID, Identifier> SELECTED = new ConcurrentHashMap<>();
 
+    /** The terminal each player last used (dimension + packed block position), for the credit counter. */
+    private static final Map<UUID, TerminalVisit> LAST_TERMINAL = new ConcurrentHashMap<>();
+
+    /**
+     * Where a player last used a trade terminal: the credit counter's buy command only sells while
+     * the player still stands at that terminal. Transient, like the selection.
+     *
+     * @param dimension the level's dimension id
+     * @param pos       the terminal's packed {@code BlockPos}
+     */
+    public record TerminalVisit(Identifier dimension, long pos) {
+    }
+
     private TerminalSessions() {
     }
 
@@ -61,7 +74,25 @@ public final class TerminalSessions {
     public static void clear(UUID player) {
         if (player != null) {
             SELECTED.remove(player);
+            LAST_TERMINAL.remove(player);
         }
+    }
+
+    /** The faction the terminal last showed {@code player}, or null. */
+    public static Identifier selected(UUID player) {
+        return player == null ? null : SELECTED.get(player);
+    }
+
+    /** Remembers the terminal {@code player} just used. */
+    public static void rememberTerminal(UUID player, Identifier dimension, long pos) {
+        if (player != null && dimension != null) {
+            LAST_TERMINAL.put(player, new TerminalVisit(dimension, pos));
+        }
+    }
+
+    /** The terminal {@code player} last used, or null. */
+    public static TerminalVisit lastTerminal(UUID player) {
+        return player == null ? null : LAST_TERMINAL.get(player);
     }
 
     /** Whether a selection is currently remembered for {@code player}. Package-private test seam. */
@@ -72,5 +103,6 @@ public final class TerminalSessions {
     /** Wipes every selection; called when a server stops. */
     public static void clearAll() {
         SELECTED.clear();
+        LAST_TERMINAL.clear();
     }
 }

@@ -81,6 +81,16 @@ and faction membership. This is not an optional or opt-in feature — reputation
   computes your personal market price multiplier by reading your own standing in memory on the
   server at the moment a price is quoted — that read stores nothing new, is never logged against
   your identity, and nothing about it leaves the game process.
+- **NeroEconomy treasuries, sales and the credit counter:** with NeroEconomy 0.3.0 or newer,
+  dues, treasury payouts and credit-counter purchases are booked by NeroEconomy, which records them
+  on its own ledger (see NeroEconomy's privacy notice; it exports and erases them with your other
+  economy data). A faction treasury is held under the faction's id, never a player's name or UUID.
+  NeroFactions keeps no record of these payments of its own, logs no player identifier with a
+  payment, and builds no request key from one. When you sell on the market, NeroEconomy tells
+  NeroFactions the seller, item and quantity of that one sale (never the buyer); NeroFactions uses it
+  at that moment to award trade reputation through the normal daily-capped path and keeps nothing
+  else. To let the credit counter check that you are still at the terminal, the last terminal you
+  used is held in server memory only, wiped on restart and by an erasure request.
 - **NeroLink companion module (read-only):** if the server also runs the separate NeroLink bridge
   mod, a companion app you have paired can read **your own** NeroFactions record through it — your
   standings with their resolved tiers, your memberships, your join cooldown and the left-faction

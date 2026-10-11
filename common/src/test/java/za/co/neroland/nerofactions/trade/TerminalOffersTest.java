@@ -165,4 +165,32 @@ class TerminalOffersTest {
         assertTrue(TerminalOffers.specs(faction(List.of(), false), FactionTier.MEMBER, null, 15, 25)
                 .isEmpty());
     }
+
+    @Test
+    void creditCounterPricesCuratedGoodsInCreditsAtTheFactionsBestRate() {
+        FactionDefinition union = faction(List.of(ores(
+                Map.of("associate", 1.0D, "inner_circle", 0.5D))), false);
+
+        // Outsider: the first 2 curated goods, emerald cost x 8 credits at multiplier 1.0.
+        List<TerminalOffers.CreditOffer> outsider =
+                TerminalOffers.creditOffers(union, FactionTier.OUTSIDER, 15, 25, 8);
+        assertEquals(2, outsider.size());
+        assertEquals(TerminalOffers.CURATED.get(0).item(), outsider.get(0).item());
+        assertEquals(TerminalOffers.CURATED.get(0).count(), outsider.get(0).count());
+        assertEquals(TerminalOffers.CURATED.get(0).emeraldCost() * 8L, outsider.get(0).price());
+
+        // Inner circle: 6 lines, multiplier 0.5 clamped to the 0.85 floor.
+        List<TerminalOffers.CreditOffer> inner =
+                TerminalOffers.creditOffers(union, FactionTier.INNER_CIRCLE, 15, 25, 10);
+        assertEquals(6, inner.size());
+        assertEquals(Math.round(TerminalOffers.CURATED.get(5).emeraldCost() * 10 * 0.85D),
+                inner.get(5).price());
+
+        // 0 credits per emerald switches the counter off; null input is empty, never a throw.
+        assertTrue(TerminalOffers.creditOffers(union, FactionTier.MEMBER, 15, 25, 0).isEmpty());
+        assertTrue(TerminalOffers.creditOffers(null, FactionTier.MEMBER, 15, 25, 8).isEmpty());
+        for (TerminalOffers.CreditOffer offer : inner) {
+            assertTrue(offer.price() >= 1L);
+        }
+    }
 }

@@ -7,6 +7,48 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0-beta.1] - 2026-10-11
+
+Faction treasuries, trade reputation from market sales and a credit counter on the trade terminal,
+all through NeroEconomy 0.3.0's sibling API. NeroEconomy stays optional: without it NeroFactions plays
+exactly as before.
+
+### Added
+
+- **Faction treasuries** (NeroEconomy 0.3.0 or newer). Each faction has a credit treasury held by
+  NeroEconomy as a NeroFactions-owned account, keyed by the faction id. `/nerofactions treasury` shows
+  the treasuries of your factions, `/nerofactions treasury dues <faction> <amount>` pays credits in
+  (members only), and `/nerofactions treasury payout <faction> <player> <amount>` pays a member out.
+  Payouts are for the faction's Inner Circle, who cannot pay themselves, and for operators. Refusals
+  (not enough credits, unvested starting credits, a spent budget) show NeroEconomy's own message.
+- **Trade reputation from market sales** (NeroEconomy 0.3.0 or newer). Selling one of your faction's
+  speciality goods on the market earns trade reputation with that faction. Specialities are the
+  faction's existing `trade` table (an item tag, or an item id), so packs need no new data. The trade
+  weight, daily cap and enemy bleed apply. New config key `saleAwardBase` (default 1, `0` turns it off).
+- **Credit counter on the trade terminal** (with any credit economy). Using a terminal now also
+  offers a clickable credit counter: the curated goods your tier unlocks, priced in credits at your
+  faction's rate. `/nerofactions terminal credits` lists it and `/nerofactions terminal buy <offer>`
+  buys a line while you stand at the terminal. You are charged first and get the goods only if the
+  charge went through. With NeroEconomy 0.3.0 or newer the charge is booked as a NeroFactions terminal
+  purchase; with an older economy it falls back to Neroland Core's currency API. New config key
+  `terminalCreditsPerEmerald` (default 8, `0` turns the counter off). The emerald trades are unchanged.
+
+### Changed
+
+- NeroEconomy is now compiled against its published Maven artifact (`0.3.1-beta.1`) instead of a
+  sibling jar path, from Maven Local or NeroEconomy's GitHub Packages repository (declared only when
+  credentials are present). Still compile-only; nothing of NeroEconomy ships in the jar.
+- The loader metadata now names NeroEconomy as an optional dependency from `0.3.0-beta.1`
+  (Fabric `suggests`, plus `breaks` for older versions; NeoForge `optional`; Forge not mandatory).
+- The `auto-deps` workflow's validation builds can now read GitHub Packages.
+
+### Notes
+
+- **Faction discounts stay capped at the market fee.** NeroEconomy funds a buyer's discount from its
+  Reserve only up to the market fee on that sale (2 % by default), so most of a large faction discount
+  is not applied. The treasury does not top up the difference: the sale event does not say which
+  discount was applied, so it could not be paid exactly.
+
 ## [0.3.0-beta.1] - 2026-09-24
 
 EMI compatibility. No gameplay, id, tag or config change.

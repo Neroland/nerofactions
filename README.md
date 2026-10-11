@@ -33,7 +33,9 @@ operates on real numbers.
   watermark.
 - **Optional integrations** — NeroQuests (quest rewards pay reputation; quests can gate on
   tier crossings) and NeroEconomy (faction speciality discounts / enemy surcharges on market
-  prices, capped by config). Both are detected at startup and entirely optional.
+  prices, capped by config; faction treasuries with dues and Inner Circle payouts; trade reputation
+  from market sales of your faction's specialities; a credit counter on the trade terminal). Both
+  are detected at startup and entirely optional.
 - **A read-only NeroLink module** — a paired companion app can read *its own player's*
   standings and memberships and receive tier-change events; no actions, ever.
 - **POPIA/GDPR compliance built in** — one erasure path through Core's shared hook

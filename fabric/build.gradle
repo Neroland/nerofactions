@@ -96,14 +96,14 @@ dependencies {
         }
     }
 
-    // NeroEconomy — OPTIONAL sibling, compile-time only (the Stage 4 price-modifier bridge).
-    // compileOnly + a single runtime isModLoaded("neroeconomy") guard is the ecosystem rule for
-    // soft integrations (no reflection): integration/economy/* is the only code importing
-    // za.co.neroland.neroeconomy types and is never classloaded when the mod is absent, so
-    // fabric.mod.json only "suggests" it and nothing of NeroEconomy ships in this jar. NeroEconomy
-    // publishes no maven artifact (it has no maven-publish config), so this resolves the sibling
-    // repo's built jar directly — build ../neroeconomy's matching cell first if it is missing.
-    compileOnly files("${rootProject.projectDir}/../neroeconomy/fabric/versions/${mc}/build/libs/neroeconomy-fabric-${mc}-${rootProject.neroeconomy_version}.jar")
+    // NeroEconomy — OPTIONAL sibling, compile-time only (the price-modifier bridge, faction
+    // treasuries, sale reputation and the terminal's credit counter). compileOnly + a single runtime
+    // isModLoaded("neroeconomy") guard is the ecosystem rule for soft integrations (no reflection):
+    // integration/economy/EconomyIntegration is the only class importing za.co.neroland.neroeconomy
+    // types and is never classloaded when the mod is absent. The loader metadata names it as optional
+    // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
+    // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${mc}:${rootProject.neroeconomy_version}"
 }
 
 // Expand fabric.mod.json from src/main/templates into a generated resources dir.

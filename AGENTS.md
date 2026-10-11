@@ -18,7 +18,7 @@
   `neroquests:reputation` rewards + `custom_event` tier gating — plus the internal combat
   reputation trigger so Core-only servers earn standing, the compile-only NeroEconomy
   price-modifier bridge with capped speciality discounts / enemy surcharges, and the NeroEvents
-  `Source.EVENT` seam; faction wallets deferred until NeroEconomy persists non-player accounts),
+  `Source.EVENT` seam; faction treasuries, sale reputation and the terminal credit counter on NeroEconomy 0.3.0's sibling API since 0.4.0-beta.1),
   and the content/presentation layer (the shared vanilla-textured trade terminal block — member-only
   vanilla merchant shops per faction, `Source.TRADE` earning, guarded through the `MenuOpener`
   seam — the once-ever watermark-idempotent tier-reward engine, cosmetics as pre-styled vanilla

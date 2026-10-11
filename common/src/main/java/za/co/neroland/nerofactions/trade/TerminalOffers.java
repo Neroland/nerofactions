@@ -161,6 +161,42 @@ public final class TerminalOffers {
         return List.copyOf(out);
     }
 
+    /**
+     * One line of the terminal's credit counter: {@code count} × {@code item} for {@code price}
+     * credits.
+     */
+    public record CreditOffer(Identifier item, int count, long price) {
+    }
+
+    /**
+     * The credit counter (with an economy installed): the same curated goods the emerald side
+     * unlocks at this tier, priced in credits instead — {@code emeraldCost × creditsPerEmerald ×}
+     * the faction's best clamped multiplier at the player's tier, at least 1. Pure.
+     *
+     * @param creditsPerEmerald credits one emerald of list price is worth; 0 or less turns the
+     *                          counter off (empty list)
+     */
+    public static List<CreditOffer> creditOffers(FactionDefinition faction, FactionTier tier,
+            int discountCapPercent, int surchargeCapPercent, int creditsPerEmerald) {
+        if (faction == null || tier == null || creditsPerEmerald <= 0) {
+            return List.of();
+        }
+        double floor = 1.0D - Math.clamp(discountCapPercent, 0, 50) / 100.0D;
+        double ceiling = 1.0D + Math.clamp(surchargeCapPercent, 0, 100) / 100.0D;
+        double best = 1.0D;
+        for (TradeModifier modifier : faction.trade()) {
+            best = Math.min(best, Math.clamp(modifier.multiplierFor(tier), floor, ceiling));
+        }
+        List<CreditOffer> out = new ArrayList<>();
+        int curated = curatedCountFor(tier);
+        for (int index = 0; index < curated && index < CURATED.size(); index++) {
+            CuratedGood good = CURATED.get(index);
+            long price = Math.max(1L, Math.round((double) good.emeraldCost() * creditsPerEmerald * best));
+            out.add(new CreditOffer(good.item(), good.count(), price));
+        }
+        return List.copyOf(out);
+    }
+
     /** How many items of each speciality tag the terminal buys: 1 / 1 / 2 / 2 / 3 by tier. */
     static int specialityItemsFor(FactionTier tier) {
         return 1 + tier.ordinal() / 2;

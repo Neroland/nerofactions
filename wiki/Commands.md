@@ -44,6 +44,26 @@ daily earning counters and reward watermarks — as JSON in chat with a **click-
 component. Nothing is written to disk and nothing is logged. Accessing your own data needs
 no permission. See [Privacy](Privacy).
 
+### `/nerofactions treasury`
+
+With NeroEconomy 0.3.0 or newer: shows what the treasury of each faction you belong to holds.
+
+### `/nerofactions treasury dues <faction> <amount>`
+
+Pays credits from your balance into the faction's treasury. Members only. Unvested starting
+credits cannot be paid in.
+
+### `/nerofactions treasury payout <faction> <player> <amount>` *(Inner Circle or gamemaster)*
+
+Pays credits from the treasury to a member of the faction (online name or UUID). Allowed for
+the faction's Inner Circle, who cannot pay themselves, and for operators. The payee, if online,
+is told which treasury paid them, not who issued it.
+
+### `/nerofactions terminal credits` · `/nerofactions terminal buy <offer>`
+
+The trade terminal's credit counter: lists, or buys one line of, the credit catalogue of the
+terminal you last used. You must still be standing at it. See [Trading](Trading).
+
 ## Operator commands
 
 ### `/nerofactions data export <player>` *(gamemaster)*

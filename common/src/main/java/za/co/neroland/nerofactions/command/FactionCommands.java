@@ -1,5 +1,6 @@
 package za.co.neroland.nerofactions.command;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,23 +17,33 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
+import za.co.neroland.nerofactions.block.TradeTerminalBlock;
+import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.data.PlayerDataExport;
 import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
 import za.co.neroland.nerofactions.content.ValidationIssue;
+import za.co.neroland.nerofactions.integration.EconomyOutcome;
+import za.co.neroland.nerofactions.integration.FactionEconomy;
 import za.co.neroland.nerofactions.membership.FactionDecay;
 import za.co.neroland.nerofactions.membership.FactionMembership;
+import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
+import za.co.neroland.nerofactions.trade.TerminalOffers;
+import za.co.neroland.nerofactions.trade.TerminalSessions;
 import za.co.neroland.nerolandcore.reputation.ReputationApi;
 
 /**
@@ -51,6 +62,11 @@ import za.co.neroland.nerolandcore.reputation.ReputationApi;
  * /nerofactions admin grant &lt;player&gt; &lt;faction&gt; &lt;amount&gt;   (LEVEL_GAMEMASTERS)
  * /nerofactions admin revoke &lt;player&gt; &lt;faction&gt; &lt;amount&gt;  (LEVEL_GAMEMASTERS)
  * /nerofactions admin reset &lt;player&gt; [&lt;faction&gt;]          (LEVEL_GAMEMASTERS)
+ * /nerofactions treasury                                 (members; NeroEconomy 0.3.0+)
+ * /nerofactions treasury dues &lt;faction&gt; &lt;amount&gt;         (members; NeroEconomy 0.3.0+)
+ * /nerofactions treasury payout &lt;faction&gt; &lt;player&gt; &lt;amount&gt; (Inner Circle or LEVEL_GAMEMASTERS)
+ * /nerofactions terminal credits                          (at a trade terminal; any credit economy)
+ * /nerofactions terminal buy &lt;offer&gt;                       (at a trade terminal; any credit economy)
  * </pre>
  *
  * <p><b>Commands are the 0.1.0 join mechanism</b>: {@code join}/{@code leave} route through
@@ -103,6 +119,28 @@ public final class FactionCommands {
                                         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                         .executes(ctx -> runSafely(ctx.getSource(), "data export",
                                                 () -> exportOther(ctx))))))
+                .then(Commands.literal("treasury")
+                        .executes(ctx -> runSafely(ctx.getSource(), "treasury",
+                                () -> treasuryBalances(ctx.getSource())))
+                        .then(Commands.literal("dues")
+                                .then(factionArgument()
+                                        .then(amountArgument()
+                                                .executes(ctx -> runSafely(ctx.getSource(),
+                                                        "treasury dues", () -> payDues(ctx))))))
+                        .then(Commands.literal("payout")
+                                .then(factionArgument()
+                                        .then(playerArgument()
+                                                .then(amountArgument()
+                                                        .executes(ctx -> runSafely(ctx.getSource(),
+                                                                "treasury payout", () -> payout(ctx))))))))
+                .then(Commands.literal("terminal")
+                        .then(Commands.literal("credits")
+                                .executes(ctx -> runSafely(ctx.getSource(), "terminal credits",
+                                        () -> creditCatalogue(ctx.getSource()))))
+                        .then(Commands.literal("buy")
+                                .then(Commands.argument("offer", IntegerArgumentType.integer(1, 64))
+                                        .executes(ctx -> runSafely(ctx.getSource(), "terminal buy",
+                                                () -> creditBuy(ctx))))))
                 .then(Commands.literal("reload-check")
                         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(ctx -> runSafely(ctx.getSource(), "reload-check",
@@ -429,6 +467,295 @@ public final class FactionCommands {
         source.sendSuccess(() -> Component.translatable("command.nerofactions.admin.reset.all",
                 count), false);
         return Command.SINGLE_SUCCESS;
+    }
+
+    // --- treasury (NeroEconomy 0.3.0+ only) -----------------------------------------------------
+
+    /**
+     * {@code treasury}: what the treasury of each faction the invoker belongs to holds. A faction
+     * treasury is faction data, not personal data; only members are shown it.
+     */
+    private static int treasuryBalances(CommandSourceStack source) {
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return noServer(source);
+        }
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.players_only"));
+            return 0;
+        }
+        if (!FactionEconomy.treasuriesAvailable()) {
+            source.sendFailure(Component.translatable(EconomyOutcome.UNAVAILABLE_KEY));
+            return 0;
+        }
+        List<Identifier> memberships = new ArrayList<>(
+                FactionMembership.membershipOf(server, player.getUUID()));
+        memberships.sort(null);
+        if (memberships.isEmpty()) {
+            source.sendFailure(Component.translatable("command.nerofactions.treasury.no_membership"));
+            return 0;
+        }
+        for (Identifier faction : memberships) {
+            long balance = FactionEconomy.treasuryBalance(server, faction);
+            Component line = Component.translatable("command.nerofactions.treasury.line",
+                    displayNameOf(server, faction), balance);
+            source.sendSuccess(() -> line, false);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** {@code treasury dues <faction> <amount>}: a member pays credits into the faction treasury. */
+    private static int payDues(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return noServer(source);
+        }
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.players_only"));
+            return 0;
+        }
+        if (!FactionEconomy.treasuriesAvailable()) {
+            source.sendFailure(Component.translatable(EconomyOutcome.UNAVAILABLE_KEY));
+            return 0;
+        }
+        Identifier faction = resolveFaction(server, ctx);
+        FactionDefinition definition = FactionDefinitions.factionsForServer(server).get(faction);
+        if (definition == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.faction.unknown",
+                    faction.toString()));
+            return 0;
+        }
+        if (!FactionMembership.membershipOf(server, player.getUUID()).contains(faction)) {
+            source.sendFailure(Component.translatable("command.nerofactions.treasury.not_member",
+                    definition.displayName()));
+            return 0;
+        }
+        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+        EconomyOutcome outcome = FactionEconomy.payDues(server, player.getUUID(), faction, amount);
+        if (!outcome.ok()) {
+            source.sendFailure(Component.translatable(outcome.translationKey()));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("command.nerofactions.treasury.dues_paid",
+                amount, definition.displayName()), false);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * {@code treasury payout <faction> <player> <amount>}: the treasury pays a member. Allowed for
+     * the faction's Inner Circle (its officers — NeroFactions has no other faction roles), who may
+     * not pay themselves, and for operators. The payee must belong to the faction. The invoker's
+     * feedback names the faction and amount only; the payee, if online, is told which treasury
+     * paid them, never who issued it.
+     */
+    private static int payout(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return noServer(source);
+        }
+        if (!FactionEconomy.treasuriesAvailable()) {
+            source.sendFailure(Component.translatable(EconomyOutcome.UNAVAILABLE_KEY));
+            return 0;
+        }
+        Identifier faction = resolveFaction(server, ctx);
+        FactionDefinition definition = FactionDefinitions.factionsForServer(server).get(faction);
+        if (definition == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.faction.unknown",
+                    faction.toString()));
+            return 0;
+        }
+        UUID payee = resolvePlayer(source, server, ctx);
+        if (payee == null) {
+            return 0;
+        }
+        boolean operator = Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
+        if (!operator) {
+            ServerPlayer officer = source.getPlayer();
+            if (officer == null) {
+                source.sendFailure(Component.translatable("command.nerofactions.players_only"));
+                return 0;
+            }
+            UUID officerId = officer.getUUID();
+            FactionDecay.apply(server, officerId);
+            boolean member = FactionMembership.membershipOf(server, officerId).contains(faction);
+            FactionTier tier = FactionTiers.tierOf(definition, ReputationApi.getReputation(officerId, faction));
+            if (!member || tier != FactionTier.INNER_CIRCLE) {
+                source.sendFailure(Component.translatable("command.nerofactions.treasury.not_officer",
+                        definition.displayName()));
+                return 0;
+            }
+            if (officerId.equals(payee)) {
+                source.sendFailure(Component.translatable("command.nerofactions.treasury.self_payout"));
+                return 0;
+            }
+        }
+        if (!FactionMembership.membershipOf(server, payee).contains(faction)) {
+            source.sendFailure(Component.translatable("command.nerofactions.treasury.payee_not_member",
+                    definition.displayName()));
+            return 0;
+        }
+        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+        EconomyOutcome outcome = FactionEconomy.payout(server, faction, payee, amount);
+        if (!outcome.ok()) {
+            source.sendFailure(Component.translatable(outcome.translationKey()));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("command.nerofactions.treasury.paid_out",
+                amount, definition.displayName()), false);
+        ServerPlayer online = server.getPlayerList().getPlayer(payee);
+        if (online != null) {
+            online.sendSystemMessage(Component.translatable("message.nerofactions.treasury.received",
+                    definition.displayName(), amount));
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    // --- terminal credit counter (any credit economy) -------------------------------------------
+
+    /** {@code terminal credits}: the credit catalogue of the terminal the player stands at. */
+    private static int creditCatalogue(CommandSourceStack source) {
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return noServer(source);
+        }
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.players_only"));
+            return 0;
+        }
+        if (!creditCounterOn(source)) {
+            return 0;
+        }
+        FactionDefinition faction = terminalFaction(source, server, player);
+        if (faction == null) {
+            return 0;
+        }
+        List<TerminalOffers.CreditOffer> offers = creditOffersFor(server, player, faction);
+        source.sendSuccess(() -> Component.translatable("command.nerofactions.terminal.credits.header",
+                faction.displayName()), false);
+        for (int index = 0; index < offers.size(); index++) {
+            TerminalOffers.CreditOffer offer = offers.get(index);
+            if (!BuiltInRegistries.ITEM.containsKey(offer.item())) {
+                continue;
+            }
+            Component name = new ItemStack(BuiltInRegistries.ITEM.getValue(offer.item())).getHoverName();
+            String command = "/nerofactions terminal buy " + (index + 1);
+            Component line = Component.translatable("command.nerofactions.terminal.credits.line",
+                    offer.count(), name, offer.price())
+                    .withStyle(style -> style
+                            .withClickEvent(new ClickEvent.RunCommand(command))
+                            .withHoverEvent(new HoverEvent.ShowText(Component.translatable(
+                                    "command.nerofactions.terminal.credits.hover"))));
+            source.sendSuccess(() -> line, false);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * {@code terminal buy <offer>}: buys one credit-counter line. The credits are charged first;
+     * the goods are delivered only when the charge went through.
+     */
+    private static int creditBuy(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return noServer(source);
+        }
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.translatable("command.nerofactions.players_only"));
+            return 0;
+        }
+        if (!creditCounterOn(source)) {
+            return 0;
+        }
+        FactionDefinition faction = terminalFaction(source, server, player);
+        if (faction == null) {
+            return 0;
+        }
+        List<TerminalOffers.CreditOffer> offers = creditOffersFor(server, player, faction);
+        int index = IntegerArgumentType.getInteger(ctx, "offer") - 1;
+        if (index < 0 || index >= offers.size()
+                || !BuiltInRegistries.ITEM.containsKey(offers.get(index).item())) {
+            source.sendFailure(Component.translatable("command.nerofactions.terminal.credits.no_offer"));
+            return 0;
+        }
+        TerminalOffers.CreditOffer offer = offers.get(index);
+        ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.getValue(offer.item()), offer.count());
+        Component name = stack.getHoverName();
+        EconomyOutcome outcome = FactionEconomy.chargeTerminal(server, player.getUUID(), offer.price());
+        if (!outcome.ok()) {
+            source.sendFailure(Component.translatable(outcome.translationKey()));
+            return 0;
+        }
+        // Charged: deliver (vanilla give behaviour — fill the inventory, drop the remainder).
+        //? if >=26.3 {
+        /*player.getInventory().placeItemBackInInventory(stack, net.minecraft.util.Prediction.SERVER_ONLY);
+        *///?} else {
+        player.getInventory().placeItemBackInInventory(stack);
+        //?}
+        int base = NeroFactionsConfig.TRADE_AWARD_BASE.get();
+        if (base > 0) {
+            ReputationSources.award(server, player.getUUID(), faction.id(), ReputationSources.Source.TRADE, base);
+        }
+        source.sendSuccess(() -> Component.translatable("command.nerofactions.terminal.credits.bought",
+                offer.count(), name, offer.price()), false);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /** Whether the credit counter runs here; reports why not to the invoker. */
+    private static boolean creditCounterOn(CommandSourceStack source) {
+        if (!FactionEconomy.creditsAvailable() || NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get() <= 0) {
+            source.sendFailure(Component.translatable(EconomyOutcome.UNAVAILABLE_KEY));
+            return false;
+        }
+        return true;
+    }
+
+    /** The credit offers the player's current standing unlocks at this faction's counter. */
+    private static List<TerminalOffers.CreditOffer> creditOffersFor(MinecraftServer server,
+            ServerPlayer player, FactionDefinition faction) {
+        FactionDecay.apply(server, player.getUUID());
+        FactionTier tier = FactionTiers.tierOf(faction,
+                ReputationApi.getReputation(player.getUUID(), faction.id()));
+        return TerminalOffers.creditOffers(faction, tier,
+                NeroFactionsConfig.DISCOUNT_CAP_PERCENT.get(),
+                NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get(),
+                NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get());
+    }
+
+    /**
+     * The faction whose counter the player is at: the terminal they last used must still be a
+     * trade terminal within 8 blocks in their dimension, and the faction it last showed them must
+     * still be one of theirs. Null after reporting why not.
+     */
+    private static FactionDefinition terminalFaction(CommandSourceStack source, MinecraftServer server,
+            ServerPlayer player) {
+        UUID playerId = player.getUUID();
+        TerminalSessions.TerminalVisit visit = TerminalSessions.lastTerminal(playerId);
+        boolean near = false;
+        if (visit != null && player.level().dimension().identifier().equals(visit.dimension())) {
+            BlockPos pos = BlockPos.of(visit.pos());
+            near = player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D
+                    && player.level().getBlockState(pos).getBlock() instanceof TradeTerminalBlock;
+        }
+        if (!near) {
+            source.sendFailure(Component.translatable("command.nerofactions.terminal.not_near"));
+            return null;
+        }
+        Identifier selected = TerminalSessions.selected(playerId);
+        FactionDefinition faction = selected == null
+                ? null
+                : FactionDefinitions.factionsForServer(server).get(selected);
+        if (faction == null || !FactionMembership.membershipOf(server, playerId).contains(selected)) {
+            source.sendFailure(Component.translatable("message.nerofactions.terminal.not_member"));
+            return null;
+        }
+        return faction;
     }
 
     // --- reload-check ---------------------------------------------------------------------------

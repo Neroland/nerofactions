@@ -134,6 +134,18 @@ public final class NeroFactionsConfig {
                     + "time the player completes a trade at its trade terminal. 0 disables the "
                     + "terminal's reputation earning entirely.");
 
+    public static final ConfigValue<Integer> SALE_AWARD_BASE = SCHEMA.intRange(
+            "saleAwardBase", 1, 0, 100, true,
+            "With NeroEconomy installed: base reputation awarded (before the trade weight and daily "
+                    + "cap) with each faction the seller belongs to when they sell one of that "
+                    + "faction's speciality goods on the market. 0 disables sale reputation.");
+
+    public static final ConfigValue<Integer> TERMINAL_CREDITS_PER_EMERALD = SCHEMA.intRange(
+            "terminalCreditsPerEmerald", 8, 0, 10_000, true,
+            "With an economy installed: credits one emerald of terminal list price is worth on the "
+                    + "trade terminal's credit counter (before faction rates). 0 turns the credit "
+                    + "counter off; the emerald trades are unaffected.");
+
     public static final ConfigValue<Integer> DISCOUNT_CAP_PERCENT = SCHEMA.intRange(
             "discountCapPercent", 15, 0, 50, true,
             "With NeroEconomy installed: the largest total market discount (percent) faction "

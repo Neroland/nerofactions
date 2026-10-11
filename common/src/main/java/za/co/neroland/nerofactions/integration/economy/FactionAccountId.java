@@ -1,35 +1,47 @@
 package za.co.neroland.nerofactions.integration.economy;
 
-import za.co.neroland.neroeconomy.api.AccountId;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import net.minecraft.resources.Identifier;
+
+import za.co.neroland.nerofactions.NeroFactionsCommon;
 
 /**
- * <b>DORMANT — wired into nothing, on purpose.</b> The ready-made ledger identity for a faction
- * treasury ({@code kind = "faction"}, value = the faction id string), kept here so the faction-
- * wallet feature has a stable seam the moment it becomes shippable.
+ * How a faction maps onto its NeroEconomy treasury account. Deliberately <b>free of NeroEconomy
+ * imports</b> (plain NeroFactions code, safe to classload and unit-test without NeroEconomy):
+ * {@link EconomyIntegration} turns the value computed here into NeroEconomy's
+ * {@code ForeignAccountId(kind, value)}.
  *
- * <p>It is not shippable today: NeroEconomy's ledger <em>accepts</em> non-player
- * {@code AccountId} kinds at runtime, but its load path drops them —
- * {@code EconomySavedData.parseAccount} reads {@code if (!"player".equals(kind)) return null;} —
- * so any balance held under this id would silently evaporate on server restart. A wallet that
- * forgets its money violates "genuinely works", so nothing constructs this record until
- * NeroEconomy persists foreign account kinds. Do not wire it into anything before that; when the
- * time comes, delete this paragraph and this class becomes the feature's first line.
+ * <p>NeroEconomy persists accounts owned by a sibling mod under the <em>caller's mod id</em> as
+ * their kind, so the kind is {@code nerofactions} and only NeroFactions can move them. The value
+ * is the faction id string (for example {@code nerofactions:space_guild}), which must match
+ * {@code [a-z0-9_.:/-]{1,64}}. A faction id is not personal data; it never holds a player name or
+ * UUID.
  *
- * <p>Like the rest of this package, the class imports NeroEconomy types ({@code compileOnly})
- * and is therefore only safe to classload when {@code isModLoaded("neroeconomy")} — which is
- * trivially satisfied while nothing references it at all.
- *
- * @param factionId the faction's id string (e.g. {@code "nerofactions:space_guild"})
+ * <p>This replaces the earlier dormant {@code faction}-kind account record: NeroEconomy refuses
+ * that kind, and from 0.3.0 it persists foreign accounts across restarts, so the treasury feature
+ * is now shippable.
  */
-public record FactionAccountId(String factionId) implements AccountId {
+public final class FactionAccountId {
 
-    @Override
-    public String kind() {
-        return "faction";
+    /** The account kind: always the claiming mod's id. */
+    public static final String KIND = NeroFactionsCommon.MOD_ID;
+
+    private static final Pattern VALUE = Pattern.compile("[a-z0-9_.:/-]{1,64}");
+
+    private FactionAccountId() {
     }
 
-    @Override
-    public String value() {
-        return factionId;
+    /**
+     * The treasury account value for {@code faction}, or empty when its id cannot be an account
+     * value (too long, or a character NeroEconomy does not accept).
+     */
+    public static Optional<String> valueFor(Identifier faction) {
+        if (faction == null) {
+            return Optional.empty();
+        }
+        String value = faction.toString();
+        return VALUE.matcher(value).matches() ? Optional.of(value) : Optional.empty();
     }
 }
