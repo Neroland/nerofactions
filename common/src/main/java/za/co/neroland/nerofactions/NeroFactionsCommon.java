@@ -54,9 +54,9 @@ public final class NeroFactionsCommon {
         NeroFactionsConfig.init();
 
         // 2. Anonymous, NeroFactions-only crash reporting. Must follow the config registration and
-        //    precede the rest of init so early failures are still reported. Inert until a real
-        //    Sentry DSN is configured (see NeroFactionsTelemetry's PLACEHOLDER_DSN guard — no
-        //    NeroFactions Sentry project exists yet, so this is a hard no-op today).
+        //    precede the rest of init so early failures are still reported. On by default (opt-out via
+        //    telemetryEnabled=false); stays inert only in builds whose DSN is the placeholder
+        //    (see NeroFactionsTelemetry's PLACEHOLDER_DSN guard).
         NeroFactionsTelemetry.init();
 
         // 3. Registries, through Core's RegistrationProvider (NeoForge/Forge entry points drive

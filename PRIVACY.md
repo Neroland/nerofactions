@@ -1,7 +1,8 @@
 # NeroFactions privacy & telemetry disclosure
 
-NeroFactions includes optional, anonymous error reporting so that crashes and bugs caused by
-the mod can be found and fixed. This page is the full disclosure required by CurseForge's
+NeroFactions includes anonymous error reporting so that crashes and bugs caused by the mod
+can be found and fixed. It is **on by default** and **opt-out** (see
+[How to opt out](#how-to-opt-out)). This page is the full disclosure required by CurseForge's
 moderation rules for mods that use an external analytics/error service, and it documents how
 the system is designed to comply with the GDPR (EU) and POPIA (South Africa).
 
@@ -176,6 +177,6 @@ continue to cover everything error reporting sends.
 
 > **Telemetry notice:** NeroFactions sends anonymous error reports (stack trace + mod/game
 > versions only — never IPs, usernames, UUIDs, or world data) to the developers via Sentry
-> (EU servers) so crashes can be fixed. Opt out any time by setting `telemetryEnabled = false`
+> (EU servers) so crashes can be fixed. On by default — opt out any time by setting `telemetryEnabled = false`
 > in `config/nerofactions.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).

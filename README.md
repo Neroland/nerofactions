@@ -38,7 +38,8 @@ operates on real numbers.
   standings and memberships and receive tier-change events; no actions, ever.
 - **POPIA/GDPR compliance built in** — one erasure path through Core's shared hook
   (conformance-tested), a daily retention sweep, a self-service JSON export command, and no
-  action logging anywhere. See [PRIVACY.md](PRIVACY.md).
+  action logging anywhere. Anonymous crash reporting is **on by default** and **opt-out**:
+  set `telemetryEnabled=false` in `config/nerofactions.properties`. See [PRIVACY.md](PRIVACY.md).
 
 Honest scope note: 0.1.0 ships **no custom art** (the terminal reuses vanilla lodestone
 textures; cosmetics are pre-styled vanilla banners), no unique gear items, no per-faction

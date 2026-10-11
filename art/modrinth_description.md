@@ -61,7 +61,7 @@ Reputation and membership are stored **inside your world save, keyed by player U
 
 > **Telemetry notice:** NeroFactions sends anonymous error reports (stack trace + mod/game
 > versions only — never IPs, usernames, UUIDs, or world data) to the developers via Sentry
-> (EU servers) so crashes can be fixed. Opt out any time by setting `telemetryEnabled = false`
+> (EU servers) so crashes can be fixed. On by default — opt out any time by setting `telemetryEnabled = false`
 > in `config/nerofactions.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).
 

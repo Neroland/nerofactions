@@ -28,11 +28,11 @@ public final class NeroFactionsConfig {
 
     private static final ConfigValue<Boolean> TELEMETRY = SCHEMA.bool(
             "telemetryEnabled", true, false,
-            "send anonymous, NeroFactions-only crash reports (Sentry, EU servers) - stack trace, "
+            "On by default: send anonymous, NeroFactions-only crash reports (Sentry, EU servers) - stack trace, "
                     + "mod/MC/loader/OS/Java versions, your other installed mods, this mod's config, "
                     + "recent in-game actions, anonymous stability/timing; no IP, username, UUID, world "
                     + "data, faction membership, reputation values or chat; file paths scrubbed of your "
-                    + "account name. false = opt out of all of it. See PRIVACY.md");
+                    + "account name. Set false to opt out of all of it. See PRIVACY.md");
 
     // --- Ecosystem integration (server-authoritative) -----------------------
 
