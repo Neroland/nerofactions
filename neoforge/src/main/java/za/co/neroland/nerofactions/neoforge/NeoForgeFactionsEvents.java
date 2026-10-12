@@ -3,6 +3,7 @@ package za.co.neroland.nerofactions.neoforge;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -10,6 +11,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.command.FactionCommands;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
+import za.co.neroland.nerofactions.integration.quests.QuestHooks;
 import za.co.neroland.nerofactions.data.RetentionSweep;
 import za.co.neroland.nerofactions.membership.FactionsTicker;
 import za.co.neroland.nerofactions.trade.TerminalSessions;
@@ -46,6 +48,13 @@ public final class NeoForgeFactionsEvents {
         // (self-throttled to once a minute inside the ticker).
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) ->
                 FactionsTicker.serverTick(event.getServer()));
+
+        // Quest hooks that opened while the player was away (see QuestHooks).
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
+                QuestHooks.onJoin(joined);
+            }
+        });
 
         // Combat reputation: the internal trigger filters to player-credited hostile-monster
         // kills and routes through ReputationSources (weight + daily cap + enemy bleed).

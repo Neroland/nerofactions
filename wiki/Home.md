@@ -38,10 +38,11 @@ exactly what ships.
 ## Requirements
 
 - **Minecraft 26.1.2 or 26.2** on **NeoForge**, **MinecraftForge/Forge** or **Fabric**.
-- **Neroland Core 1.11.0 or newer** — required, and the only dependency. NeroFactions
+- **Neroland Core 1.15.0 or newer** — required, and the only dependency. NeroFactions
   refuses to load against an older Core.
-- Everything else is optional: with **NeroQuests** installed, quests can pay reputation and
-  gate on tier crossings; with **NeroEconomy** installed, standing tilts market prices.
+- Everything else is optional: with **NeroQuests** installed, the shipped quest chapter
+  *Standing Among the Stars* appears in the quest book, quests can pay reputation and gate on
+  tier crossings; with **NeroEconomy** installed, standing tilts market prices.
   Without either, standing is still fully earnable through combat and terminal trading.
 
 ## Quick start

@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.void_cult_circle.title",
+  "description": "quest.nerofactions.standing.void_cult_circle.desc",
+  "icon": "minecraft:ender_eye",
+  "prerequisites": [
+    "nerofactions:standing/void_cult_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:void_cult_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:void_cult_inner_circle"
+}

@@ -4,10 +4,12 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.command.FactionCommands;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
+import za.co.neroland.nerofactions.integration.quests.QuestHooks;
 import za.co.neroland.nerofactions.data.RetentionSweep;
 import za.co.neroland.nerofactions.membership.FactionsTicker;
 import za.co.neroland.nerofactions.trade.TerminalSessions;
@@ -42,6 +44,10 @@ public final class FabricFactionsEvents {
         // Cheap per-tick pass: /reload pickup (one reference comparison) + the decay day-roll
         // (self-throttled to once a minute inside the ticker).
         ServerTickEvents.END_SERVER_TICK.register(FactionsTicker::serverTick);
+
+        // Quest hooks that opened while the player was away (see QuestHooks).
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+                QuestHooks.onJoin(handler.player));
 
         // Combat reputation. AFTER_DEATH is server-side only and hands over exactly the pair the
         // trigger wants: the victim plus the damage source the credit is resolved from; the

@@ -1,0 +1,102 @@
+{
+  "title": "chapter.nerofactions.standing.title",
+  "icon": "nerofactions:trade_terminal",
+  "allow_server_scope": true,
+  "quests": [
+    {
+      "quest": "nerofactions:standing/sworn_in",
+      "x": 0,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_member",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_circle",
+      "x": 4,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_member",
+      "x": 2,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_circle",
+      "x": 4,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_member",
+      "x": 2,
+      "y": 4
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_circle",
+      "x": 4,
+      "y": 4
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_member",
+      "x": 2,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_circle",
+      "x": 4,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_member",
+      "x": 2,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_circle",
+      "x": 4,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_member",
+      "x": 2,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_circle",
+      "x": 4,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_member",
+      "x": 2,
+      "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_circle",
+      "x": 4,
+      "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/behind_the_counter",
+      "x": 0,
+      "y": 14
+    },
+    {
+      "quest": "nerofactions:standing/open_for_business",
+      "x": 2,
+      "y": 14
+    },
+    {
+      "quest": "nerofactions:standing/word_gets_around",
+      "x": 0,
+      "y": 16
+    },
+    {
+      "quest": "nerofactions:standing/server_first_circle",
+      "x": 2,
+      "y": 16
+    }
+  ]
+}

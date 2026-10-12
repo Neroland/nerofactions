@@ -1,0 +1,28 @@
+{
+  "title": "quest.nerofactions.standing.server_first_circle.title",
+  "description": "quest.nerofactions.standing.server_first_circle.desc",
+  "icon": "minecraft:beacon",
+  "prerequisites": [
+    "nerofactions:standing/word_gets_around"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:reputation_tier",
+      "direction": "rising",
+      "min_value": 4,
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "server"
+}

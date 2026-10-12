@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.terraforming_authority_circle.title",
+  "description": "quest.nerofactions.standing.terraforming_authority_circle.desc",
+  "icon": "minecraft:oak_sapling",
+  "prerequisites": [
+    "nerofactions:standing/terraforming_authority_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:terraforming_authority_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:terraforming_authority_inner_circle"
+}

@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.salvagers_circle.title",
+  "description": "quest.nerofactions.standing.salvagers_circle.desc",
+  "icon": "minecraft:anvil",
+  "prerequisites": [
+    "nerofactions:standing/salvagers_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:salvagers_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:salvagers_inner_circle"
+}

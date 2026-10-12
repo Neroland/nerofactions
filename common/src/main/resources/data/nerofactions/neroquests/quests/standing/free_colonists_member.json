@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.free_colonists_member.title",
+  "description": "quest.nerofactions.standing.free_colonists_member.desc",
+  "icon": "minecraft:lantern",
+  "prerequisites": [
+    "nerofactions:standing/sworn_in"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:free_colonists_member"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 60
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 40
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:free_colonists_member"
+}

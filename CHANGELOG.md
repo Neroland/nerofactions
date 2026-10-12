@@ -7,6 +7,50 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0-beta.1] - 2026-10-11
+
+A quest chapter for NeroQuests, the personal milestones that drive it, and a faction-banner quest
+hook. Requires Neroland Core 1.15.0. NeroQuests stays optional: without it the pack is inert data and
+nothing else changes.
+
+### Added
+
+- **NeroQuests quest pack.** Ships a NeroQuests quest pack — chapter `nerofactions:standing`
+  "Standing Among the Stars", 19 quests — that appears in the quest book when NeroQuests is
+  installed; inert otherwise, no dependency. The chapter follows a player from `/nerofactions join`
+  (*Sworn In*) through one hidden membership quest per faction into that faction's Inner Circle
+  quest, covers the trade terminal (*Behind the Counter*, *Open for Business*), and keeps two
+  server-wide world-log quests on the `nerofactions:reputation_tier` channel (*Word Gets Around*,
+  *An Inner Circle Opens*). Completing *Sworn In* hands you your faction's banner through the
+  `nerofactions:hook/banner_pattern` quest hook — delivered on your next login if you were offline
+  or had not yet joined a faction.
+- **Record gates.** NeroFactions now writes player-scoped Neroland Core progression gates as
+  records of personal milestones: `nerofactions:sworn_in` (first successful join),
+  `nerofactions:first_terminal_trade` (first completed terminal trade) and
+  `nerofactions:<faction>_member` for each of the seven factions (opened on join, closed on leave).
+  They carry no prerequisites and nothing in the mod reads them for access — membership and
+  standing keep their own authoritative state — so quest packs and other Core-aware mods can observe
+  them without touching NeroFactions. Written through Core 1.15.0's offline-capable gate API, so a
+  join or leave applied while the player is offline still records.
+- **Shipped-pack checks.** The test suite now validates the quest pack against the pack contract
+  (keys translated, prerequisites in-pack, every referenced gate file shipped, server scope only
+  where the chapter allows it) and checks the record and hook gates for the record shape.
+
+### Changed
+
+- **Requires Neroland Core 1.15.0** (was 1.13.0): the offline-capable player gate writes and the
+  sourced threshold crossings below.
+- Tier crossings on `nerofactions:reputation_tier` are now published with `nerofactions` named as
+  the source mod (Core 1.15.0's `ThresholdEvents.fire(sourceModId, crossing)`), so listeners that
+  ask who published a crossing get an answer. The crossing itself is unchanged: faction id as scope,
+  tier ordinal as value, threshold and direction — never a player.
+
+### Privacy
+
+- The new record gates live in Neroland Core's progression store, keyed by player UUID like the
+  existing inner-circle gates, and are covered by Core's export and erasure. No new store, no new
+  logging; the quest hook logs its gate id only.
+
 ## [0.4.0-beta.1] - 2026-10-11
 
 Faction treasuries, trade reputation from market sales and a credit counter on the trade terminal,

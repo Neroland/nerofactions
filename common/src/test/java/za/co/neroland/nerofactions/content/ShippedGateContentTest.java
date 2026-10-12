@@ -25,7 +25,7 @@ import za.co.neroland.nerolandcore.progression.Gate;
 import za.co.neroland.nerolandcore.progression.GateScope;
 
 /**
- * The seven shipped inner-circle gate definitions must decode with Core's real
+ * The shipped gate definitions must decode with Core's real
  * {@link Gate#DATA_CODEC} — the exact codec {@code GateDefinitions} runs at load — and carry the
  * designed composition: player scope, and the Core arc prerequisite matching the faction's era
  * (early factions require {@code industrial_power}, space-era {@code reached_orbit}, late/alien
@@ -59,15 +59,10 @@ class ShippedGateContentTest {
                     continue;
                 }
                 String gatePath = name.substring(0, name.length() - ".json".length());
-                try (BufferedReader reader = Files.newBufferedReader(file)) {
-                    JsonElement json = JsonParser.parseReader(reader);
-                    Optional<Gate.Data> data = Gate.DATA_CODEC.parse(JsonOps.INSTANCE, json)
-                            .resultOrPartial(error -> complaints.add(gatePath + ": " + error));
-                    if (data.isEmpty()) {
-                        fail("Shipped gate " + gatePath + " did not decode at all");
-                    }
-                    parsed.put(gatePath, data.get());
+                if (!gatePath.endsWith(SUFFIX)) {
+                    continue; // record gates: see recordGatesAreRequirementFreePlayerRecords
                 }
+                parsed.put(gatePath, decode(file, gatePath, complaints));
             }
         }
         assertEquals(List.of(), complaints,
@@ -94,6 +89,59 @@ class ShippedGateContentTest {
 
             assertFalse(gate.title().isBlank(), gatePath + " must carry a display title");
             assertTrue(gate.title().endsWith("Inner Circle"), gatePath + " title names the tier");
+        }
+    }
+
+    /**
+     * The record gates a quest pack observes — {@code sworn_in}, {@code first_terminal_trade}, one
+     * {@code <faction>_member} per shipped faction and the {@code hook/banner_pattern} quest hook —
+     * must be player-scoped, carry <em>no</em> {@code requires} (they are records, never locks) and
+     * a display title. Exactly that set ships: an unexpected gate file is a mistake.
+     */
+    @Test
+    void recordGatesAreRequirementFreePlayerRecords() throws Exception {
+        Path gatesDir = shippedDir(Path.of("data", "nerofactions", "neroland_gates"));
+
+        List<String> expected = new ArrayList<>(List.of("sworn_in", "first_terminal_trade",
+                "hook/banner_pattern"));
+        REQUIRED_CORE_GATE.keySet().forEach(faction -> expected.add(faction + "_member"));
+
+        Map<String, Gate.Data> parsed = new LinkedHashMap<>();
+        List<String> complaints = new ArrayList<>();
+        try (Stream<Path> files = Files.walk(gatesDir)) {
+            for (Path file : files.filter(Files::isRegularFile).sorted().toList()) {
+                String relative = gatesDir.relativize(file).toString().replace('\\', '/');
+                if (!relative.endsWith(".json") || relative.endsWith(SUFFIX + ".json")) {
+                    continue;
+                }
+                String gatePath = relative.substring(0, relative.length() - ".json".length());
+                parsed.put(gatePath, decode(file, gatePath, complaints));
+            }
+        }
+        assertEquals(List.of(), complaints,
+                "record gate JSONs must decode against Core's Gate.DATA_CODEC without complaint");
+        assertEquals(expected.stream().sorted().toList(), parsed.keySet().stream().sorted().toList(),
+                "exactly the documented record gates ship");
+
+        for (Map.Entry<String, Gate.Data> entry : parsed.entrySet()) {
+            String gatePath = entry.getKey();
+            Gate.Data gate = entry.getValue();
+            assertEquals(GateScope.PLAYER, gate.scope(), gatePath + " must be player-scoped");
+            assertEquals(List.of(), gate.requires(),
+                    gatePath + " is a record gate and must carry no requires");
+            assertFalse(gate.title().isBlank(), gatePath + " must carry a display title");
+        }
+    }
+
+    private static Gate.Data decode(Path file, String gatePath, List<String> complaints) throws Exception {
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
+            JsonElement json = JsonParser.parseReader(reader);
+            Optional<Gate.Data> data = Gate.DATA_CODEC.parse(JsonOps.INSTANCE, json)
+                    .resultOrPartial(error -> complaints.add(gatePath + ": " + error));
+            if (data.isEmpty()) {
+                return fail("Shipped gate " + gatePath + " did not decode at all");
+            }
+            return data.get();
         }
     }
 

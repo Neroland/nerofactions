@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.data.NeroFactionsData;
 import za.co.neroland.nerofactions.integration.Integrations;
+import za.co.neroland.nerofactions.integration.quests.QuestHooks;
 import za.co.neroland.nerofactions.link.FactionsLinkModule;
 import za.co.neroland.nerofactions.network.FactionsNetwork;
 import za.co.neroland.nerofactions.platform.Services;
@@ -90,6 +91,12 @@ public final class NeroFactionsCommon {
         //    bound provider), before the link module so a companion client can never observe a
         //    standing change before the ecosystem has.
         TierCrossings.init();
+
+        // 6b. Quest-pack hook listener: reacts to the nerofactions:hook/* record gates a quest mod
+        //     opens through Core when a player completes one of the shipped quests (the pack itself
+        //     is inert data under data/nerofactions/neroquests/). Core seams only, no quest-mod
+        //     class is named; the loaders' player-join hooks deliver anything that opened offline.
+        QuestHooks.init();
 
         // 7. Sibling-mod soft integrations: NeroQuests (contract-only — reward + threshold-event
         //    halves already flow through Core seams) and NeroEconomy (the price-modifier bridge,

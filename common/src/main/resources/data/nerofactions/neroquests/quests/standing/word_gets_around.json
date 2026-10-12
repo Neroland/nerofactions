@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.word_gets_around.title",
+  "description": "quest.nerofactions.standing.word_gets_around.desc",
+  "icon": "minecraft:bell",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:reputation_tier",
+      "direction": "rising",
+      "min_value": 1,
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 50
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 30
+    }
+  ],
+  "scope": "server"
+}

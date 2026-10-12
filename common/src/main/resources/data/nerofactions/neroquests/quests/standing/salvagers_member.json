@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.salvagers_member.title",
+  "description": "quest.nerofactions.standing.salvagers_member.desc",
+  "icon": "minecraft:anvil",
+  "prerequisites": [
+    "nerofactions:standing/sworn_in"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:salvagers_member"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 60
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 40
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:salvagers_member"
+}

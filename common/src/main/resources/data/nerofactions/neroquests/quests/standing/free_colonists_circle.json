@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.free_colonists_circle.title",
+  "description": "quest.nerofactions.standing.free_colonists_circle.desc",
+  "icon": "minecraft:lantern",
+  "prerequisites": [
+    "nerofactions:standing/free_colonists_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:free_colonists_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:free_colonists_inner_circle"
+}

@@ -1,0 +1,24 @@
+{
+  "title": "quest.nerofactions.standing.behind_the_counter.title",
+  "description": "quest.nerofactions.standing.behind_the_counter.desc",
+  "icon": "nerofactions:trade_terminal",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:craft_item",
+      "item": "nerofactions:trade_terminal",
+      "count": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 40
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 25
+    }
+  ],
+  "scope": "player"
+}

@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.nero_corporation_circle.title",
+  "description": "quest.nerofactions.standing.nero_corporation_circle.desc",
+  "icon": "minecraft:gold_ingot",
+  "prerequisites": [
+    "nerofactions:standing/nero_corporation_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:nero_corporation_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:nero_corporation_inner_circle"
+}

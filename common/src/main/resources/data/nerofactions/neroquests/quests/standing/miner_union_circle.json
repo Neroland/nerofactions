@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.miner_union_circle.title",
+  "description": "quest.nerofactions.standing.miner_union_circle.desc",
+  "icon": "minecraft:iron_pickaxe",
+  "prerequisites": [
+    "nerofactions:standing/miner_union_member"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:miner_union_inner_circle"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 150
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 100
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:miner_union_inner_circle"
+}

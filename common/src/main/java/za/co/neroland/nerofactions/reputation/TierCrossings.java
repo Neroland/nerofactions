@@ -199,7 +199,7 @@ public final class TierCrossings {
      */
     private static boolean fireAll(List<ThresholdCrossing> crossings) {
         for (ThresholdCrossing crossing : crossings) {
-            ThresholdEvents.fire(crossing);
+            ThresholdEvents.fire(NeroFactionsCommon.MOD_ID, crossing);
         }
         if (crossings.isEmpty()) {
             return false;

@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.void_cult_member.title",
+  "description": "quest.nerofactions.standing.void_cult_member.desc",
+  "icon": "minecraft:ender_eye",
+  "prerequisites": [
+    "nerofactions:standing/sworn_in"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:void_cult_member"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 60
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 40
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:void_cult_member"
+}

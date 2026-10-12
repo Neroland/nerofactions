@@ -77,6 +77,12 @@ and faction membership. This is not an optional or opt-in feature — reputation
   and that announcement deliberately carries only the faction id, the tier reached or lost, its
   threshold and the direction, **never your UUID, name, or any other player identifier**: the
   shared bus names systems, not people, and nothing on it leaves the game process.
+- **Progression gates (records in Neroland Core):** NeroFactions marks a few personal milestones
+  as player-scoped progression gates in Neroland Core's store — your first faction join, your first
+  terminal trade, which factions you currently belong to, and the Inner Circle arrivals — so an
+  optional quest mod can observe them. They hold the gate id against your UUID and nothing else,
+  live in Core's world data, and are exported and erased with the rest of your Core data (see
+  Neroland Core's privacy notice). NeroFactions logs no gate write against a player.
 - **What other installed Neroland mods may read:** with NeroEconomy installed, NeroFactions
   computes your personal market price multiplier by reading your own standing in memory on the
   server at the moment a price is quoted — that read stores nothing new, is never logged against

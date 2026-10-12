@@ -1,0 +1,26 @@
+{
+  "title": "quest.nerofactions.standing.miner_union_member.title",
+  "description": "quest.nerofactions.standing.miner_union_member.desc",
+  "icon": "minecraft:iron_pickaxe",
+  "prerequisites": [
+    "nerofactions:standing/sworn_in"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:miner_union_member"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 60
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 40
+    }
+  ],
+  "scope": "player",
+  "visible_gate": "nerofactions:miner_union_member"
+}

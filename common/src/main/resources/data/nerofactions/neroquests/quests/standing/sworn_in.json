@@ -1,0 +1,27 @@
+{
+  "title": "quest.nerofactions.standing.sworn_in.title",
+  "description": "quest.nerofactions.standing.sworn_in.desc",
+  "icon": "minecraft:white_banner",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:sworn_in"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 30
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 20
+    },
+    {
+      "type": "neroquests:mod_hook",
+      "gate": "nerofactions:hook/banner_pattern"
+    }
+  ],
+  "scope": "player"
+}

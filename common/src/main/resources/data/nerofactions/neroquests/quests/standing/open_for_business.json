@@ -1,0 +1,25 @@
+{
+  "title": "quest.nerofactions.standing.open_for_business.title",
+  "description": "quest.nerofactions.standing.open_for_business.desc",
+  "icon": "minecraft:emerald",
+  "prerequisites": [
+    "nerofactions:standing/behind_the_counter"
+  ],
+  "objectives": [
+    {
+      "type": "neroquests:gate_open",
+      "gate": "nerofactions:first_terminal_trade"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 50
+    },
+    {
+      "type": "neroquests:currency",
+      "amount": 40
+    }
+  ],
+  "scope": "player"
+}

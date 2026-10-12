@@ -1,10 +1,10 @@
 # Neroland Core APIs used by NeroFactions
 
 Every Neroland Core surface this mod actually consumes, verified against the imports in
-`common/src` at 0.1.0-beta.1. NeroFactions compiles against **Core 1.11.0** and pins its
-loader-manifest floor to that compiled version, because it needs 1.11.0's `SavedDataRecovery`,
-`ErasureConformance` and `PlayerActivity` in addition to the older reputation/config/gate/link
-APIs.
+`common/src`. NeroFactions compiles against **Core 1.15.0** and pins its loader-manifest floor
+to that compiled version: it needs 1.11.0's `SavedDataRecovery`, `ErasureConformance` and
+`PlayerActivity`, 1.13.0's 26.3 cells, and 1.15.0's offline-capable player gate writes and sourced
+threshold crossings, in addition to the older reputation/config/gate/link APIs.
 
 ## Reputation — `za.co.neroland.nerolandcore.reputation`
 
@@ -85,19 +85,29 @@ on or off).
   so the gate stays shut until its Core prerequisites are met.
 - `crafting/GatedRecipe` calls `ProgressionGates.isOpen(player, coreGate)` for recipes that
   declare the optional `core_gate` field.
-- The mod ships seven gate definitions in **Core's gate datapack format**
-  (`data/nerofactions/neroland_gates/*.json`, `scope: "player"`, `requires` naming Core's
-  arc gates); `ShippedGateContentTest` parses them with Core's own `Gate` codec and checks
-  the `GateScope` so a malformed gate cannot ship.
+- `progression/RecordGates` writes the personal **record gates** (`sworn_in`,
+  `first_terminal_trade`, `<faction>_member`) with `ProgressionGates.open/close(server, UUID,
+  gate)` (Core 1.15.0, works for offline players) and `open(player, gate)`; nothing reads them
+  back for access.
+- `integration/quests/QuestHooks` reads and re-arms the `hook/banner_pattern` quest hook with
+  `ProgressionGates.isOpen(player, gate)` / `close(player, gate)`.
+- The mod ships its gate definitions in **Core's gate datapack format**
+  (`data/nerofactions/neroland_gates/**.json`, `scope: "player"`): seven inner-circle gates with
+  `requires` naming Core's arc gates, plus requirement-free record and hook gates.
+  `ShippedGateContentTest` parses them all with Core's own `Gate` codec and checks the
+  `GateScope` and the record shape so a malformed gate cannot ship.
 
 ## Events — `za.co.neroland.nerolandcore.event`
 
-**Used:** `ThresholdEvents` (+ `ThresholdEvents.ThresholdCrossing`).
+**Used:** `ThresholdEvents` (+ `ThresholdEvents.ThresholdCrossing`), `CoreEvents.onProgression`
+(+ `GateEvents.GateChange`, `GateScope`).
 
 `reputation/TierCrossings` publishes the mod's one channel,
 `nerofactions:reputation_tier` — one `ThresholdCrossing` per tier boundary crossed, scope =
 faction id string (never a player, per Core's contract), value = upper-side tier ordinal,
-rising/falling both real. `rewards/RewardGrants` consumes the same crossing enumeration so
+rising/falling both real — through `ThresholdEvents.fire("nerofactions", crossing)` (Core
+1.15.0) so sourced listeners learn the publisher. `integration/quests/QuestHooks` subscribes
+to `CoreEvents.onProgression` for the `nerofactions:hook/banner_pattern` gate opening. `rewards/RewardGrants` consumes the same crossing enumeration so
 events and rewards can never drift; NeroQuests' `custom_event` objective consumes the
 channel externally with zero coupling.
 

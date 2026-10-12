@@ -1,6 +1,6 @@
 # Project context for AI coding agents — nerofactions
 
-> This and `AGENTS.md` are kept identical; update both together.
+> `CLAUDE.md` and `AGENTS.md` are kept identical; update both together.
 
 ## The mod
 

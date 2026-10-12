@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.data.FactionMembershipState;
+import za.co.neroland.nerofactions.progression.RecordGates;
 import za.co.neroland.nerolandcore.reputation.ReputationApi;
 
 /**
@@ -97,10 +98,15 @@ public final class FactionMembership {
         if (server == null) {
             return JoinResult.NO_SERVER;
         }
-        return join(FactionMembershipState.get(server),
+        JoinResult result = join(FactionMembershipState.get(server),
                 FactionDefinitions.factionsForServer(server)::containsKey,
                 player, faction, clock.getAsLong(),
                 NeroFactionsConfig.ALLOW_MULTIPLE_FACTIONS.get());
+        if (result == JoinResult.JOINED) {
+            // Record gates (sworn_in + <faction>_member) for quest packs; never read back here.
+            RecordGates.onJoined(server, player, faction);
+        }
+        return result;
     }
 
     /** Removes {@code player} from {@code faction}, applying the switch penalty and cooldown. */
@@ -108,9 +114,14 @@ public final class FactionMembership {
         if (server == null) {
             return LeaveResult.NO_SERVER;
         }
-        return leave(FactionMembershipState.get(server), player, faction, clock.getAsLong(),
+        LeaveResult result = leave(FactionMembershipState.get(server), player, faction,
+                clock.getAsLong(),
                 NeroFactionsConfig.JOIN_COOLDOWN_MINUTES.get() * MINUTE_MS,
                 NeroFactionsConfig.SWITCH_PENALTY_POINTS.get());
+        if (result == LeaveResult.LEFT) {
+            RecordGates.onLeft(server, player, faction);
+        }
+        return result;
     }
 
     /** The factions {@code player} currently belongs to (empty when no server / unknown player). */

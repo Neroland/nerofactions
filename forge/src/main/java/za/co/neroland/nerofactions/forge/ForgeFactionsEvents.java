@@ -3,12 +3,14 @@ package za.co.neroland.nerofactions.forge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.command.FactionCommands;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
+import za.co.neroland.nerofactions.integration.quests.QuestHooks;
 import za.co.neroland.nerofactions.data.RetentionSweep;
 import za.co.neroland.nerofactions.membership.FactionsTicker;
 import za.co.neroland.nerofactions.trade.TerminalSessions;
@@ -45,6 +47,13 @@ public final class ForgeFactionsEvents {
         // (self-throttled to once a minute inside the ticker).
         TickEvent.ServerTickEvent.Post.BUS.addListener(event ->
                 FactionsTicker.serverTick(event.server()));
+
+        // Quest hooks that opened while the player was away (see QuestHooks).
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
+                QuestHooks.onJoin(joined);
+            }
+        });
 
         // Combat reputation: the internal trigger filters to player-credited hostile-monster
         // kills and routes through ReputationSources (weight + daily cap + enemy bleed).

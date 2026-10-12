@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.content.FactionDefinition;
+import za.co.neroland.nerofactions.progression.RecordGates;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerofactions.reputation.ReputationSources.Source;
 
@@ -89,6 +90,8 @@ public final class TerminalMerchant implements Merchant {
         if (base > 0 && server != null) {
             ReputationSources.award(server, player.getUUID(), faction.id(), Source.TRADE, base);
         }
+        // The personal "first terminal trade" record gate (quest packs read it; nothing here does).
+        RecordGates.onTerminalTrade(player);
     }
 
     @Override
