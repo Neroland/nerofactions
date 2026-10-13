@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "nerofactions:trade_terminal",
+      "required": false
+    }
+  ]
+}
