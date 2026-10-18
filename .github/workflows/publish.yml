@@ -99,6 +99,19 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
 
+      # Same stable-key Forge userdev cache as multiloader.yml: without it every publish re-downloads
+      # the vanilla jars and re-runs the cold decompile for all three Forge cells, which is exactly
+      # where a Mojang CDN connect timeout kills the run. Restores the cache multiloader seeds on main.
+      - name: Cache Forge userdev (Mavenizer decompile)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches/minecraftforge
+            .gradle/mavenizer
+          key: mcmaven-${{ runner.os }}-${{ hashFiles('gradle.properties') }}
+          restore-keys: |
+            mcmaven-${{ runner.os }}-
+
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
@@ -112,19 +125,38 @@ jobs:
       # See USING-CORE.md.
       # --- end Neroland Core dependency ---
 
-      # Build all six cells (loader x MC version). Each produces a distinctly named jar under
+      # Build all nine cells (loader x MC version). Each produces a distinctly named jar under
       # <loader>/versions/<mc>/build/libs. Forge's distributable is the jarJar output
       # ("*-all.jar", with embedded Sentry); the plain Forge jar is not shipped.
+      # Retries ONLY on network failures (Mojang/Maven connect or read timeouts); a real compile or
+      # test failure fails on the first attempt. Completed work is reused, so a retry resumes cheaply.
       - name: Build all cells
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >-
-          ./gradlew
-          :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build
-          :neoforge:26.1.2:build :neoforge:26.2:build :neoforge:26.3:build
-          :forge:26.1.2:build :forge:26.2:build :forge:26.3:build
-          --stacktrace
+        run: |
+          ATTEMPTS=3
+          for i in $(seq 1 "$ATTEMPTS"); do
+            set +e
+            ./gradlew \
+              :fabric:26.1.2:build :fabric:26.2:build :fabric:26.3:build \
+              :neoforge:26.1.2:build :neoforge:26.2:build :neoforge:26.3:build \
+              :forge:26.1.2:build :forge:26.2:build :forge:26.3:build \
+              --stacktrace 2>&1 | tee build.log
+            STATUS=${PIPESTATUS[0]}
+            set -e
+            [ "$STATUS" -eq 0 ] && exit 0
+            if ! grep -qE 'HttpConnectTimeoutException|HttpTimeoutException|SocketTimeoutException|ConnectException|UnknownHostException|Connection reset' build.log; then
+              echo "::error::Build failed (not a network error) - not retrying"
+              exit "$STATUS"
+            fi
+            if [ "$i" -lt "$ATTEMPTS" ]; then
+              echo "::warning::Network failure on build attempt $i/$ATTEMPTS - retrying in 30s..."
+              sleep 30
+            fi
+          done
+          echo "::error::Build failed after $ATTEMPTS attempts due to network errors"
+          exit 1
 
       # Publish the nine per-loader Maven artifacts to GitHub Packages (mirrors Neroland Core's publish.yml)
       # so downstream Nero mods can resolve NeroFactions from a remote repo (CI runners + fresh clones have an
