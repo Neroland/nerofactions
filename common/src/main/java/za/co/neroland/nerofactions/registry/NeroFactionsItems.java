@@ -1,10 +1,12 @@
 package za.co.neroland.nerofactions.registry;
 
+import java.util.List;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 
-import za.co.neroland.nerolandcore.registry.CoreCreativeTab;
 import za.co.neroland.nerolandcore.registry.RegistrationProvider;
 import za.co.neroland.nerolandcore.registry.RegistrationProvider.RegistryEntry;
 
@@ -14,10 +16,8 @@ import za.co.neroland.nerofactions.NeroFactionsCommon;
  * Item registrations, through Neroland Core's {@link RegistrationProvider}. One item: the trade
  * terminal's block item.
  *
- * <p>There is deliberately <b>no NeroFactions creative tab</b>: the item joins Core's shared
- * {@code Neroland} tab via {@link CoreCreativeTab}, so a player with five Nero mods installed gets
- * one tab rather than five (the ecosystem convention). Core reads the tab's contents lazily when
- * it is displayed, so contributing after Core has already built the tab is fine.
+ * <p>The items are shown in NeroFactions' own creative tab ({@link NeroFactionsCreativeTab}); every
+ * Nero mod has its own tab and Core's {@code Neroland} tab holds only Core's items.
  */
 public final class NeroFactionsItems {
 
@@ -36,8 +36,8 @@ public final class NeroFactionsItems {
     public static void init() {
     }
 
-    /** Adds every NeroFactions item to Core's shared creative tab. */
-    public static void addToCreativeTab() {
-        CoreCreativeTab.add(TRADE_TERMINAL::get);
+    /** Every NeroFactions item, in display order, for {@link NeroFactionsCreativeTab}. */
+    public static List<ItemLike> creativeContents() {
+        return List.of(TRADE_TERMINAL.get());
     }
 }

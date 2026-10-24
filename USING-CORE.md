@@ -67,14 +67,15 @@ on or off).
 
 ## Registration — `za.co.neroland.nerolandcore.registry`
 
-**Used:** `RegistrationProvider` (+ `RegistrationProvider.RegistryEntry`), `CoreCreativeTab`.
+**Used:** `RegistrationProvider` (+ `RegistrationProvider.RegistryEntry`).
 
 - `registry/NeroFactionsBlocks` (the trade terminal), `registry/NeroFactionsItems` (its
   block item) and `registry/NeroFactionsRecipes` (the `nerofactions:gated` serializer) all
   register through Core's cross-loader `RegistrationProvider` seam — eager on Fabric,
   attached to the mod bus via `RegistrationProvider.attach` on NeoForge/Forge.
-- There is deliberately **no NeroFactions creative tab**: `NeroFactionsItems`
-  contributes the terminal to Core's shared Neroland tab via `CoreCreativeTab.add`.
+- NeroFactions has its **own creative tab** (`registry/NeroFactionsCreativeTab`,
+  `nerofactions:nerofactions`), registered through the same seam. Core's Neroland tab
+  holds only Core's items.
 
 ## Progression — `za.co.neroland.nerolandcore.progression`
 

@@ -11,6 +11,7 @@ import za.co.neroland.nerofactions.link.FactionsLinkModule;
 import za.co.neroland.nerofactions.network.FactionsNetwork;
 import za.co.neroland.nerofactions.platform.Services;
 import za.co.neroland.nerofactions.registry.NeroFactionsBlocks;
+import za.co.neroland.nerofactions.registry.NeroFactionsCreativeTab;
 import za.co.neroland.nerofactions.registry.NeroFactionsItems;
 import za.co.neroland.nerofactions.registry.NeroFactionsRecipes;
 import za.co.neroland.nerofactions.reputation.ServerReputationProvider;
@@ -63,13 +64,13 @@ public final class NeroFactionsCommon {
         // 3. Registries, through Core's RegistrationProvider (NeoForge/Forge entry points drive
         //    them via RegistrationProvider.attach; on Fabric these calls ARE the registration).
         //    Blocks before items (the block item names the block, and on Fabric "before" is
-        //    literal); the recipe serializer alongside; everything joins Core's shared creative
-        //    tab — NeroFactions has no tab of its own (Core reads the tab lazily when displayed).
+        //    literal); the recipe serializer alongside; then NeroFactions' own creative tab (after
+        //    the items it lists).
         //    Ordered before the data layer so stores can name registered content.
         NeroFactionsBlocks.init();
         NeroFactionsItems.init();
         NeroFactionsRecipes.init();
-        NeroFactionsItems.addToCreativeTab();
+        NeroFactionsCreativeTab.init();
 
         // 4. Player-data erasure registration + the real Core reputation provider — registered
         //    before any faction data can exist, because registering late is how an erasure request
