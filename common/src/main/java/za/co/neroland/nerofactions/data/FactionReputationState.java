@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 import za.co.neroland.nerolandcore.reputation.ReputationProvider;
@@ -45,7 +46,7 @@ public final class FactionReputationState extends SavedData implements Reputatio
 
     /** DFU-free: the codec below is the whole format, no DataFixTypes. */
     public static final SavedDataType<FactionReputationState> TYPE =
-            new SavedDataType<>(ID, FactionReputationState::new, codec(), null);
+            SavedDataCompat.type(ID, FactionReputationState::new, codec());
 
     /** player UUID → (faction id string → non-zero standing). */
     private final Map<UUID, Map<String, Integer>> players = new LinkedHashMap<>();

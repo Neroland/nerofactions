@@ -37,6 +37,7 @@ abstract class ResultSlotMixin {
     @Final
     private Player player;
 
+    //? if >=1.21.2 {
     @Redirect(method = "getRemainingItems",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRecipeFor("
@@ -52,4 +53,21 @@ abstract class ResultSlotMixin {
         return CraftingPlayer.resolveWith(crafter,
                 () -> manager.getRecipeFor(type, (CraftingInput) input, level));
     }
+    //?} else {
+    /*// 1.21.1 has no getRemainingItems(CraftingInput, Level) helper: onTake asks the recipe manager for the
+    // remainders directly, so the crafter is bound around that call instead.
+    @Redirect(method = "onTake",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRemainingItemsFor("
+                            + "Lnet/minecraft/world/item/crafting/RecipeType;"
+                            + "Lnet/minecraft/world/item/crafting/RecipeInput;"
+                            + "Lnet/minecraft/world/level/Level;)"
+                            + "Lnet/minecraft/core/NonNullList;"))
+    private net.minecraft.core.NonNullList<net.minecraft.world.item.ItemStack> nerofactions$remainderWithCrafter(
+            RecipeManager manager, RecipeType<CraftingRecipe> type, RecipeInput input, Level level) {
+        ServerPlayer crafter = this.player instanceof ServerPlayer serverPlayer ? serverPlayer : null;
+        return CraftingPlayer.resolveWith(crafter,
+                () -> manager.getRemainingItemsFor(type, (CraftingInput) input, level));
+    }
+    *///?}
 }

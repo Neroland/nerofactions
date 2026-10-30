@@ -17,7 +17,11 @@ public final class NeroFactionsForge {
         NeroFactionsCommon.init();
         // Common init's registry step created deferred registers; hand them the mod bus group
         // (the NeroColonies pattern — Core's seam drives them from here).
+        //? if >=1.21.6 {
         RegistrationProvider.attach(context.getModBusGroup());
+        //?} else {
+        /*RegistrationProvider.attach(context.getModEventBus());
+        *///?}
         ForgeFactionsNetwork.register();
         ForgeFactionsEvents.register();
     }

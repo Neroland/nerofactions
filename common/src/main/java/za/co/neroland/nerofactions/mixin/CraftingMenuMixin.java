@@ -50,7 +50,11 @@ abstract class CraftingMenuMixin {
     private static Optional<RecipeHolder<CraftingRecipe>> nerofactions$resolveWithCrafter(
             RecipeManager manager, RecipeType<CraftingRecipe> type, RecipeInput input, Level level,
             RecipeHolder<CraftingRecipe> hint,
+            //? if >=1.21.2 {
             AbstractContainerMenu menu, ServerLevel serverLevel, Player player,
+            //?} else {
+            /*AbstractContainerMenu menu, Level serverLevel, Player player,
+            *///?}
             CraftingContainer container, ResultContainer resultSlots,
             RecipeHolder<CraftingRecipe> recipeHint) {
         ServerPlayer crafter = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;

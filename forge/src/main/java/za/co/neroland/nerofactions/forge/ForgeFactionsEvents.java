@@ -1,5 +1,8 @@
 package za.co.neroland.nerofactions.forge;
 
+//? if <1.21.6 {
+/*import net.minecraftforge.common.MinecraftForge;
+*///?}
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -28,6 +31,7 @@ public final class ForgeFactionsEvents {
     }
 
     /** Called once from the Forge entry point. */
+    //? if >=1.21.9 {
     public static void register() {
         ServerStartedEvent.BUS.addListener(event ->
                 NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
@@ -66,4 +70,68 @@ public final class ForgeFactionsEvents {
         // The /nerofactions admin tree; the tree itself is loader-agnostic.
         RegisterCommandsEvent.BUS.addListener(event -> FactionCommands.register(event.getDispatcher()));
     }
+    //?} else if >=1.21.6 {
+    /*public static void register() {
+        // Forge 1.21.6 - 1.21.8: the tick event exposes its server through getServer().
+        ServerStartedEvent.BUS.addListener(event ->
+                NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
+        ServerStoppedEvent.BUS.addListener(event -> {
+            NeroFactionsCommon.REPUTATION_PROVIDER.unbind(event.getServer());
+            // Drop the cached definitions so a later world in this JVM re-reads its own packs.
+            FactionDefinitions.forgetServer();
+            // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
+            // in-memory UUID-keyed convenience data does not outlive the server).
+            TerminalSessions.clearAll();
+            // Forget the retention sweep's day-roll bookmark so the next world loaded in this
+            // JVM sweeps on load instead of waiting for the next calendar day.
+            RetentionSweep.onServerStopped();
+        });
+
+        // Cheap per-tick pass: /reload pickup (one reference comparison) + the decay day-roll
+        // (self-throttled to once a minute inside the ticker).
+        TickEvent.ServerTickEvent.Post.BUS.addListener(event ->
+                FactionsTicker.serverTick(event.getServer()));
+
+        // Quest hooks that opened while the player was away (see QuestHooks).
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
+                QuestHooks.onJoin(joined);
+            }
+        });
+
+        // Combat reputation: the internal trigger filters to player-credited hostile-monster
+        // kills and routes through ReputationSources (weight + daily cap + enemy bleed).
+        // A statement-bodied lambda is required: LivingDeathEvent is cancellable, so its BUS
+        // offers both Consumer and Predicate overloads and an expression lambda is ambiguous.
+        LivingDeathEvent.BUS.addListener(event -> {
+            InternalTriggers.entityKilled(event.getEntity(), event.getSource());
+        });
+
+        // The /nerofactions admin tree; the tree itself is loader-agnostic.
+        RegisterCommandsEvent.BUS.addListener(event -> FactionCommands.register(event.getDispatcher()));
+    }
+    *///?} else {
+    /*public static void register() {
+        // Forge before 1.21.6 (EventBus 6): one shared bus, listeners typed by their lambda parameter.
+        MinecraftForge.EVENT_BUS.addListener((ServerStartedEvent event) ->
+                NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
+        MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
+            NeroFactionsCommon.REPUTATION_PROVIDER.unbind(event.getServer());
+            FactionDefinitions.forgetServer();
+            TerminalSessions.clearAll();
+            RetentionSweep.onServerStopped();
+        });
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) ->
+                FactionsTicker.serverTick(event.getServer()));
+        MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
+                QuestHooks.onJoin(joined);
+            }
+        });
+        MinecraftForge.EVENT_BUS.addListener((LivingDeathEvent event) ->
+                InternalTriggers.entityKilled(event.getEntity(), event.getSource()));
+        MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
+                FactionCommands.register(event.getDispatcher()));
+    }
+    *///?}
 }

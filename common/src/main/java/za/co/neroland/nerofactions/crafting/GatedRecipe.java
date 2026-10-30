@@ -20,10 +20,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+//? if >=1.21.2 {
 import net.minecraft.world.item.crafting.PlacementInfo;
+//?}
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+//? if >=1.21.2 {
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
+//?}
 import net.minecraft.world.level.Level;
 
 import org.jetbrains.annotations.Nullable;
@@ -170,10 +174,17 @@ public final class GatedRecipe implements CraftingRecipe {
 
     // --- delegation to the wrapped recipe ------------------------------------
 
+    //? if >=26.1 {
     @Override
     public ItemStack assemble(CraftingInput input) {
         return wrapped.assemble(input);
     }
+    //?} else {
+    /*@Override
+    public ItemStack assemble(CraftingInput input, net.minecraft.core.HolderLookup.Provider registries) {
+        return wrapped.assemble(input, registries);
+    }
+    *///?}
 
     @Override
     public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
@@ -185,10 +196,28 @@ public final class GatedRecipe implements CraftingRecipe {
         return wrapped.category();
     }
 
+    //? if >=1.21.2 {
     @Override
     public String group() {
         return wrapped.group();
     }
+    //?} else {
+    /*@Override
+    public String getGroup() {
+        return wrapped.getGroup();
+    }
+
+    @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return wrapped.canCraftInDimensions(width, height);
+    }
+
+    // Never advertised, like display() on later lines: the recipe book and viewers see no result.
+    @Override
+    public ItemStack getResultItem(net.minecraft.core.HolderLookup.Provider registries) {
+        return ItemStack.EMPTY;
+    }
+    *///?}
 
     // --- presentation: locked recipes are never advertised -------------------
 
@@ -202,6 +231,7 @@ public final class GatedRecipe implements CraftingRecipe {
         return false;
     }
 
+    //? if >=1.21.2 {
     @Override
     public PlacementInfo placementInfo() {
         return PlacementInfo.NOT_PLACEABLE;
@@ -211,6 +241,7 @@ public final class GatedRecipe implements CraftingRecipe {
     public List<RecipeDisplay> display() {
         return List.of();
     }
+    //?}
 
     @Override
     public RecipeSerializer<GatedRecipe> getSerializer() {

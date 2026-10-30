@@ -44,8 +44,26 @@ public final class NeroFactionsRecipes {
     private static RegistrationProvider.RegistryEntry<RecipeSerializer<GatedRecipe>> gatedSerializer() {
         AtomicReference<RecipeSerializer<GatedRecipe>> self = new AtomicReference<>();
         return SERIALIZERS.register("gated", key -> {
+            //? if >=26.1 {
             RecipeSerializer<GatedRecipe> serializer = new RecipeSerializer<>(
                     GatedRecipe.mapCodec(self::get), GatedRecipe.streamCodec(self::get));
+            //?} else {
+            /*// Before 26.1 a serializer is an interface: the same two codecs, served by an anonymous class.
+            com.mojang.serialization.MapCodec<GatedRecipe> codec = GatedRecipe.mapCodec(self::get);
+            net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, GatedRecipe> stream =
+                    GatedRecipe.streamCodec(self::get);
+            RecipeSerializer<GatedRecipe> serializer = new RecipeSerializer<>() {
+                @Override
+                public com.mojang.serialization.MapCodec<GatedRecipe> codec() {
+                    return codec;
+                }
+
+                @Override
+                public net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, GatedRecipe> streamCodec() {
+                    return stream;
+                }
+            };
+            *///?}
             self.set(serializer);
             return serializer;
         });

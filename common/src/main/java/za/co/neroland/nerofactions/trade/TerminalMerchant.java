@@ -124,7 +124,9 @@ public final class TerminalMerchant implements Merchant {
         return level.isClientSide();
     }
 
+    //? if >=1.21.2 {
     @Override
+    //?}
     public boolean stillValid(Player who) {
         return tradingPlayer == who
                 && who.isAlive()

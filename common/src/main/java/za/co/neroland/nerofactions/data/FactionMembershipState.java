@@ -16,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import za.co.neroland.nerolandcore.data.SavedDataCompat;
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 
@@ -69,7 +70,7 @@ public final class FactionMembershipState extends SavedData {
 
     /** DFU-free: the codec below is the whole format, no DataFixTypes. */
     public static final SavedDataType<FactionMembershipState> TYPE =
-            new SavedDataType<>(ID, FactionMembershipState::new, codec(), null);
+            SavedDataCompat.type(ID, FactionMembershipState::new, codec());
 
     /** player UUID → that player's membership row. Rows are pruned the moment they empty. */
     private final Map<UUID, PlayerRow> players = new LinkedHashMap<>();

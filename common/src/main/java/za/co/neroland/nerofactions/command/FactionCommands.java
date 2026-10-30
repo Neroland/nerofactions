@@ -19,9 +19,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,6 +38,7 @@ import za.co.neroland.nerofactions.integration.EconomyOutcome;
 import za.co.neroland.nerofactions.integration.FactionEconomy;
 import za.co.neroland.nerofactions.membership.FactionDecay;
 import za.co.neroland.nerofactions.membership.FactionMembership;
+import za.co.neroland.nerofactions.platform.VersionCompat;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
 import za.co.neroland.nerofactions.trade.TerminalOffers;
@@ -116,7 +115,7 @@ public final class FactionCommands {
                                 .executes(ctx -> runSafely(ctx.getSource(), "data export",
                                         () -> exportSelf(ctx.getSource())))
                                 .then(playerArgument()
-                                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                        .requires(VersionCompat.gamemasters())
                                         .executes(ctx -> runSafely(ctx.getSource(), "data export",
                                                 () -> exportOther(ctx))))))
                 .then(Commands.literal("treasury")
@@ -142,11 +141,11 @@ public final class FactionCommands {
                                         .executes(ctx -> runSafely(ctx.getSource(), "terminal buy",
                                                 () -> creditBuy(ctx))))))
                 .then(Commands.literal("reload-check")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .requires(VersionCompat.gamemasters())
                         .executes(ctx -> runSafely(ctx.getSource(), "reload-check",
                                 () -> reloadCheck(ctx.getSource()))))
                 .then(Commands.literal("admin")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .requires(VersionCompat.gamemasters())
                         .then(Commands.literal("grant")
                                 .then(playerArgument()
                                         .then(factionArgument()
@@ -380,7 +379,7 @@ public final class FactionCommands {
 
     /**
      * Sends the JSON export to the <em>invoker only</em>: a summary line plus a click-to-copy
-     * component carrying the full JSON in its {@link ClickEvent.CopyToClipboard} (the vanilla/Forge
+     * component carrying the full JSON in its copy-to-clipboard click event (the vanilla/Forge
      * copy pattern). Nothing is written to disk and nothing — neither the content nor the target
      * identity — is logged; {@code runSafely}'s telemetry captures the subcommand name only.
      */
@@ -389,8 +388,8 @@ public final class FactionCommands {
         Component copy = Component.translatable("command.nerofactions.export.copy")
                 .withStyle(style -> style
                         .withUnderlined(true)
-                        .withClickEvent(new ClickEvent.CopyToClipboard(json))
-                        .withHoverEvent(new HoverEvent.ShowText(
+                        .withClickEvent(VersionCompat.copyToClipboard(json))
+                        .withHoverEvent(VersionCompat.showText(
                                 Component.translatable("command.nerofactions.export.copy_hover"))));
         Component line = Component.translatable("command.nerofactions.export.summary", copy);
         source.sendSuccess(() -> line, false);
@@ -572,7 +571,7 @@ public final class FactionCommands {
         if (payee == null) {
             return 0;
         }
-        boolean operator = Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
+        boolean operator = VersionCompat.gamemasters().test(source);
         if (!operator) {
             ServerPlayer officer = source.getPlayer();
             if (officer == null) {
@@ -647,8 +646,8 @@ public final class FactionCommands {
             Component line = Component.translatable("command.nerofactions.terminal.credits.line",
                     offer.count(), name, offer.price())
                     .withStyle(style -> style
-                            .withClickEvent(new ClickEvent.RunCommand(command))
-                            .withHoverEvent(new HoverEvent.ShowText(Component.translatable(
+                            .withClickEvent(VersionCompat.runCommand(command))
+                            .withHoverEvent(VersionCompat.showText(Component.translatable(
                                     "command.nerofactions.terminal.credits.hover"))));
             source.sendSuccess(() -> line, false);
         }

@@ -8,6 +8,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
+import za.co.neroland.nerofactions.platform.VersionCompat;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
 
 /**
@@ -71,7 +72,7 @@ public final class MenuOpener {
             // Nothing further to do; the client will resync on its own.
         }
         try {
-            player.sendSystemMessage(Component.translatable("gui.nerofactions.menu_open_failed"));
+            VersionCompat.systemMessage(player, Component.translatable("gui.nerofactions.menu_open_failed"));
         } catch (RuntimeException | LinkageError ignored) {
             // The player simply does not get the notice.
         }

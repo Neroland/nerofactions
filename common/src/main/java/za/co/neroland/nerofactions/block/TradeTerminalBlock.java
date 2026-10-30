@@ -10,7 +10,6 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -40,6 +39,7 @@ import za.co.neroland.nerofactions.integration.FactionEconomy;
 import za.co.neroland.nerofactions.membership.FactionDecay;
 import za.co.neroland.nerofactions.membership.FactionMembership;
 import za.co.neroland.nerofactions.menu.MenuOpener;
+import za.co.neroland.nerofactions.platform.VersionCompat;
 import za.co.neroland.nerofactions.trade.TerminalMerchant;
 import za.co.neroland.nerofactions.trade.TerminalOffers;
 import za.co.neroland.nerofactions.trade.TerminalOffers.OfferSpec;
@@ -127,7 +127,7 @@ public class TradeTerminalBlock extends Block {
             Component open = Component.translatable("message.nerofactions.terminal.credit_counter.open")
                     .withStyle(style -> style
                             .withUnderlined(true)
-                            .withClickEvent(new ClickEvent.RunCommand("/nerofactions terminal credits")));
+                            .withClickEvent(VersionCompat.runCommand("/nerofactions terminal credits")));
             serverPlayer.sendSystemMessage(
                     Component.translatable("message.nerofactions.terminal.credit_counter", open));
         }
@@ -209,7 +209,11 @@ public class TradeTerminalBlock extends Block {
     private static List<Identifier> vanillaItemsIn(Identifier tagOrItem) {
         List<Identifier> out = new ArrayList<>();
         TagKey<Item> tag = TagKey.create(Registries.ITEM, tagOrItem);
+        //? if >=1.21.2 {
         BuiltInRegistries.ITEM.get(tag).ifPresent(holders -> holders.forEach(holder ->
+        //?} else {
+        /*BuiltInRegistries.ITEM.getTag(tag).ifPresent(holders -> holders.forEach(holder ->
+        *///?}
                 holder.unwrapKey().ifPresent(key -> {
                     Identifier id = key.identifier();
                     if ("minecraft".equals(id.getNamespace())) {

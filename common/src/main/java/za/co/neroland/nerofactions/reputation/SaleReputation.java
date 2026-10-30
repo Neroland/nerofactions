@@ -104,7 +104,11 @@ public final class SaleReputation {
 
     /** The item tags {@code item} carries (empty for an unknown id). */
     private static Set<Identifier> itemTags(Identifier item) {
+        //? if >=1.21.2 {
         return BuiltInRegistries.ITEM.get(item)
+        //?} else {
+        /*return BuiltInRegistries.ITEM.getHolder(item)
+        *///?}
                 .map(holder -> holder.tags().map(TagKey::location).collect(Collectors.toSet()))
                 .orElse(Set.of());
     }
