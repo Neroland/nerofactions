@@ -1,5 +1,7 @@
 # Project context for AI coding agents — nerofactions
 
+> Modrinth is temporarily being removed from the upload and is no longer being referenced. Avoid making references to modrinth.
+
 > `CLAUDE.md` and `AGENTS.md` are kept identical; update both together.
 
 ## The mod
@@ -44,7 +46,7 @@
   Local only), so Core must ship before this repo's CI can build or a release can be tagged.
 - Mod id: **`nerofactions`** (matches the registry namespace + every loader manifest). Package root:
   `za.co.neroland.nerofactions`. Author: **Neroland**.
-- Version: **0.1.0-beta.1** (bumped for release prep; untagged).
+- Version: **0.6.1-beta.1** (bumped for release prep; untagged).
 - Targets **MC 26.1.2, 26.2 AND 26.3** on **NeoForge, MinecraftForge/Forge, and Fabric** → the **"9 cells"**.
   **Java 25.** Mappings = official Mojang names (26.x ships de-obfuscated; no Parchment).
 

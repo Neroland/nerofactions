@@ -45,7 +45,7 @@ Reputation and membership are stored **inside your world save, keyed by player U
 
 ## Requirements & compatibility
 
-- **Requires [Neroland Core](https://modrinth.com/mod/nerolandcore) 1.11.0 or newer** — install it alongside NeroFactions (it loads first). NeroFactions refuses to load against an older Core.
+- **Requires [Neroland Core](https://nerolandmc.net/mods/neroland-core/) 1.11.0 or newer** — install it alongside NeroFactions (it loads first). NeroFactions refuses to load against an older Core.
 - **NeroQuests** and **NeroEconomy** are optional and detected automatically.
 - **Modpacks are allowed and encouraged** — any platform, no need to ask. Use the official files and credit *NeroFactions by Neroland* with links to the [CurseForge page](https://www.curseforge.com/minecraft/mc-mods/nerofactions) and the [GitHub repository](https://github.com/Neroland/nerofactions). Full terms: [LICENSE](https://github.com/Neroland/nerofactions/blob/main/LICENSE).
 
