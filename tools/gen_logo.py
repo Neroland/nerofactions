@@ -216,5 +216,41 @@ def main():
         print("wrote", os.path.relpath(p, ROOT))
 
 
+
+
+def generate_gif(source=None, output=None):
+    source = source or os.path.join(OUT, "nerofactions_logo.png")
+    output = output or os.path.join(OUT, "nerofactions_logo.gif")
+    with Image.open(source) as image:
+        logo = image.convert("RGB")
+    logo.thumbnail((400, 400), Image.Resampling.LANCZOS)
+    w, h = logo.size
+    color = (214, 66, 74)
+    frames = []
+    for index in range(16):
+        t = index / 16
+        phase = 2 * math.pi * t
+        overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(overlay)
+        for j in range(3):
+            u = (t+j/3)%1
+            y = 0.23+u*0.28
+            draw.line((w*0.34,h*y,w*0.5,h*(y+0.035),w*0.66,h*y),fill=color+(int(140*(1-u)),),width=2)
+        overlay = overlay.filter(ImageFilter.MaxFilter(3))
+        image = logo.convert("RGBA")
+        image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(max(1, w * 0.008))))
+        image.alpha_composite(overlay)
+        frames.append(image.convert("RGB"))
+    frames[0].save(output, save_all=True, append_images=frames[1:], duration=180, loop=0, optimize=True)
+    return output
+
+
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate the logo or animate its existing master PNG.")
+    parser.add_argument("--gif", action="store_true", help="generate the animated logo")
+    args = parser.parse_args()
+    if args.gif:
+        print("wrote", os.path.relpath(generate_gif(), ROOT))
+    else:
+        main()
