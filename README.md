@@ -45,18 +45,18 @@ operates on real numbers.
   action logging anywhere. Anonymous crash reporting is **on by default** and **opt-out**:
   set `telemetryEnabled=false` in `config/nerofactions.properties`. See [PRIVACY.md](PRIVACY.md).
 
-Honest scope note: 0.1.0 ships **no custom art** (the terminal reuses vanilla lodestone
-textures; cosmetics are pre-styled vanilla banners), no unique gear items, no per-faction
-machines and no custom GUIs. The full list of deliberate cuts is in the
-[changelog](CHANGELOG.md) under *Not in this release*.
+The current source includes an original-textured Faction Registry and a custom membership screen.
+The Contract Board offers daily faction contracts. Faction gear and signature machines are still under development. The trade
+terminal uses vanilla textures. Each faction offers a loom pattern and a matching armour trim
+at Inner Circle.
 
 ## Requirements
 
-- **Minecraft** 26.1.2 or 26.2, on **NeoForge**, **MinecraftForge/Forge** or **Fabric**
-  (the "9 cells").
-- **Neroland Core 1.15.0 or newer** — required, loads first. NeroFactions will refuse to
+- **Minecraft** 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 or 26.3,
+  on **NeoForge**, **MinecraftForge/Forge** or **Fabric** (27 build cells).
+- **Neroland Core 1.17.5 or newer** — required, loads first. NeroFactions will refuse to
   load against an older Core.
-- Java 25 (the requirement of MC 26.x itself).
+- Java 25 for Minecraft 26.x; Java 21 for Minecraft 1.21.x.
 
 ## Quick start
 

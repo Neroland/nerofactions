@@ -33,6 +33,7 @@ public final class FabricFactionsEvents {
             NeroFactionsCommon.REPUTATION_PROVIDER.unbind(server);
             // Drop the cached definitions so a later world in this JVM re-reads its own packs.
             FactionDefinitions.forgetServer();
+            za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
             // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
             // in-memory UUID-keyed convenience data does not outlive the server).
             TerminalSessions.clearAll();
@@ -46,8 +47,10 @@ public final class FabricFactionsEvents {
         ServerTickEvents.END_SERVER_TICK.register(FactionsTicker::serverTick);
 
         // Quest hooks that opened while the player was away (see QuestHooks).
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-                QuestHooks.onJoin(handler.player));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            QuestHooks.onJoin(handler.player);
+            za.co.neroland.nerofactions.network.StandingSync.send(handler.player);
+        });
 
         // Combat reputation. AFTER_DEATH is server-side only and hands over exactly the pair the
         // trigger wants: the victim plus the damage source the credit is resolved from; the

@@ -1,5 +1,5 @@
 {
-  "variants": {
-    "": { "model": "nerofactions:block/trade_terminal" }
-  }
+  "multipart": [
+    { "apply": { "model": "nerofactions:block/trade_terminal" } }
+  ]
 }

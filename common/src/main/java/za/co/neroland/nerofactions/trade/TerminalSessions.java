@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.resources.Identifier;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 /**
  * The trade terminal's <b>transient</b> multi-faction selection: which of a player's factions the
@@ -33,7 +34,7 @@ public final class TerminalSessions {
      * @param dimension the level's dimension id
      * @param pos       the terminal's packed {@code BlockPos}
      */
-    public record TerminalVisit(Identifier dimension, long pos) {
+    public record TerminalVisit(Identifier dimension, long pos, OutpostFaction binding, Identifier faction) {
     }
 
     private TerminalSessions() {
@@ -84,10 +85,13 @@ public final class TerminalSessions {
     }
 
     /** Remembers the terminal {@code player} just used. */
-    public static void rememberTerminal(UUID player, Identifier dimension, long pos) {
-        if (player != null && dimension != null) {
-            LAST_TERMINAL.put(player, new TerminalVisit(dimension, pos));
-        }
+    public static void rememberTerminal(UUID player, Identifier dimension, long pos,
+            OutpostFaction binding, Identifier faction) {
+        LAST_TERMINAL.put(player, new TerminalVisit(dimension, pos, binding, faction));
+    }
+
+    public static void clearVisit(UUID player) {
+        LAST_TERMINAL.remove(player);
     }
 
     /** The terminal {@code player} last used, or null. */

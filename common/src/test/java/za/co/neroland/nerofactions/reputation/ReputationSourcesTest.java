@@ -78,6 +78,22 @@ class ReputationSourcesTest {
     }
 
     @Test
+    void eventCapAndEnemyBleedHoldWhileCrossingZero() {
+        ReputationApi.setReputation(player, A, -50);
+        ReputationApi.setReputation(player, B, 20);
+        assertEquals(100, ReputationSources.award(state, FACTION_A, player, Source.EVENT, 100,
+                DAY_1, 1.0D, 150, 0.5D));
+        assertEquals(50, ReputationApi.getReputation(player, A));
+        assertEquals(-30, ReputationApi.getReputation(player, B));
+        assertEquals(50, ReputationSources.award(state, FACTION_A, player, Source.EVENT, 100,
+                DAY_1, 1.0D, 150, 0.5D));
+        assertEquals(0, ReputationSources.award(state, FACTION_A, player, Source.EVENT, 100,
+                DAY_1, 1.0D, 150, 0.5D));
+        assertEquals(100, ReputationApi.getReputation(player, A));
+        assertEquals(-55, ReputationApi.getReputation(player, B));
+    }
+
+    @Test
     void dailyCapClampsAndThenExhausts() {
         assertEquals(100, ReputationSources.award(state, FACTION_A, player, Source.QUEST, 100,
                 DAY_1, 1.0D, 150, 0.0D));

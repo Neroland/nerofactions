@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:free_colonists_armor_trim_smithing_template",
+  "addition": "nerofactions:free_colonists_trim_material",
+  "pattern": "nerofactions:free_colonists"
+}

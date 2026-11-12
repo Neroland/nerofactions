@@ -12,6 +12,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
+//? if <1.21.5 {
+/*import net.minecraft.world.item.BannerPatternItem;
+*///?}
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,27 +24,10 @@ import net.minecraft.world.level.block.entity.BannerPatternLayers;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.content.FactionDefinition;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 /**
- * The faction cosmetics of 0.1.0: <b>pre-styled vanilla banners</b>. Each faction gets a banner
- * {@link ItemStack} in its base colour with two or three vanilla banner-pattern layers in its
- * palette, named after the faction — built entirely in code from vanilla content, because
- * <b>no custom art can be authored for this release</b>.
- *
- * <p><b>The scope decision, written down for the changelog:</b> the faction JSONs'
- * {@code cosmetics.banner_pattern} and {@code cosmetics.trim_material} fields remain
- * validated-but-dormant <em>forward references</em>. Real custom banner-pattern and armour-trim
- * registries require texture assets that cannot be created in this release, so they are deferred;
- * until they land, <em>both</em> cosmetic reward kinds ({@code "banner_pattern"} and
- * {@code "trim_material"}) resolve to the faction's pre-styled vanilla banner — an honest,
- * craftable-looking cosmetic instead of a texture-less registry entry. Do not remove the JSON
- * fields; packs already validate against them.
- *
- * <p>The class splits pure from game-bound the ecosystem way: {@link #schemeFor} is plain data
- * (colours + vanilla pattern <em>ids</em> — testable on a bare JVM), and {@link #build} is the
- * only part that touches registries ({@code minecraft:banner_pattern} is data-driven in 26.x, so
- * holders are resolved through the server's {@link HolderLookup.Provider}). A pattern id missing
- * from the running game's registry is skipped with a warn rather than failing the grant.
+ * Builds pre-styled banners using the faction's palette and available banner patterns.
  */
 public final class FactionBanners {
 
@@ -110,6 +97,19 @@ public final class FactionBanners {
         return SCHEMES.getOrDefault(faction, FALLBACK);
     }
 
+    public static Item patternItem(OutpostFaction faction, Item.Properties properties) {
+        TagKey<BannerPattern> tag = TagKey.create(Registries.BANNER_PATTERN,
+                id("pattern_item/" + faction.getSerializedName()));
+        //? if >=26.1.2 {
+        return new Item(properties.delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS,
+                registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN).getOrThrow(tag)));
+        //?} else if >=1.21.5 {
+        /*return new Item(properties.component(DataComponents.PROVIDES_BANNER_PATTERNS, tag));
+        *///?} else {
+        /*return new BannerPatternItem(tag, properties);
+        *///?}
+    }
+
     /**
      * Builds the faction's banner stack: base-colour banner item, pattern layers as 26.x item
      * components ({@code minecraft:banner_patterns}), and a literal custom name derived from the
@@ -135,6 +135,9 @@ public final class FactionBanners {
                                 + "of the {} banner.", layer.pattern(), faction.id());
             }
         }
+        faction.cosmetics().flatMap(cosmetics -> lookup.get(
+                ResourceKey.create(Registries.BANNER_PATTERN, cosmetics.bannerPattern())))
+                .ifPresent(pattern -> layers.add(pattern, DyeColor.WHITE));
         stack.set(DataComponents.BANNER_PATTERNS, layers.build());
         stack.set(DataComponents.CUSTOM_NAME,
                 Component.literal(faction.displayName() + " Banner"));

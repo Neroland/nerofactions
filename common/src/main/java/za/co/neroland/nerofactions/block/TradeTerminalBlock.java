@@ -27,6 +27,8 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
@@ -34,6 +36,8 @@ import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
+import za.co.neroland.nerofactions.content.faction.FactionAccess;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.cosmetics.FactionBanners;
 import za.co.neroland.nerofactions.integration.FactionEconomy;
 import za.co.neroland.nerofactions.membership.FactionDecay;
@@ -70,8 +74,16 @@ import za.co.neroland.nerolandcore.reputation.ReputationApi;
  */
 public class TradeTerminalBlock extends Block {
 
+    public static final EnumProperty<OutpostFaction> FACTION = EnumProperty.create("faction", OutpostFaction.class);
+
     public TradeTerminalBlock(Properties properties) {
         super(properties);
+        registerDefaultState(stateDefinition.any().setValue(FACTION, OutpostFaction.NONE));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACTION);
     }
 
     @Override
@@ -91,6 +103,15 @@ public class TradeTerminalBlock extends Block {
         FactionDecay.apply(server, playerId);
 
         Map<Identifier, FactionDefinition> factions = FactionDefinitions.factionsForServer(server);
+        OutpostFaction binding = state.getValue(FACTION);
+        if (binding != OutpostFaction.NONE) {
+            FactionDefinition faction = factions.get(binding.factionId());
+            if (faction != null) {
+                trade(serverPlayer, server, level, pos, state, faction);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
         List<Identifier> memberships = new ArrayList<>();
         for (Identifier faction : FactionMembership.membershipOf(server, playerId)) {
             if (factions.containsKey(faction)) {
@@ -112,26 +133,44 @@ public class TradeTerminalBlock extends Block {
                 : TerminalSessions.current(playerId, memberships, best);
         FactionDefinition faction = factions.get(chosen);
 
-        FactionTier tier = FactionTiers.tierOf(faction,
-                ReputationApi.getReputation(playerId, chosen));
-        MerchantOffers offers = buildOffers(server, faction, tier);
         if (switched) {
             serverPlayer.sendSystemMessage(Component.translatable(
                     "message.nerofactions.terminal.switched", faction.displayName()));
         }
-        openShop(serverPlayer, level, pos, faction, offers);
-        // The credit counter (economy installed): remember this terminal so the buy command only
-        // sells while the player stands here, and offer the catalogue with one click.
-        TerminalSessions.rememberTerminal(playerId, level.dimension().identifier(), pos.asLong());
+        trade(serverPlayer, server, level, pos, state, faction);
+        return InteractionResult.SUCCESS;
+    }
+
+    private static void trade(ServerPlayer player, MinecraftServer server, Level level, BlockPos pos,
+            BlockState state, FactionDefinition faction) {
+        UUID playerId = player.getUUID();
+        TerminalSessions.clearVisit(playerId);
+        FactionAccess access = FactionAccess.evaluate(server, playerId, faction);
+        if (access.refusesService()) {
+            player.sendSystemMessage(refusal(faction, access));
+            return;
+        }
+        FactionTier tier = FactionTiers.tierOf(faction, ReputationApi.getReputation(playerId, faction.id()));
+        MerchantOffers offers = buildOffers(server, faction, tier, access);
+        if (!openShop(player, level, pos, state, faction, access, tier, offers)) {
+            return;
+        }
+        TerminalSessions.rememberTerminal(playerId, level.dimension().identifier(), pos.asLong(),
+                state.getValue(FACTION), faction.id());
         if (FactionEconomy.creditsAvailable() && NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get() > 0) {
             Component open = Component.translatable("message.nerofactions.terminal.credit_counter.open")
                     .withStyle(style -> style
                             .withUnderlined(true)
                             .withClickEvent(VersionCompat.runCommand("/nerofactions terminal credits")));
-            serverPlayer.sendSystemMessage(
+            player.sendSystemMessage(
                     Component.translatable("message.nerofactions.terminal.credit_counter", open));
         }
-        return InteractionResult.SUCCESS;
+    }
+
+    public static Component refusal(FactionDefinition faction, FactionAccess access) {
+        return Component.translatable(access == FactionAccess.REFUSE_STANDING
+                ? "message.nerofactions.terminal.hostile_standing"
+                : "message.nerofactions.terminal.hostile_rival", faction.displayName());
     }
 
     /** The member faction the player stands highest with (ties break on the sorted order). */
@@ -152,31 +191,36 @@ public class TradeTerminalBlock extends Block {
      * Opens the vanilla merchant screen through the {@link MenuOpener} guard. See the class
      * javadoc for why {@code Merchant.openTradingScreen} is deliberately not used.
      */
-    private static void openShop(ServerPlayer player, Level level, BlockPos pos,
-            FactionDefinition faction, MerchantOffers offers) {
-        TerminalMerchant merchant = new TerminalMerchant(player, level, pos,
-                level.getBlockState(pos).getBlock(), faction, offers);
+    private static boolean openShop(ServerPlayer player, Level level, BlockPos pos, BlockState state,
+            FactionDefinition faction, FactionAccess access, FactionTier tier, MerchantOffers offers) {
+        TerminalMerchant merchant = new TerminalMerchant(player, level, pos, state, faction, access, tier, offers);
         merchant.setTradingPlayer(player);
         OptionalInt containerId = MenuOpener.open(player, new SimpleMenuProvider(
-                (id, inventory, p) -> new MerchantMenu(id, inventory, merchant),
+                (id, inventory, p) -> new MerchantMenu(id, inventory, merchant) {
+                    @Override
+                    public boolean stillValid(Player who) {
+                        return merchant.stillValid(who);
+                    }
+                },
                 Component.literal(faction.displayName())));
         if (containerId.isPresent()) {
             // What vanilla's openTradingScreen would send after its own openMenu: no trader
             // level badge, no XP bar, no restock — a terminal, not a villager.
             player.sendMerchantOffers(containerId.getAsInt(), offers, 0, 0, false, false);
-        } else {
-            merchant.setTradingPlayer(null);
+            return true;
         }
+        merchant.setTradingPlayer(null);
+        return false;
     }
 
     // --- offer construction (thin adapter over the pure TerminalOffers core) --------------------
 
     private static MerchantOffers buildOffers(MinecraftServer server, FactionDefinition faction,
-            FactionTier tier) {
+            FactionTier tier, FactionAccess access) {
         List<OfferSpec> specs = TerminalOffers.specs(faction, tier,
                 TradeTerminalBlock::vanillaItemsIn,
                 NeroFactionsConfig.DISCOUNT_CAP_PERCENT.get(),
-                NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get());
+                NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get(), access);
         MerchantOffers offers = new MerchantOffers();
         for (OfferSpec spec : specs) {
             Item cost = BuiltInRegistries.ITEM.getValue(spec.costItem());

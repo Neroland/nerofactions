@@ -10,6 +10,10 @@ public final class FactionTiers {
     private FactionTiers() {
     }
 
+    public static boolean isHostile(int standing, int hostileBelowStanding) {
+        return standing < hostileBelowStanding;
+    }
+
     /**
      * The tier {@code value} belongs to on this faction's ladder: the <em>highest</em> tier whose
      * threshold is {@code <= value}, so a value exactly at a threshold belongs to the higher tier.

@@ -20,6 +20,28 @@ import org.junit.jupiter.api.Test;
  */
 class PlayerDataExportTest {
 
+    @Test
+    void contractExportContainsOnlyTheRequestersCurrentStateAndErasesCleanly() {
+        UUID player = UUID.randomUUID();
+        UUID other = UUID.randomUUID();
+        var contracts = new ContractState();
+        var faction = za.co.neroland.nerofactions.contracts.ContractFixtures.FACTION;
+        var pool = za.co.neroland.nerofactions.contracts.ContractFixtures.pool();
+        contracts.ensure(player, faction, 0, 123, 5, pool);
+        contracts.ensure(other, faction, 0, 123, 6, pool);
+        contracts.advance(player, faction, 0, 3);
+        String json = PlayerDataExport.toJson(new FactionReputationState(), new FactionMembershipState(),
+                contracts, player, "test", T0);
+        var section = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("contracts");
+        assertEquals(5, section.get("day").getAsLong());
+        assertEquals(3, section.getAsJsonArray("entries").size());
+        assertFalse(json.contains(player.toString()));
+        assertFalse(json.contains(other.toString()));
+        contracts.forget(player);
+        assertEquals(0, contracts.export(player).getAsJsonArray("entries").size());
+        assertEquals(3, contracts.export(other).getAsJsonArray("entries").size());
+    }
+
     private static final Identifier GUILD = Identifier.parse("nerofactions:test_guild");
     private static final Identifier UNION = Identifier.parse("nerofactions:test_union");
     private static final long T0 = 1_700_000_000_000L;
@@ -42,7 +64,7 @@ class PlayerDataExportTest {
         membership.raiseRewardWatermark(player, GUILD, 3);
         membership.recordJoin(bystander, GUILD, T0);
 
-        String json = PlayerDataExport.toJson(reputation, membership, player, "1.2.3-test", T0);
+        String json = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
@@ -77,7 +99,7 @@ class PlayerDataExportTest {
     @Test
     void aPlayerTheModHoldsNothingForGetsAnEmptyEnvelope() {
         String json = PlayerDataExport.toJson(new FactionReputationState(),
-                new FactionMembershipState(), UUID.randomUUID(), "1.2.3-test", T0);
+                new FactionMembershipState(), new ContractState(), UUID.randomUUID(), "1.2.3-test", T0);
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
@@ -100,8 +122,8 @@ class PlayerDataExportTest {
         membership.recordJoin(player, UNION, T0);
         membership.recordJoin(player, GUILD, T0);
 
-        String first = PlayerDataExport.toJson(reputation, membership, player, "1.2.3-test", T0);
-        String second = PlayerDataExport.toJson(reputation, membership, player, "1.2.3-test", T0);
+        String first = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
+        String second = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
         assertEquals(first, second, "same data + same stamp = identical bytes (sorted keys)");
         assertTrue(first.indexOf(GUILD.toString()) < first.indexOf(UNION.toString()),
                 "keys are sorted regardless of insertion order");

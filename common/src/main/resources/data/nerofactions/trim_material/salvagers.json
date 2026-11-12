@@ -1,0 +1,9 @@
+{
+  "asset_name": "salvagers",
+  "description": {
+    "color": "#c18862",
+    "translate": "trim_material.nerofactions.salvagers"
+  },
+  "ingredient": "nerofactions:salvagers_trim_material",
+  "item_model_index": 0.04
+}

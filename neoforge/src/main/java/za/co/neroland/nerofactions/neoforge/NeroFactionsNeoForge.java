@@ -20,5 +20,8 @@ public final class NeroFactionsNeoForge {
         RegistrationProvider.attach(modEventBus);
         NeoForgeFactionsNetwork.register(modEventBus);
         NeoForgeFactionsEvents.register();
+        if (za.co.neroland.nerofactions.platform.Services.PLATFORM.isClient()) {
+            NeoForgeFactionsClient.init(modEventBus);
+        }
     }
 }

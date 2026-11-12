@@ -23,6 +23,9 @@ never force it on or off.
 
 | Key | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
+| `hostileBelowStanding` | int | `-100` | -1000000–-1 | Standing below this value is marked hostile in the server snapshot; guard and screen behavior is still under development. |
+| `contractsEnabled` | boolean | `true` | — | Enable Board assignments, objective tracking and rewards. Export and erasure remain available when disabled. |
+| `registryEnabled` | boolean | `true` | — | Allow Registry membership interactions. Commands remain available when disabled. |
 | `allowMultipleFactions` | boolean | `false` | — | Whether a player may belong to more than one faction at once. Off (the default) is the single-allegiance rule: joining a second faction is refused until the first is left. |
 | `joinCooldownMinutes` | int | `30` | 0–10080 | Real-time minutes a player must wait after leaving a faction before joining any faction again. `0` disables the cooldown. Max one week. |
 | `switchPenaltyPoints` | int | `50` | 0–100000 | Reputation points lost with a faction the moment a player leaves it (`0` disables). The remainder then decays per `decayPointsPerDay`. |

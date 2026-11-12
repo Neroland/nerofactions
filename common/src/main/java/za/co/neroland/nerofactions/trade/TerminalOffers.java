@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.TradeModifier;
+import za.co.neroland.nerofactions.content.faction.FactionAccess;
 
 /**
  * The pure trade-terminal offer construction: faction definition + the player's resolved tier +
@@ -119,7 +120,13 @@ public final class TerminalOffers {
     public static List<OfferSpec> specs(FactionDefinition faction, FactionTier tier,
             Function<Identifier, List<Identifier>> specialityItems,
             int discountCapPercent, int surchargeCapPercent) {
-        if (faction == null || tier == null || specialityItems == null) {
+        return specs(faction, tier, specialityItems, discountCapPercent, surchargeCapPercent, FactionAccess.OPEN);
+    }
+
+    public static List<OfferSpec> specs(FactionDefinition faction, FactionTier tier,
+            Function<Identifier, List<Identifier>> specialityItems,
+            int discountCapPercent, int surchargeCapPercent, FactionAccess access) {
+        if (faction == null || tier == null || specialityItems == null || access.refusesService()) {
             return List.of();
         }
         double floor = 1.0D - Math.clamp(discountCapPercent, 0, 50) / 100.0D;
@@ -131,7 +138,7 @@ public final class TerminalOffers {
         int perTag = specialityItemsFor(tier);
         double best = 1.0D;
         for (TradeModifier modifier : faction.trade()) {
-            double multiplier = Math.clamp(modifier.multiplierFor(tier), floor, ceiling);
+            double multiplier = priceMultiplier(modifier.multiplierFor(tier), floor, ceiling, access);
             best = Math.min(best, multiplier);
             int taken = 0;
             for (Identifier item : specialityItems.apply(modifier.tag())) {
@@ -150,13 +157,14 @@ public final class TerminalOffers {
         int curated = curatedCountFor(tier);
         for (int index = 0; index < curated && index < CURATED.size(); index++) {
             CuratedGood good = CURATED.get(index);
-            int price = (int) Math.clamp(Math.round(good.emeraldCost() * best), 1, 64);
+            int price = (int) Math.clamp(Math.round(good.emeraldCost() * priceMultiplier(best, floor, ceiling, access)), 1, 64);
             out.add(OfferSpec.of(EMERALD, price, good.item(), good.count(), maxUses));
         }
 
         // 3. The faction banner, MEMBER+ and only for factions that ship a cosmetics block.
         if (tier.ordinal() >= FactionTier.MEMBER.ordinal() && faction.cosmetics().isPresent()) {
-            out.add(OfferSpec.banner(BANNER_EMERALD_COST, 4));
+            double bannerRate = priceMultiplier(1.0D, floor, ceiling, access);
+            out.add(OfferSpec.banner((int) Math.round(BANNER_EMERALD_COST * bannerRate), 4));
         }
         return List.copyOf(out);
     }
@@ -178,7 +186,13 @@ public final class TerminalOffers {
      */
     public static List<CreditOffer> creditOffers(FactionDefinition faction, FactionTier tier,
             int discountCapPercent, int surchargeCapPercent, int creditsPerEmerald) {
-        if (faction == null || tier == null || creditsPerEmerald <= 0) {
+        return creditOffers(faction, tier, discountCapPercent, surchargeCapPercent, creditsPerEmerald,
+                FactionAccess.OPEN);
+    }
+
+    public static List<CreditOffer> creditOffers(FactionDefinition faction, FactionTier tier,
+            int discountCapPercent, int surchargeCapPercent, int creditsPerEmerald, FactionAccess access) {
+        if (faction == null || tier == null || creditsPerEmerald <= 0 || access.refusesService()) {
             return List.of();
         }
         double floor = 1.0D - Math.clamp(discountCapPercent, 0, 50) / 100.0D;
@@ -187,6 +201,7 @@ public final class TerminalOffers {
         for (TradeModifier modifier : faction.trade()) {
             best = Math.min(best, Math.clamp(modifier.multiplierFor(tier), floor, ceiling));
         }
+        best = priceMultiplier(best, floor, ceiling, access);
         List<CreditOffer> out = new ArrayList<>();
         int curated = curatedCountFor(tier);
         for (int index = 0; index < curated && index < CURATED.size(); index++) {
@@ -195,6 +210,13 @@ public final class TerminalOffers {
             out.add(new CreditOffer(good.item(), good.count(), price));
         }
         return List.copyOf(out);
+    }
+
+    private static double priceMultiplier(double base, double floor, double ceiling, FactionAccess access) {
+        if (access == FactionAccess.SURCHARGE) {
+            return ceiling;
+        }
+        return Math.clamp(base, floor, ceiling);
     }
 
     /** How many items of each speciality tag the terminal buys: 1 / 1 / 2 / 2 / 3 by tier. */

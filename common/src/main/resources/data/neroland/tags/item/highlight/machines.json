@@ -4,6 +4,14 @@
     {
       "id": "nerofactions:trade_terminal",
       "required": false
+    },
+    {
+      "id": "nerofactions:faction_registry",
+      "required": false
+    },
+    {
+      "id": "nerofactions:contract_board",
+      "required": false
     }
   ]
 }

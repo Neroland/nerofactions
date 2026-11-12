@@ -45,7 +45,15 @@ class ShippedGatedRecipeTest {
             "salvagers_anvil.json", "nerofactions:salvagers");
 
     /** The plain (deliberately UNGATED) recipes that also ship. */
-    private static final Set<String> UNGATED = Set.of("trade_terminal.json");
+    private static final Set<String> UNGATED = Set.of("trade_terminal.json", "faction_registry.json", "contract_board.json");
+
+    private static final Map<String, String> SIGNATURE_TOOLS = Map.of(
+            "rift_blade.json", "nerofactions:void_cult");
+
+    private static final Set<String> TRIMS = Set.of(
+            "free_colonists_armor_trim.json", "miner_union_armor_trim.json", "nero_corporation_armor_trim.json",
+            "salvagers_armor_trim.json", "space_guild_armor_trim.json", "terraforming_authority_armor_trim.json",
+            "void_cult_armor_trim.json");
 
     private static final Set<String> CORE_ARC_GATES = Set.of(
             "nerolandcore:industrial_power", "nerolandcore:reached_orbit",
@@ -70,14 +78,20 @@ class ShippedGatedRecipeTest {
         }
         Set<String> expected = new LinkedHashSet<>(GATED_BY_FILE.keySet());
         expected.addAll(UNGATED);
+        expected.addAll(TRIMS);
+        expected.addAll(SIGNATURE_TOOLS.keySet());
         assertEquals(expected, recipes.keySet(),
-                "exactly the seven gated perks plus the ungated terminal recipe ship");
+                "exactly the declared gated, block and smithing recipes ship");
 
         Set<String> gatedFactions = new LinkedHashSet<>();
         for (Map.Entry<String, JsonObject> entry : recipes.entrySet()) {
             String name = entry.getKey();
             JsonObject recipe = entry.getValue();
 
+            if (TRIMS.contains(name)) {
+                assertEquals("minecraft:smithing_trim", recipe.get("type").getAsString(), name);
+                continue;
+            }
             if (UNGATED.contains(name)) {
                 // The terminal recipe is a plain vanilla shaped recipe with our block as result.
                 assertWrappedRecipeCoherent(name, recipe, "nerofactions:");
@@ -88,6 +102,12 @@ class ShippedGatedRecipeTest {
                     name + " must use the gated serializer");
 
             String faction = recipe.get("faction").getAsString();
+            if (SIGNATURE_TOOLS.containsKey(name)) {
+                assertEquals(SIGNATURE_TOOLS.get(name), faction, name);
+                assertEquals("member", recipe.get("tier").getAsString(), name);
+                assertWrappedRecipeCoherent(name, recipe.getAsJsonObject("recipe"), "nerofactions:");
+                continue;
+            }
             assertEquals(GATED_BY_FILE.get(name), faction, name + " gates on its own faction");
             assertTrue(gatedFactions.add(faction), "one gated perk per faction: " + faction);
             assertTrue(Files.isRegularFile(factionsDir.resolve(

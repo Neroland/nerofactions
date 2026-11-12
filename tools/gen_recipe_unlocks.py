@@ -11,6 +11,9 @@ signature part, not on the first iron ingot), then the recipe's non-vanilla tags
 them unlocks it), then plain vanilla items, then vanilla tags. Any tag the recipe uses is safe to name here:
 tags load before recipes and advancements, so if the tag were missing the recipe itself would not load.
 
+Faction-gated recipes use their wrapped recipe's ingredients for the unlock.
+The server still applies standing and the normal special-recipe visibility rules.
+
 Machine recipe types (``<modid>:<machine>``) are skipped: the recipe book never shows them, and recipe
 viewers list them through the mod's own plugin.
 
@@ -123,6 +126,8 @@ def expected():
         for path in sorted(recipes.rglob("*.json")):
             recipe = json.loads(path.read_text(encoding="utf-8"))
             rel = path.relative_to(recipes).with_suffix("").as_posix()
+            if recipe.get("type") == "nerofactions:gated":
+                recipe = recipe["recipe"]
             if recipe.get("type") not in BOOK_TYPES:
                 skipped.append(f"{ns}:{rel}")
                 continue

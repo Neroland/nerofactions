@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:nero_corporation",
+  "description": {
+    "translate": "trim_pattern.nerofactions.nero_corporation"
+  },
+  "decal": false,
+  "template_item": "nerofactions:nero_corporation_armor_trim_smithing_template"
+}

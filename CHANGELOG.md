@@ -7,6 +7,27 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Standalone Contract Board with 42 data contracts, per-player daily selection, delivery/craft/kill/visit objectives, capped standing rewards and a daily reroll token.
+- Contract state is covered by export, erasure, recovery backups and inactivity retention.
+- Seven custom loom patterns with faction-coloured item art, available as Inner Circle rewards.
+- Seven faction armour trims. The Inner Circle rewards include enough matching templates and inlays
+  to trim one four-piece set.
+- A faction binding on Trade Terminals allows a counter to serve one faction. Hostile standing and
+  Trusted rival membership cause refusal, and Member rivals pay the capped surcharge.
+- Craftable Faction Registry with a membership menu, confirmation and server-configured penalty/cooldown previews.
+- Server-side faction API with immutable views and capped event awards.
+- Owner-only in-game standing snapshots, including membership, cooldown and hostile-band status.
+- `hostileBelowStanding` setting; the hostile band remains separate from the five reputation tiers.
+
+### Changed
+
+- Requires Neroland Core 1.17.5 or later across all supported Minecraft versions.
+- New standing payloads require matching client and server builds for in-game faction displays.
+- Client standing caches clear on disconnect and refresh after online erasure.
+- Wiki publishing checks for private planning references; unusable asset tasks were removed.
+
 ## [0.6.1-beta.1] - 2026-10-31
 
 ### Changed

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:terraforming_authority_armor_trim_smithing_template",
+  "addition": "nerofactions:terraforming_authority_trim_material",
+  "pattern": "nerofactions:terraforming_authority"
+}

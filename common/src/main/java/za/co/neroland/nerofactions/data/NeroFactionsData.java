@@ -57,6 +57,11 @@ public final class NeroFactionsData {
     public static void eraseLocal(MinecraftServer server, UUID player) {
         FactionReputationState.eraseFor(server, player);
         FactionMembershipState.eraseFor(server, player);
+        ContractState.eraseFor(server, player);
         TerminalSessions.clear(player);
+        za.co.neroland.nerofactions.network.StandingSync.send(server, player);
+        var online = server.getPlayerList().getPlayer(player);
+        if (online != null) za.co.neroland.nerofactions.platform.Services.NETWORK.sendToPlayer(online,
+                new za.co.neroland.nerofactions.network.ContractSnapshot(java.util.List.of(), Long.MIN_VALUE, false, ""));
     }
 }

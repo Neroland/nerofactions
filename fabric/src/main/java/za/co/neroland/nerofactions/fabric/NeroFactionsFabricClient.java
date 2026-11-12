@@ -14,6 +14,12 @@ public final class NeroFactionsFabricClient implements ClientModInitializer {
         NeroFactionsCommon.LOGGER.info("[NeroFactions] Fabric client bootstrap");
         // Clientbound receivers (client-only API) — registered here, off the dedicated server.
         FabricFactionsNetwork.registerClient();
+        net.minecraft.client.gui.screens.MenuScreens.register(
+                za.co.neroland.nerofactions.registry.NeroFactionsMenus.CONTRACT_BOARD.get(),
+                za.co.neroland.nerofactions.client.ContractBoardScreen::new);
+        net.minecraft.client.gui.screens.MenuScreens.register(
+                za.co.neroland.nerofactions.registry.NeroFactionsMenus.REGISTRY.get(),
+                za.co.neroland.nerofactions.client.RegistryScreen::new);
 
         // Drop any synced mirror caches on leaving a world/server, so one session's faction state
         // can never be shown in the next (or on a server that does not run NeroFactions).

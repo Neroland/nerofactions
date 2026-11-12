@@ -60,3 +60,5 @@ exactly what ships.
 - [Privacy & telemetry disclosure (PRIVACY.md)](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md)
 - [Changelog](https://github.com/Neroland/nerofactions/blob/main/CHANGELOG.md)
 - [Issues](https://github.com/Neroland/nerofactions/issues)
+
+- [Contracts](Contracts) — the standalone Contract Board, daily objectives and rewards.

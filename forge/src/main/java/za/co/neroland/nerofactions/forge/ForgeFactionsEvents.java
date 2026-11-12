@@ -39,6 +39,7 @@ public final class ForgeFactionsEvents {
             NeroFactionsCommon.REPUTATION_PROVIDER.unbind(event.getServer());
             // Drop the cached definitions so a later world in this JVM re-reads its own packs.
             FactionDefinitions.forgetServer();
+            za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
             // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
             // in-memory UUID-keyed convenience data does not outlive the server).
             TerminalSessions.clearAll();
@@ -56,6 +57,7 @@ public final class ForgeFactionsEvents {
         PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
                 QuestHooks.onJoin(joined);
+                za.co.neroland.nerofactions.network.StandingSync.send(joined);
             }
         });
 
@@ -79,6 +81,7 @@ public final class ForgeFactionsEvents {
             NeroFactionsCommon.REPUTATION_PROVIDER.unbind(event.getServer());
             // Drop the cached definitions so a later world in this JVM re-reads its own packs.
             FactionDefinitions.forgetServer();
+            za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
             // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
             // in-memory UUID-keyed convenience data does not outlive the server).
             TerminalSessions.clearAll();
@@ -96,6 +99,7 @@ public final class ForgeFactionsEvents {
         PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
                 QuestHooks.onJoin(joined);
+                za.co.neroland.nerofactions.network.StandingSync.send(joined);
             }
         });
 
@@ -118,6 +122,7 @@ public final class ForgeFactionsEvents {
         MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {
             NeroFactionsCommon.REPUTATION_PROVIDER.unbind(event.getServer());
             FactionDefinitions.forgetServer();
+            za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
             TerminalSessions.clearAll();
             RetentionSweep.onServerStopped();
         });
@@ -126,6 +131,7 @@ public final class ForgeFactionsEvents {
         MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
                 QuestHooks.onJoin(joined);
+                za.co.neroland.nerofactions.network.StandingSync.send(joined);
             }
         });
         MinecraftForge.EVENT_BUS.addListener((LivingDeathEvent event) ->

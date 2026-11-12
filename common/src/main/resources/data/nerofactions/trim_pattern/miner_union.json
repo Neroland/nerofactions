@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:miner_union",
+  "description": {
+    "translate": "trim_pattern.nerofactions.miner_union"
+  },
+  "decal": false,
+  "template_item": "nerofactions:miner_union_armor_trim_smithing_template"
+}

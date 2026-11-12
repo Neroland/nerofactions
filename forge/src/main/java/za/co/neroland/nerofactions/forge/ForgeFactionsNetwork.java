@@ -50,7 +50,7 @@ public final class ForgeFactionsNetwork implements NetworkPlatform {
             PayloadFlow<RegistryFriendlyByteBuf, CustomPacketPayload> play,
             FactionsNetwork.Clientbound<T> cb) {
         play.addMain(cb.type(), registryCodec(cb.codec()),
-                (payload, context) -> cb.handler().accept(payload));
+                (payload, context) -> { if (context.getSender() == null) cb.handler().accept(payload); });
     }
 
     /** Both directions share the one bidirectional flow; the sender is what distinguishes them. */

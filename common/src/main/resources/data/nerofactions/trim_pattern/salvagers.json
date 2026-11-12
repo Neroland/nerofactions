@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:salvagers",
+  "description": {
+    "translate": "trim_pattern.nerofactions.salvagers"
+  },
+  "decal": false,
+  "template_item": "nerofactions:salvagers_armor_trim_smithing_template"
+}

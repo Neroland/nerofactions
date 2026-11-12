@@ -46,7 +46,19 @@ public record FactionDefinition(
         Map<String, List<RewardEntry>> rewards,
         List<Identifier> enemies,
         List<TradeModifier> trade,
-        Optional<Cosmetics> cosmetics) {
+        Optional<Cosmetics> cosmetics,
+        String color, String motto, Identifier icon, String descriptionKey) {
+
+    public FactionDefinition(Identifier id, String displayName, String theme,
+            Map<String, Integer> tiers, Map<String, List<RewardEntry>> rewards,
+            List<Identifier> enemies, List<TradeModifier> trade, Optional<Cosmetics> cosmetics) {
+        this(id, displayName, theme, tiers, rewards, enemies, trade, cosmetics,
+                "#90B4A0", "", Identifier.fromNamespaceAndPath("minecraft", "book"), "");
+    }
+
+    private static final Codec<String> COLOR = Codec.STRING.validate(value ->
+            value.matches("#[0-9a-fA-F]{6}") ? com.mojang.serialization.DataResult.success(value)
+                    : com.mojang.serialization.DataResult.error(() -> "color must be #RRGGBB"));
 
     /** Placeholder until {@link FactionDefinitions} stamps the file-derived id on. */
     public static final Identifier UNNAMED =
@@ -64,7 +76,12 @@ public record FactionDefinition(
                     .forGetter(FactionDefinition::enemies),
             TradeModifier.CODEC.listOf().optionalFieldOf("trade", List.of())
                     .forGetter(FactionDefinition::trade),
-            Cosmetics.CODEC.optionalFieldOf("cosmetics").forGetter(FactionDefinition::cosmetics)
+            Cosmetics.CODEC.optionalFieldOf("cosmetics").forGetter(FactionDefinition::cosmetics),
+            COLOR.optionalFieldOf("color", "#90B4A0").forGetter(FactionDefinition::color),
+            Codec.STRING.optionalFieldOf("motto", "").forGetter(FactionDefinition::motto),
+            Identifier.CODEC.optionalFieldOf("icon", Identifier.fromNamespaceAndPath("minecraft", "book"))
+                    .forGetter(FactionDefinition::icon),
+            Codec.STRING.optionalFieldOf("description_key", "").forGetter(FactionDefinition::descriptionKey)
     ).apply(inst, FactionDefinition::new));
 
     /** The reputation threshold of this tier, or null if absent (impossible after validation). */
@@ -81,22 +98,22 @@ public record FactionDefinition(
     // --- withers (validation replaces parts without re-decoding) -------------
 
     public FactionDefinition withId(Identifier newId) {
-        return new FactionDefinition(newId, displayName, theme, tiers, rewards, enemies, trade, cosmetics);
+        return new FactionDefinition(newId, displayName, theme, tiers, rewards, enemies, trade, cosmetics, color, motto, icon, descriptionKey);
     }
 
     public FactionDefinition withTiers(Map<String, Integer> newTiers) {
-        return new FactionDefinition(id, displayName, theme, newTiers, rewards, enemies, trade, cosmetics);
+        return new FactionDefinition(id, displayName, theme, newTiers, rewards, enemies, trade, cosmetics, color, motto, icon, descriptionKey);
     }
 
     public FactionDefinition withRewards(Map<String, List<RewardEntry>> newRewards) {
-        return new FactionDefinition(id, displayName, theme, tiers, newRewards, enemies, trade, cosmetics);
+        return new FactionDefinition(id, displayName, theme, tiers, newRewards, enemies, trade, cosmetics, color, motto, icon, descriptionKey);
     }
 
     public FactionDefinition withEnemies(List<Identifier> newEnemies) {
-        return new FactionDefinition(id, displayName, theme, tiers, rewards, newEnemies, trade, cosmetics);
+        return new FactionDefinition(id, displayName, theme, tiers, rewards, newEnemies, trade, cosmetics, color, motto, icon, descriptionKey);
     }
 
     public FactionDefinition withTrade(List<TradeModifier> newTrade) {
-        return new FactionDefinition(id, displayName, theme, tiers, rewards, enemies, newTrade, cosmetics);
+        return new FactionDefinition(id, displayName, theme, tiers, rewards, enemies, newTrade, cosmetics, color, motto, icon, descriptionKey);
     }
 }

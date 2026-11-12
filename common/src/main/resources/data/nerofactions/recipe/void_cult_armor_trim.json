@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:void_cult_armor_trim_smithing_template",
+  "addition": "nerofactions:void_cult_trim_material",
+  "pattern": "nerofactions:void_cult"
+}

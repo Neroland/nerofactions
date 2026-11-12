@@ -196,3 +196,18 @@ continue to cover everything error reporting sends.
 > (EU servers) so crashes can be fixed. On by default — opt out any time by setting `telemetryEnabled = false`
 > in `config/nerofactions.properties`. Full details:
 > [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).
+
+In-game standing snapshots send only the receiving player's standings, tiers, memberships and
+cooldown, alongside faction presentation data. No player identifiers or coordinates are included.
+The client stores the snapshot in memory and clears it on disconnect; no new persistent store is added.
+
+## Contract data
+
+Contract state stores the player's current daily assignments, progress and claim markers, the
+shared daily reroll-token flag, a high-water day to prevent time rollback replenishment, and a
+lifetime completion count. Assignments snapshot public contract definitions to keep a daily
+reward stable across datapack changes. No player positions, names or visit coordinates are stored.
+Offline daily entries expire at the day boundary while the server is running. Inactivity retention
+uses `retentionDays`; export includes this store, and erasure removes the row and refreshes its
+recovery backup. The Board sends only the authenticated player's current contracts to their client.
+Client caches clear on disconnect and online erasure. These fields are never sent to telemetry.

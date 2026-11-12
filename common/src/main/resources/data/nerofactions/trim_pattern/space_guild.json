@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:space_guild",
+  "description": {
+    "translate": "trim_pattern.nerofactions.space_guild"
+  },
+  "decal": false,
+  "template_item": "nerofactions:space_guild_armor_trim_smithing_template"
+}

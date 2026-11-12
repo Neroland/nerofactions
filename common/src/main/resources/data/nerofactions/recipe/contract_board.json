@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"misc","pattern":["PPP","PBP","WWW"],"key":{"P":"minecraft:paper","B":"minecraft:book","W":"#minecraft:planks"},"result":{"id":"nerofactions:contract_board","count":1}}

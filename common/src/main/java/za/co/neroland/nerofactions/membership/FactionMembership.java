@@ -105,6 +105,7 @@ public final class FactionMembership {
         if (result == JoinResult.JOINED) {
             // Record gates (sworn_in + <faction>_member) for quest packs; never read back here.
             RecordGates.onJoined(server, player, faction);
+            za.co.neroland.nerofactions.network.StandingSync.send(server, player);
         }
         return result;
     }
@@ -120,6 +121,7 @@ public final class FactionMembership {
                 NeroFactionsConfig.SWITCH_PENALTY_POINTS.get());
         if (result == LeaveResult.LEFT) {
             RecordGates.onLeft(server, player, faction);
+            za.co.neroland.nerofactions.network.StandingSync.send(server, player);
         }
         return result;
     }

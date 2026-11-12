@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:salvagers_armor_trim_smithing_template",
+  "addition": "nerofactions:salvagers_trim_material",
+  "pattern": "nerofactions:salvagers"
+}

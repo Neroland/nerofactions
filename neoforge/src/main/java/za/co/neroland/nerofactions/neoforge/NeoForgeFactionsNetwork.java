@@ -60,7 +60,9 @@ public final class NeoForgeFactionsNetwork implements NetworkPlatform {
 
     @Override
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
-        PacketDistributor.sendToPlayer(player, payload);
+        if (player.connection.hasChannel(payload.type())) {
+            PacketDistributor.sendToPlayer(player, payload);
+        }
     }
 
     @Override

@@ -42,7 +42,7 @@ public final class InternalTriggers {
 
     /** {@code victim} died. Loader-neutral entry point for the per-loader death hooks. */
     public static void entityKilled(LivingEntity victim, DamageSource source) {
-        if (victim == null || victim.getType().getCategory() != MobCategory.MONSTER) {
+        if (victim == null) {
             return;
         }
         ServerPlayer killer = creditedPlayer(victim, source);
@@ -53,6 +53,8 @@ public final class InternalTriggers {
         if (server == null) {
             return;
         }
+        za.co.neroland.nerofactions.contracts.ContractService.killed(killer, victim);
+        if (victim.getType().getCategory() != MobCategory.MONSTER) return;
         int base = NeroFactionsConfig.COMBAT_AWARD_BASE.get();
         Set<Identifier> memberships =
                 FactionMembershipState.get(server).membershipsOf(killer.getUUID());

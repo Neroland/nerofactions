@@ -67,7 +67,9 @@ public final class FabricFactionsNetwork implements NetworkPlatform {
 
     @Override
     public void sendToPlayer(ServerPlayer player, CustomPacketPayload payload) {
-        ServerPlayNetworking.send(player, payload);
+        if (ServerPlayNetworking.canSend(player, payload.type())) {
+            ServerPlayNetworking.send(player, payload);
+        }
     }
 
     @Override

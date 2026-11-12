@@ -1,0 +1,9 @@
+{
+  "asset_name": "miner_union",
+  "description": {
+    "color": "#d5a44c",
+    "translate": "trim_material.nerofactions.miner_union"
+  },
+  "ingredient": "nerofactions:miner_union_trim_material",
+  "item_model_index": 0.02
+}

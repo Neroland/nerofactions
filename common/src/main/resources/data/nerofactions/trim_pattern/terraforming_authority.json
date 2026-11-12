@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:terraforming_authority",
+  "description": {
+    "translate": "trim_pattern.nerofactions.terraforming_authority"
+  },
+  "decal": false,
+  "template_item": "nerofactions:terraforming_authority_armor_trim_smithing_template"
+}

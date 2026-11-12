@@ -41,6 +41,8 @@ import za.co.neroland.nerofactions.membership.FactionMembership;
 import za.co.neroland.nerofactions.platform.VersionCompat;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
+import za.co.neroland.nerofactions.content.faction.FactionAccess;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.trade.TerminalOffers;
 import za.co.neroland.nerofactions.trade.TerminalSessions;
 import za.co.neroland.nerolandcore.reputation.ReputationApi;
@@ -718,40 +720,45 @@ public final class FactionCommands {
     /** The credit offers the player's current standing unlocks at this faction's counter. */
     private static List<TerminalOffers.CreditOffer> creditOffersFor(MinecraftServer server,
             ServerPlayer player, FactionDefinition faction) {
-        FactionDecay.apply(server, player.getUUID());
         FactionTier tier = FactionTiers.tierOf(faction,
                 ReputationApi.getReputation(player.getUUID(), faction.id()));
         return TerminalOffers.creditOffers(faction, tier,
                 NeroFactionsConfig.DISCOUNT_CAP_PERCENT.get(),
                 NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get(),
-                NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get());
+                NeroFactionsConfig.TERMINAL_CREDITS_PER_EMERALD.get(),
+                FactionAccess.evaluate(server, player.getUUID(), faction));
     }
 
     /**
      * The faction whose counter the player is at: the terminal they last used must still be a
-     * trade terminal within 8 blocks in their dimension, and the faction it last showed them must
-     * still be one of theirs. Null after reporting why not.
+     * trade terminal with the same binding within 8 blocks in their dimension. An unbound
+     * terminal still requires membership in the selected faction.
      */
     private static FactionDefinition terminalFaction(CommandSourceStack source, MinecraftServer server,
             ServerPlayer player) {
         UUID playerId = player.getUUID();
         TerminalSessions.TerminalVisit visit = TerminalSessions.lastTerminal(playerId);
-        boolean near = false;
-        if (visit != null && player.level().dimension().identifier().equals(visit.dimension())) {
-            BlockPos pos = BlockPos.of(visit.pos());
-            near = player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D
-                    && player.level().getBlockState(pos).getBlock() instanceof TradeTerminalBlock;
-        }
-        if (!near) {
+        if (visit == null || !player.level().dimension().identifier().equals(visit.dimension())) {
             source.sendFailure(Component.translatable("command.nerofactions.terminal.not_near"));
             return null;
         }
-        Identifier selected = TerminalSessions.selected(playerId);
-        FactionDefinition faction = selected == null
-                ? null
-                : FactionDefinitions.factionsForServer(server).get(selected);
-        if (faction == null || !FactionMembership.membershipOf(server, playerId).contains(selected)) {
+        BlockPos pos = BlockPos.of(visit.pos());
+        if (player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > 64.0D
+                || !(player.level().getBlockState(pos).getBlock() instanceof TradeTerminalBlock)
+                || player.level().getBlockState(pos).getValue(TradeTerminalBlock.FACTION) != visit.binding()) {
+            source.sendFailure(Component.translatable("command.nerofactions.terminal.not_near"));
+            return null;
+        }
+        FactionDecay.apply(server, playerId);
+        FactionDefinition faction = FactionDefinitions.factionsForServer(server).get(visit.faction());
+        if (faction == null || (visit.binding() == OutpostFaction.NONE
+                && !FactionMembership.membershipOf(server, playerId).contains(faction.id()))) {
             source.sendFailure(Component.translatable("message.nerofactions.terminal.not_member"));
+            return null;
+        }
+        FactionAccess access = FactionAccess.evaluate(server, playerId, faction);
+        if (access.refusesService()) {
+            source.sendFailure(TradeTerminalBlock.refusal(faction, access));
             return null;
         }
         return faction;
@@ -774,7 +781,9 @@ public final class FactionCommands {
         source.sendSuccess(() -> Component.translatable("command.nerofactions.reload.header",
                 factionCount), false);
 
-        List<ValidationIssue> issues = FactionDefinitions.validationIssues();
+        za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
+        List<ValidationIssue> issues = new ArrayList<>(FactionDefinitions.validationIssues());
+        issues.addAll(za.co.neroland.nerofactions.contracts.ContractDefinitions.issuesForServer(server));
         if (issues.isEmpty()) {
             source.sendSuccess(() -> Component.translatable("command.nerofactions.reload.clean"), false);
         } else {

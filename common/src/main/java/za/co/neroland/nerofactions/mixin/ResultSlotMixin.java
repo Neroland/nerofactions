@@ -37,6 +37,17 @@ abstract class ResultSlotMixin {
     @Final
     private Player player;
 
+    @Shadow
+    private int removeCount;
+
+    @org.spongepowered.asm.mixin.injection.Inject(method = "checkTakeAchievements", at = @At("HEAD"))
+    private void nerofactions$contractCraft(net.minecraft.world.item.ItemStack stack,
+            org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        if (player instanceof ServerPlayer serverPlayer && removeCount > 0) {
+            za.co.neroland.nerofactions.contracts.ContractService.crafted(serverPlayer, stack, removeCount);
+        }
+    }
+
     //? if >=1.21.2 {
     @Redirect(method = "getRemainingItems",
             at = @At(value = "INVOKE",

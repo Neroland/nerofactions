@@ -38,6 +38,7 @@ public final class FactionsTicker {
             return;
         }
         FactionDefinitions.refreshIfReloaded(server);
+        za.co.neroland.nerofactions.contracts.ContractService.tick(server);
         long now = FactionMembership.clock.getAsLong();
         if (lastSweepAt != Long.MIN_VALUE && now - lastSweepAt < SWEEP_INTERVAL_MS) {
             return;

@@ -24,6 +24,13 @@ class FactionTiersTest {
             Map.of(), List.of(), List.of(), Optional.empty());
 
     @Test
+    void hostileBandIsSeparateFromTheTierAndUsesAnExclusiveBoundary() {
+        org.junit.jupiter.api.Assertions.assertFalse(FactionTiers.isHostile(-100, -100));
+        org.junit.jupiter.api.Assertions.assertTrue(FactionTiers.isHostile(-101, -100));
+        assertEquals(FactionTier.OUTSIDER, FactionTiers.tierOf(LADDER, -101));
+    }
+
+    @Test
     void exactlyAtAThresholdBelongsToTheHigherTier() {
         assertEquals(FactionTier.ASSOCIATE, FactionTiers.tierOf(LADDER, 100));
         assertEquals(FactionTier.MEMBER, FactionTiers.tierOf(LADDER, 400));

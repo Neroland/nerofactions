@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:miner_union_armor_trim_smithing_template",
+  "addition": "nerofactions:miner_union_trim_material",
+  "pattern": "nerofactions:miner_union"
+}

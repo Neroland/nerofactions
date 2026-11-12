@@ -73,3 +73,18 @@ faction membership or reputation values. It is **on by default** and opt-out via
 `telemetryEnabled=false` in `config/nerofactions.properties`; nothing is sent while
 disabled, and nothing is ever sent before your config choice has loaded. Full details in
 [PRIVACY.md](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md).
+
+## In-game standing sync
+
+The server sends the connected player their own faction standings, memberships, tiers and cooldown,
+plus the faction catalogue needed to display them. This snapshot contains no player identifier or
+coordinates. The client keeps it in memory and clears it when disconnecting. It is not additional
+persistent storage or telemetry.
+
+## Contract state
+
+The server stores today's assignments, progress, claimed markers, daily reroll-token state, a
+high-water day and a completion count per player. No visit coordinates are stored. Offline
+assignments expire at the server day boundary; inactive rows follow `retentionDays`. Export and
+erasure cover the store and its recovery backup. Board snapshots contain only the receiving
+player's contracts and are cleared from client memory on disconnect or erasure.

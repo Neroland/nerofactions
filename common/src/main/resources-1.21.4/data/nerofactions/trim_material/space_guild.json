@@ -1,0 +1,8 @@
+{
+  "asset_name": "space_guild",
+  "description": {
+    "color": "#77bed2",
+    "translate": "trim_material.nerofactions.space_guild"
+  },
+  "ingredient": "nerofactions:space_guild_trim_material"
+}

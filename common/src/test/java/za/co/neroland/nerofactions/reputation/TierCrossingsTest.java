@@ -31,6 +31,15 @@ import za.co.neroland.nerolandcore.event.ThresholdEvents.ThresholdCrossing;
  */
 class TierCrossingsTest {
 
+    @Test
+    void crossingZeroDoesNotInventASixthTier() {
+        FactionDefinition ladder = faction("zero");
+        assertTrue(TierCrossings.crossings(ladder, -100, 0).isEmpty());
+        assertTrue(TierCrossings.crossings(ladder, 0, -100).isEmpty());
+        assertEquals(1, TierCrossings.crossings(ladder, -100, 100).size());
+        assertEquals(1, TierCrossings.crossings(ladder, 100, -100).size());
+    }
+
     private static FactionDefinition faction(String path) {
         return new FactionDefinition(
                 Identifier.fromNamespaceAndPath("nerofactions", path),

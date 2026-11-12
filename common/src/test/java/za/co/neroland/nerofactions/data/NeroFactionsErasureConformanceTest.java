@@ -44,6 +44,28 @@ import za.co.neroland.nerolandcore.reputation.ReputationProvider;
  */
 class NeroFactionsErasureConformanceTest {
 
+    @Test
+    void contractAssignmentsProgressTokensAndCountAreErasedForOnlyTheSubject() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        var contracts = new ContractState();
+        var pool = za.co.neroland.nerofactions.contracts.ContractFixtures.pool();
+        var faction = za.co.neroland.nerofactions.contracts.ContractFixtures.FACTION;
+        contracts.ensure(player, faction, 0, 123, 5, pool);
+        contracts.ensure(bystander, faction, 0, 123, 5, pool);
+        contracts.advance(player, faction, 0, 16);
+        contracts.reserveReward(player, faction, 0);
+        var reputation = new FactionReputationState();
+        ReputationApi.setProvider(reputation);
+        register((server, uuid) -> { contracts.forget(uuid); reputation.forgetPlayer(uuid); });
+        ErasureConformance.create().probe("nerofactions:contracts", uuid -> contracts.knownPlayers().contains(uuid))
+                .verify(null, player);
+        assertTrue(contracts.entries(player).isEmpty());
+        assertTrue(contracts.completed(player) == 0);
+        assertFalse(contracts.rerollAvailable(player));
+        assertFalse(contracts.entries(bystander).isEmpty());
+    }
+
     private static final Identifier GUILD = Identifier.parse("nerofactions:test_guild");
     private static final Identifier UNION = Identifier.parse("nerofactions:test_union");
     private static final long T0 = 1_700_000_000_000L;

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "nerofactions:free_colonists_banner_pattern",
+    "nerofactions:miner_union_banner_pattern",
+    "nerofactions:nero_corporation_banner_pattern",
+    "nerofactions:salvagers_banner_pattern",
+    "nerofactions:space_guild_banner_pattern",
+    "nerofactions:terraforming_authority_banner_pattern",
+    "nerofactions:void_cult_banner_pattern"
+  ]
+}

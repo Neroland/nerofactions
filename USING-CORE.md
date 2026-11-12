@@ -1,7 +1,7 @@
 # Neroland Core APIs used by NeroFactions
 
 Every Neroland Core surface this mod actually consumes, verified against the imports in
-`common/src`. NeroFactions compiles against **Core 1.15.0** and pins its loader-manifest floor
+`common/src`. NeroFactions compiles against **Core 1.17.5** and pins its loader-manifest floor
 to that compiled version: it needs 1.11.0's `SavedDataRecovery`, `ErasureConformance` and
 `PlayerActivity`, 1.13.0's 26.3 cells, and 1.15.0's offline-capable player gate writes and sourced
 threshold crossings, in addition to the older reputation/config/gate/link APIs.

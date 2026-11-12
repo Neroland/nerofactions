@@ -86,6 +86,7 @@ public final class RetentionSweep {
     public static int sweep(MinecraftServer server) {
         Set<UUID> known = new LinkedHashSet<>(FactionReputationState.get(server).knownPlayers());
         known.addAll(FactionMembershipState.get(server).knownPlayers());
+        known.addAll(ContractState.get(server).knownPlayers());
         int purged = sweep(NeroFactionsConfig.RETENTION_DAYS.get(), known,
                 days -> PlayerActivity.get(server).stalerThan(days),
                 player -> NeroFactionsData.eraseLocal(server, player));

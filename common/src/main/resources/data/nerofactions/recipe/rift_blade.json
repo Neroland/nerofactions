@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:void_cult",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "A",
+      "I",
+      "S"
+    ],
+    "key": {
+      "A": "minecraft:amethyst_shard",
+      "I": "minecraft:iron_ingot",
+      "S": "minecraft:stick"
+    },
+    "result": {
+      "id": "nerofactions:rift_blade",
+      "count": 1
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:nero_corporation_armor_trim_smithing_template",
+  "addition": "nerofactions:nero_corporation_trim_material",
+  "pattern": "nerofactions:nero_corporation"
+}

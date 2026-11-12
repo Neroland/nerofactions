@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","category":"misc","pattern":["IPI","IBI","III"],"key":{"I":"minecraft:iron_ingot","P":"minecraft:paper","B":"minecraft:book"},"result":{"id":"nerofactions:faction_registry","count":1}}

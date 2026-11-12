@@ -43,6 +43,16 @@ public final class NeroFactionsConfig {
 
     // --- Factions, tiers and membership (server-authoritative) --------------
 
+    public static final ConfigValue<Integer> HOSTILE_BELOW_STANDING = SCHEMA.intRange(
+            "hostileBelowStanding", -100, -1000000, -1, true,
+            "Reserved threshold for future hostile displays and faction hostility.");
+
+    public static final ConfigValue<Boolean> REGISTRY_ENABLED = SCHEMA.bool(
+            "registryEnabled", true, true, "Allow faction membership changes at the Faction Registry.");
+
+    public static final ConfigValue<Boolean> CONTRACTS_ENABLED = SCHEMA.bool(
+            "contractsEnabled", true, true, "Enable Contract Board assignments, objective tracking and rewards.");
+
     public static final ConfigValue<Boolean> ALLOW_MULTIPLE_FACTIONS = SCHEMA.bool(
             "allowMultipleFactions", false, true,
             "Whether a player may belong to more than one faction at once. Off (the default) is the "

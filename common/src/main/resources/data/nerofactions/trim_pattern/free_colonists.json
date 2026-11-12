@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:free_colonists",
+  "description": {
+    "translate": "trim_pattern.nerofactions.free_colonists"
+  },
+  "decal": false,
+  "template_item": "nerofactions:free_colonists_armor_trim_smithing_template"
+}

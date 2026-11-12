@@ -10,16 +10,49 @@
   },
   "rewards": {
     "associate": [
-      { "type": "item", "id": "minecraft:iron_ingot", "count": 8 },
-      { "type": "cosmetic", "cosmetic": "banner_pattern" }
+      {
+        "type": "item",
+        "id": "minecraft:iron_ingot",
+        "count": 8
+      },
+      {
+        "type": "cosmetic",
+        "cosmetic": "banner_pattern"
+      }
     ],
     "trusted": [
-      { "type": "item", "id": "minecraft:spyglass", "count": 1 },
-      { "type": "item", "id": "minecraft:gold_ingot", "count": 4 }
+      {
+        "type": "item",
+        "id": "minecraft:spyglass",
+        "count": 1
+      },
+      {
+        "type": "item",
+        "id": "minecraft:gold_ingot",
+        "count": 4
+      }
     ],
     "inner_circle": [
-      { "type": "item", "id": "minecraft:diamond", "count": 2 },
-      { "type": "cosmetic", "cosmetic": "trim_material" }
+      {
+        "type": "item",
+        "id": "nerofactions:space_guild_banner_pattern",
+        "count": 1
+      },
+      {
+        "type": "item",
+        "id": "minecraft:diamond",
+        "count": 2
+      },
+      {
+        "type": "item",
+        "id": "nerofactions:space_guild_armor_trim_smithing_template",
+        "count": 4
+      },
+      {
+        "type": "item",
+        "id": "nerofactions:space_guild_trim_material",
+        "count": 4
+      }
     ]
   },
   "enemies": [
@@ -29,15 +62,28 @@
   "trade": [
     {
       "tag": "c:ingots/iron",
-      "by_tier": { "associate": 0.95, "member": 0.9, "trusted": 0.85, "inner_circle": 0.8 }
+      "by_tier": {
+        "associate": 0.95,
+        "member": 0.9,
+        "trusted": 0.85,
+        "inner_circle": 0.8
+      }
     },
     {
       "tag": "c:dusts/redstone",
-      "by_tier": { "member": 0.9, "trusted": 0.85, "inner_circle": 0.8 }
+      "by_tier": {
+        "member": 0.9,
+        "trusted": 0.85,
+        "inner_circle": 0.8
+      }
     }
   ],
   "cosmetics": {
     "banner_pattern": "nerofactions:space_guild",
     "trim_material": "nerofactions:space_guild"
-  }
+  },
+  "color": "#77BED2",
+  "motto": "Keep the routes open.",
+  "icon": "minecraft:compass",
+  "description_key": "faction.nerofactions.space_guild.description"
 }

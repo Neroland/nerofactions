@@ -1,0 +1,8 @@
+{
+  "asset_name": "terraforming_authority",
+  "description": {
+    "color": "#76b8a2",
+    "translate": "trim_material.nerofactions.terraforming_authority"
+  },
+  "ingredient": "nerofactions:terraforming_authority_trim_material"
+}

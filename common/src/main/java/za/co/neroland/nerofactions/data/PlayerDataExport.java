@@ -53,12 +53,12 @@ public final class PlayerDataExport {
     /** The export for {@code player} from the live server's stores, stamped with the real clock. */
     public static String forPlayer(MinecraftServer server, UUID player) {
         return toJson(FactionReputationState.get(server), FactionMembershipState.get(server),
-                player, Services.PLATFORM.getModVersion(), System.currentTimeMillis());
+                ContractState.get(server), player, Services.PLATFORM.getModVersion(), System.currentTimeMillis());
     }
 
     /** The pure core, parameterised for the plain-JVM tests. */
     static String toJson(FactionReputationState reputation, FactionMembershipState membership,
-            UUID player, String modVersion, long generatedAtMs) {
+            ContractState contracts, UUID player, String modVersion, long generatedAtMs) {
         JsonObject root = new JsonObject();
         root.addProperty("mod", "nerofactions");
         root.addProperty("mod_version", modVersion);
@@ -95,6 +95,7 @@ public final class PlayerDataExport {
         sorted(view.rewarded()).forEach(watermarks::addProperty);
         membershipSection.add("reward_watermarks", watermarks);
         root.add("membership", membershipSection);
+        root.add("contracts", contracts.export(player));
 
         return GSON.toJson(root);
     }

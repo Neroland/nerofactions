@@ -70,6 +70,7 @@ public final class NeroFactionsCommon {
         NeroFactionsBlocks.init();
         NeroFactionsItems.init();
         NeroFactionsRecipes.init();
+        za.co.neroland.nerofactions.registry.NeroFactionsMenus.init();
         NeroFactionsCreativeTab.init();
 
         // 4. Player-data erasure registration + the real Core reputation provider — registered

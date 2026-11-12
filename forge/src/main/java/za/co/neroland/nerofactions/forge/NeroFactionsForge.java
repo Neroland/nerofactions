@@ -24,5 +24,8 @@ public final class NeroFactionsForge {
         *///?}
         ForgeFactionsNetwork.register();
         ForgeFactionsEvents.register();
+        if (za.co.neroland.nerofactions.platform.Services.PLATFORM.isClient()) {
+            ForgeFactionsClient.init(context);
+        }
     }
 }

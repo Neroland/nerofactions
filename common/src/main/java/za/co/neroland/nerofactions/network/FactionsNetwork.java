@@ -25,12 +25,7 @@ import za.co.neroland.nerofactions.platform.Services;
  * downstream registration would be silently dropped — see
  * {@link za.co.neroland.nerofactions.platform.NetworkPlatform} for the full reasoning.
  *
- * <p><b>No payloads are declared yet.</b> The channel and the declare-once/register-per-loader
- * split are laid down in the foundation stage so later stages (reputation sync, faction
- * membership screens) only have to add {@code clientbound(...)}/{@code serverbound(...)} lines to
- * {@link #init()} — the loader registration passes already iterate whatever is declared, and each
- * handles an empty list cleanly. NeroFactions remains server-authoritative end to end: reputation
- * and membership are decided server-side and the client renders what it is told.
+ * <p>Standing snapshots contain only the receiving player's state.
  */
 public final class FactionsNetwork {
 
@@ -84,14 +79,21 @@ public final class FactionsNetwork {
      * Declares the payloads. Called once from common init, before any loader registers them (each
      * loader entry point runs common init first, then its own network registration). On Forge in
      * particular the channel is sealed at {@code build()}, so a payload declared later would never
-     * exist. Currently declares nothing — later stages add their payload lines here.
+     * exist.
      */
     public static void init() {
         if (declared) {
             return; // defensive: a second call must not duplicate registrations
         }
         declared = true;
-        // Later stages declare payloads here (clientbound(...) / serverbound(...)).
+        clientbound(ContractSnapshot.TYPE, ContractSnapshot.STREAM_CODEC,
+                za.co.neroland.nerofactions.client.FactionsClientState::acceptContracts);
+        serverbound(ContractIntent.TYPE, ContractIntent.STREAM_CODEC, ContractIntent::handle);
+        serverbound(OpenContractBoard.TYPE, OpenContractBoard.STREAM_CODEC, OpenContractBoard::handle);
+        clientbound(StandingSnapshot.TYPE, StandingSnapshot.STREAM_CODEC,
+                za.co.neroland.nerofactions.client.FactionsClientState::accept);
+        za.co.neroland.nerolandcore.reputation.ReputationEvents.onChange(change ->
+                StandingSync.send(za.co.neroland.nerofactions.NeroFactionsCommon.REPUTATION_PROVIDER.boundServer(), change.player()));
     }
 
     /**
@@ -101,6 +103,6 @@ public final class FactionsNetwork {
      * synced cache must clear it here.
      */
     public static void clearClientCaches() {
-        // Later stages clear their client mirror caches here.
+        za.co.neroland.nerofactions.client.FactionsClientState.clear();
     }
 }

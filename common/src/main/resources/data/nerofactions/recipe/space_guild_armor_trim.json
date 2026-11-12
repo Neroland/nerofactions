@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:smithing_trim",
+  "base": "#minecraft:trimmable_armor",
+  "template": "nerofactions:space_guild_armor_trim_smithing_template",
+  "addition": "nerofactions:space_guild_trim_material",
+  "pattern": "nerofactions:space_guild"
+}

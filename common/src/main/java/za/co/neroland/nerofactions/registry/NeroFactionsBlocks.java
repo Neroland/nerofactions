@@ -44,6 +44,14 @@ public final class NeroFactionsBlocks {
                     .requiresCorrectToolForDrops()
                     .sound(SoundType.METAL)));
 
+    public static final RegistryEntry<Block> FACTION_REGISTRY = BLOCKS.register("faction_registry",
+            key -> new za.co.neroland.nerofactions.block.FactionRegistryBlock(BlockBehaviour.Properties.of()
+                    .setId(key).mapColor(MapColor.COLOR_CYAN).strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
+    public static final RegistryEntry<Block> CONTRACT_BOARD = BLOCKS.register("contract_board",
+            key -> new za.co.neroland.nerofactions.block.ContractBoardBlock(BlockBehaviour.Properties.of()
+                    .setId(key).mapColor(MapColor.COLOR_CYAN).strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
     private NeroFactionsBlocks() {
     }
 

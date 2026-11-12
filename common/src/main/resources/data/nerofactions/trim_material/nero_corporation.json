@@ -1,0 +1,9 @@
+{
+  "asset_name": "nero_corporation",
+  "description": {
+    "color": "#85a8d6",
+    "translate": "trim_material.nerofactions.nero_corporation"
+  },
+  "ingredient": "nerofactions:nero_corporation_trim_material",
+  "item_model_index": 0.03
+}

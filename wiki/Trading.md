@@ -1,11 +1,13 @@
 # Trading — the Faction Trade Terminal
 
-The **Faction Trade Terminal** is NeroFactions' one block: a shared counter that serves
-every faction. Which faction's shop you see is decided by *your* memberships, not by the
-block — a base needs only one terminal.
+The **Faction Trade Terminal** is a shared counter. A crafted terminal serves the factions
+you belong to. It uses the vanilla merchant screen.
 
-In this release the terminal reuses vanilla textures (a re-dressed lodestone look) and the
-vanilla merchant screen — there is deliberately no custom art or custom GUI yet.
+An operator can bind a terminal to one faction using its `faction` block state. The bound
+counter serves neutral visitors. It refuses players with standing below
+`hostileBelowStanding` and members of its enemy factions at Trusted or Inner Circle.
+Enemy members at Member tier pay the configured surcharge on both emerald and credit
+offers. The counter closes if access changes during a trade session.
 
 ## Placing one
 
@@ -17,7 +19,7 @@ I E I        E = emerald
 S S S        S = smooth stone
 ```
 
-Placing a faction counter takes nobody's permission; **trading at one takes membership**.
+Trading at a crafted terminal requires faction membership.
 
 ## Using it
 

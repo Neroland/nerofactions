@@ -17,6 +17,7 @@ import za.co.neroland.nerofactions.content.Cosmetics;
 import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.TradeModifier;
+import za.co.neroland.nerofactions.content.faction.FactionAccess;
 import za.co.neroland.nerofactions.trade.TerminalOffers.OfferSpec;
 
 /**
@@ -192,5 +193,21 @@ class TerminalOffersTest {
         for (TerminalOffers.CreditOffer offer : inner) {
             assertTrue(offer.price() >= 1L);
         }
+    }
+
+    @Test
+    void rivalSurchargeUsesTheCapForAllOffersAndRefusedTradersHaveNone() {
+        FactionDefinition union = faction(List.of(ores(Map.of("member", 0.8D))), true);
+        var offers = TerminalOffers.specs(union, FactionTier.MEMBER, RESOLVER, 30, 25, FactionAccess.SURCHARGE);
+        assertEquals(5, offers.getFirst().costCount());
+        assertEquals(4, offers.getLast().costCount());
+        assertEquals(13, TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 25, 10,
+                FactionAccess.SURCHARGE).getFirst().price());
+        assertEquals(10, TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 0, 10,
+                FactionAccess.SURCHARGE).getFirst().price());
+        assertTrue(TerminalOffers.specs(union, FactionTier.MEMBER, RESOLVER, 30, 25,
+                FactionAccess.REFUSE_RIVAL).isEmpty());
+        assertTrue(TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 25, 10,
+                FactionAccess.REFUSE_STANDING).isEmpty());
     }
 }

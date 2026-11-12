@@ -11,10 +11,18 @@ import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
+import za.co.neroland.nerofactions.block.TradeTerminalBlock;
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.content.FactionDefinition;
+import za.co.neroland.nerofactions.content.FactionDefinitions;
+import za.co.neroland.nerofactions.content.FactionTier;
+import za.co.neroland.nerofactions.content.FactionTiers;
+import za.co.neroland.nerofactions.content.faction.FactionAccess;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.membership.FactionMembership;
+import za.co.neroland.nerolandcore.reputation.ReputationApi;
 import za.co.neroland.nerofactions.progression.RecordGates;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerofactions.reputation.ReputationSources.Source;
@@ -46,18 +54,22 @@ public final class TerminalMerchant implements Merchant {
     private final ServerPlayer player;
     private final Level level;
     private final BlockPos pos;
-    private final Block terminalBlock;
+    private final BlockState terminalState;
+    private final FactionAccess access;
+    private final FactionTier tier;
     private final FactionDefinition faction;
     private final MerchantOffers offers;
 
     private Player tradingPlayer;
 
-    public TerminalMerchant(ServerPlayer player, Level level, BlockPos pos, Block terminalBlock,
-            FactionDefinition faction, MerchantOffers offers) {
+    public TerminalMerchant(ServerPlayer player, Level level, BlockPos pos, BlockState terminalState,
+            FactionDefinition faction, FactionAccess access, FactionTier tier, MerchantOffers offers) {
         this.player = player;
         this.level = level;
         this.pos = pos;
-        this.terminalBlock = terminalBlock;
+        this.terminalState = terminalState;
+        this.access = access;
+        this.tier = tier;
         this.faction = faction;
         this.offers = offers;
     }
@@ -128,10 +140,17 @@ public final class TerminalMerchant implements Merchant {
     @Override
     //?}
     public boolean stillValid(Player who) {
-        return tradingPlayer == who
-                && who.isAlive()
-                && who.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D)
-                        <= MAX_DISTANCE_SQ
-                && level.getBlockState(pos).is(terminalBlock);
+        MinecraftServer server = level.getServer();
+        if (server == null || tradingPlayer != who || !who.isAlive() || who.level() != level
+                || who.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > MAX_DISTANCE_SQ
+                || level.getBlockState(pos) != terminalState) {
+            return false;
+        }
+        FactionDefinition current = FactionDefinitions.factionsForServer(server).get(faction.id());
+        return current == faction
+                && (terminalState.getValue(TradeTerminalBlock.FACTION) != OutpostFaction.NONE
+                    || FactionMembership.membershipOf(server, player.getUUID()).contains(faction.id()))
+                && FactionAccess.evaluate(server, player.getUUID(), faction) == access
+                && FactionTiers.tierOf(faction, ReputationApi.getReputation(player.getUUID(), faction.id())) == tier;
     }
 }

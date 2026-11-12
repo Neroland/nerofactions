@@ -32,6 +32,16 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Guard against private references in wiki/
+        run: |
+          set -euo pipefail
+          PATTERN='neroland-mc-ecosystem|BUILD-PROMPT|PLAN-0\.7\.0|PROGRESS([.-]|$)|AUDIT|SMOKE-TEST'
+          if grep -rniE "$PATTERN" wiki/; then
+            echo "::error::wiki/ contains private planning references."
+            exit 1
+          fi
+          echo "wiki/ contains no private references."
+
       - name: Mirror wiki/ into the wiki repo and push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

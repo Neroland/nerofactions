@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -33,9 +34,8 @@ import org.junit.jupiter.api.Test;
  * package-private {@link FactionDefinitions#validate} the real loader runs; only the resource
  * walk and the item-registry seam differ (no server, no registry bootstrap in a plain JVM).
  *
- * <p>The item seam is a curated list of the exact vanilla items the shipped content is allowed to
- * reference. A typo'd or non-vanilla item id therefore fails this test the same way an unknown
- * registry id would fail the real load.
+ * <p>The item seam lists the vanilla reward items and the shipped faction patterns. Unknown
+ * item IDs fail validation here the same way they would fail the registry check at runtime.
  */
 class ShippedFactionContentTest {
 
@@ -53,8 +53,13 @@ class ShippedFactionContentTest {
             "minecraft:cooked_beef", "minecraft:lantern", "minecraft:golden_carrot",
             "minecraft:anvil");
 
-    private static final Predicate<Identifier> ITEM_EXISTS =
-            id -> KNOWN_VANILLA_ITEMS.contains(id.toString());
+    private static final Set<String> SHIPPED_COSMETIC_ITEMS = SHIPPED_FACTIONS.stream()
+            .flatMap(faction -> Stream.of("_banner_pattern", "_trim_material", "_armor_trim_smithing_template")
+                    .map(suffix -> "nerofactions:" + faction + suffix))
+            .collect(Collectors.toUnmodifiableSet());
+
+    private static final Predicate<Identifier> ITEM_EXISTS = id ->
+            KNOWN_VANILLA_ITEMS.contains(id.toString()) || SHIPPED_COSMETIC_ITEMS.contains(id.toString());
 
     @Test
     void allSevenShippedFactionsParseAndValidateClean() throws Exception {

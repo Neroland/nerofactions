@@ -1,0 +1,8 @@
+{
+  "asset_id": "nerofactions:void_cult",
+  "description": {
+    "translate": "trim_pattern.nerofactions.void_cult"
+  },
+  "decal": false,
+  "template_item": "nerofactions:void_cult_armor_trim_smithing_template"
+}

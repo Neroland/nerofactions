@@ -1,0 +1,81 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/free_colonists",
+        "nerofactions:trims/entity/humanoid_leggings/free_colonists"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "free_colonists": "nerofactions:trims/color_palettes/free_colonists"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/miner_union",
+        "nerofactions:trims/entity/humanoid_leggings/miner_union"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "miner_union": "nerofactions:trims/color_palettes/miner_union"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/nero_corporation",
+        "nerofactions:trims/entity/humanoid_leggings/nero_corporation"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "nero_corporation": "nerofactions:trims/color_palettes/nero_corporation"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/salvagers",
+        "nerofactions:trims/entity/humanoid_leggings/salvagers"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "salvagers": "nerofactions:trims/color_palettes/salvagers"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/space_guild",
+        "nerofactions:trims/entity/humanoid_leggings/space_guild"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "space_guild": "nerofactions:trims/color_palettes/space_guild"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/terraforming_authority",
+        "nerofactions:trims/entity/humanoid_leggings/terraforming_authority"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "terraforming_authority": "nerofactions:trims/color_palettes/terraforming_authority"
+      }
+    },
+    {
+      "type": "minecraft:paletted_permutations",
+      "textures": [
+        "nerofactions:trims/entity/humanoid/void_cult",
+        "nerofactions:trims/entity/humanoid_leggings/void_cult"
+      ],
+      "palette_key": "minecraft:trims/color_palettes/trim_palette",
+      "permutations": {
+        "void_cult": "nerofactions:trims/color_palettes/void_cult"
+      }
+    }
+  ]
+}
