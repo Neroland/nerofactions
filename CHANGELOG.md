@@ -18,6 +18,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Trusted rival membership cause refusal, and Member rivals pay the capped surcharge.
 - Craftable Faction Registry with a membership menu, confirmation and server-configured penalty/cooldown previews.
 - Server-side faction API with immutable views and capped event awards.
+- Rift Blade, a Void Cult Member recipe. Eligible members can briefly blind a target and
+  siphon two experience points from a hostile mob they kill with the blade.
+- Seven shared first-contract milestones in the optional Standing quest chapter.
+- Miner Union Quota Board. Members can deposit ores, ingots or raw metal blocks for
+  capped trade standing and, when a credit provider is installed, credits.
+- Union Breaker area pickaxe and Union Exosuit, with tier-gated effects.
+- NeroLink schema 2 contract and gear views, contract completion events and a daily reroll action.
 - Owner-only in-game standing snapshots, including membership, cooldown and hostile-band status.
 - `hostileBelowStanding` setting; the hostile band remains separate from the five reputation tiers.
 

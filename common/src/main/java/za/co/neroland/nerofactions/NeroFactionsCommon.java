@@ -14,6 +14,8 @@ import za.co.neroland.nerofactions.registry.NeroFactionsBlocks;
 import za.co.neroland.nerofactions.registry.NeroFactionsCreativeTab;
 import za.co.neroland.nerofactions.registry.NeroFactionsItems;
 import za.co.neroland.nerofactions.registry.NeroFactionsRecipes;
+import za.co.neroland.nerofactions.registry.NeroFactionsWorldgen;
+import za.co.neroland.nerofactions.registry.NeroFactionsEntities;
 import za.co.neroland.nerofactions.reputation.ServerReputationProvider;
 import za.co.neroland.nerofactions.reputation.TierCrossings;
 import za.co.neroland.nerofactions.telemetry.NeroFactionsTelemetry;
@@ -70,6 +72,8 @@ public final class NeroFactionsCommon {
         NeroFactionsBlocks.init();
         NeroFactionsItems.init();
         NeroFactionsRecipes.init();
+        NeroFactionsWorldgen.init();
+        NeroFactionsEntities.init();
         za.co.neroland.nerofactions.registry.NeroFactionsMenus.init();
         NeroFactionsCreativeTab.init();
 
@@ -112,7 +116,7 @@ public final class NeroFactionsCommon {
         //    before the mod itself has finished reacting to it (its tier-change events are also
         //    fed after the bus/reward/gate chain, via TierCrossings' consumer seam). Its own init
         //    swallows any failure — a broken link module must never take the faction layer down
-        //    with it. Read-only by policy: snapshots + events, no actions.
+        //    with it. The only write action is an authenticated daily contract reroll.
         FactionsLinkModule.init();
     }
 }

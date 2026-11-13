@@ -1,10 +1,14 @@
 package za.co.neroland.nerofactions.config;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import za.co.neroland.nerolandcore.config.ConfigManager;
 import za.co.neroland.nerolandcore.config.ConfigSchema;
 import za.co.neroland.nerolandcore.config.ConfigValue;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 /**
  * NeroFactions config schema, built on Neroland Core's config framework (file
@@ -41,17 +45,52 @@ public final class NeroFactionsConfig {
             "Whether the NeroLink companion module is registered. Snapshots are per-player scoped and "
                     + "never enumerate other players.");
 
+    public static final ConfigValue<Boolean> LINK_REROLL_ENABLED = SCHEMA.bool(
+            "linkRerollEnabled", true, true, "Allow online players to spend their daily contract reroll through NeroLink.");
+
+    public static final ConfigValue<Boolean> OUTPOST_VISITS_ENABLED = SCHEMA.bool(
+            "outpostVisitsEnabled", true, true, "Record outpost visits by faction and dimension for export and NeroLink.");
+
     // --- Factions, tiers and membership (server-authoritative) --------------
 
     public static final ConfigValue<Integer> HOSTILE_BELOW_STANDING = SCHEMA.intRange(
             "hostileBelowStanding", -100, -1000000, -1, true,
-            "Reserved threshold for future hostile displays and faction hostility.");
+            "Standing below this value triggers hostility at faction outposts.");
+
+    private static final Map<OutpostFaction, ConfigValue<Boolean>> OUTPOSTS = registerOutpostToggles();
+
+    private static Map<OutpostFaction, ConfigValue<Boolean>> registerOutpostToggles() {
+        Map<OutpostFaction, ConfigValue<Boolean>> toggles = new EnumMap<>(OutpostFaction.class);
+        for (OutpostFaction faction : OutpostFaction.values()) {
+            if (faction != OutpostFaction.NONE) {
+                String id = faction.getSerializedName();
+                toggles.put(faction, SCHEMA.bool("outposts." + id, true, true,
+                        "Generate " + id + " outposts in new chunks."));
+            }
+        }
+        return Map.copyOf(toggles);
+    }
+
+    public static boolean outpostEnabled(OutpostFaction faction) {
+        ConfigValue<Boolean> enabled = OUTPOSTS.get(faction);
+        return enabled != null && enabled.get();
+    }
 
     public static final ConfigValue<Boolean> REGISTRY_ENABLED = SCHEMA.bool(
             "registryEnabled", true, true, "Allow faction membership changes at the Faction Registry.");
 
     public static final ConfigValue<Boolean> CONTRACTS_ENABLED = SCHEMA.bool(
             "contractsEnabled", true, true, "Enable Contract Board assignments, objective tracking and rewards.");
+
+    public static final ConfigValue<Boolean> QUOTA_BOARD_ENABLED = SCHEMA.bool(
+            "quotaBoardEnabled", true, true, "Allow Miner Union members to deposit resources at a Quota Board.");
+
+    public static final ConfigValue<Integer> QUOTA_BASE_TONNES = SCHEMA.intRange(
+            "quotaBaseTonnes", 64, 1, 819, true,
+            "Base weekly Miner Union quota in tonnes. Multiplied by 1 through 5 according to the member's standing tier.");
+
+    public static final ConfigValue<Boolean> NAVIGATION_BEACON_ENABLED = SCHEMA.bool(
+            "navigationBeaconEnabled", true, true, "Enable waypoint binding and the Navigation Beacon's 24-block fall protection.");
 
     public static final ConfigValue<Boolean> ALLOW_MULTIPLE_FACTIONS = SCHEMA.bool(
             "allowMultipleFactions", false, true,

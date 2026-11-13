@@ -18,12 +18,13 @@ never force it on or off.
 | Key | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
 | `linkModuleEnabled` | boolean | `true` | — | Whether the NeroLink companion module is registered. Snapshots are per-player scoped and never enumerate other players. `false` removes NeroFactions from companion apps entirely. See [Link module](Link-Module). |
+| `linkRerollEnabled` | boolean | `true` | — | Allow NeroLink to spend the player's daily contract reroll. |
 
 ## Factions, tiers and membership
 
 | Key | Type | Default | Range | Meaning |
 | --- | --- | --- | --- | --- |
-| `hostileBelowStanding` | int | `-100` | -1000000–-1 | Standing below this value is marked hostile in the server snapshot; guard and screen behavior is still under development. |
+| `hostileBelowStanding` | int | `-100` | -1000000–-1 | Standing strictly below this value triggers Guard hostility and trade refusal. |
 | `contractsEnabled` | boolean | `true` | — | Enable Board assignments, objective tracking and rewards. Export and erasure remain available when disabled. |
 | `registryEnabled` | boolean | `true` | — | Allow Registry membership interactions. Commands remain available when disabled. |
 | `allowMultipleFactions` | boolean | `false` | — | Whether a player may belong to more than one faction at once. Off (the default) is the single-allegiance rule: joining a second faction is refused until the first is left. |
@@ -31,6 +32,21 @@ never force it on or off.
 | `switchPenaltyPoints` | int | `50` | 0–100000 | Reputation points lost with a faction the moment a player leaves it (`0` disables). The remainder then decays per `decayPointsPerDay`. |
 | `decayPointsPerDay` | int | `25` | 0–100000 | How many reputation points a left faction's standing moves toward 0 per whole real-time day after leaving. Standing is never wiped or frozen by leaving; it erodes at this rate and stops at 0. `0` disables decay. |
 | `enemyBleedRatio` | double | `0.5` | 0.0–1.0 | When a source award grants reputation with a faction, each faction on its enemies list loses `round(award × this ratio)`. Applies only to source awards — never to decay or admin writes. `0.0` disables enemy bleed entirely. |
+
+## Miner Union Quota Board
+
+- `quotaBoardEnabled` defaults to `true`. Disable it to turn off the board.
+- `quotaBaseTonnes` defaults to 64. The player's tier multiplies this base by 1
+  at Outsider through 5 at Inner Circle.
+
+## Outposts
+
+- `outposts.<faction>` defaults to `true` for each shipped faction. Set a
+  faction's key to `false` to stop new outposts from generating in ungenerated chunks.
+- `outpostVisitsEnabled` defaults to `true`. Disabling it stops recording new
+  faction-and-dimension visits. Existing entries remain available for export and erasure.
+- A server datapack can override `nerofactions:outpost/<faction>` in the
+  `worldgen/structure_set` registry to tune the spacing and separation in chunks.
 
 ## Reputation sources — weights and daily caps
 

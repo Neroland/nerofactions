@@ -38,7 +38,9 @@ public final class FactionsTicker {
             return;
         }
         FactionDefinitions.refreshIfReloaded(server);
+        za.co.neroland.nerofactions.content.faction.GearSetBonuses.tick(server);
         za.co.neroland.nerofactions.contracts.ContractService.tick(server);
+        za.co.neroland.nerofactions.content.faction.OutpostStructure.trackVisits(server);
         long now = FactionMembership.clock.getAsLong();
         if (lastSweepAt != Long.MIN_VALUE && now - lastSweepAt < SWEEP_INTERVAL_MS) {
             return;

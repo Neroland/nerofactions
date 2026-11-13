@@ -97,6 +97,76 @@
       "quest": "nerofactions:standing/server_first_circle",
       "x": 2,
       "y": 16
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_first_contract",
+      "x": 6,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_first_contract",
+      "x": 6,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_first_contract",
+      "x": 6,
+      "y": 4
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_first_contract",
+      "x": 6,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_first_contract",
+      "x": 6,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_first_contract",
+      "x": 6,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_first_contract",
+      "x": 6,
+      "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_outpost_found",
+      "x": 8,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_outpost_found",
+      "x": 8,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_outpost_found",
+      "x": 8,
+      "y": 4
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_outpost_found",
+      "x": 8,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_outpost_found",
+      "x": 8,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_outpost_found",
+      "x": 8,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_outpost_found",
+      "x": 8,
+      "y": 12
     }
   ]
 }

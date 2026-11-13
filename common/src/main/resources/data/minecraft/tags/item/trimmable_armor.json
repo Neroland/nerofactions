@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "nerofactions:union_exosuit_helmet",
+    "nerofactions:union_exosuit_chestplate",
+    "nerofactions:union_exosuit_leggings",
+    "nerofactions:union_exosuit_boots"
+  ]
+}

@@ -12,6 +12,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.resources.Identifier;
 
 import org.junit.jupiter.api.Test;
+import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
 
 /**
  * Plain-JVM tests for the DSAR export serialiser: everything both stores hold for the subject —
@@ -31,7 +32,7 @@ class PlayerDataExportTest {
         contracts.ensure(other, faction, 0, 123, 6, pool);
         contracts.advance(player, faction, 0, 3);
         String json = PlayerDataExport.toJson(new FactionReputationState(), new FactionMembershipState(),
-                contracts, player, "test", T0);
+                contracts, new QuotaState(), new OutpostVisits(), player, "test", T0);
         var section = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("contracts");
         assertEquals(5, section.get("day").getAsLong());
         assertEquals(3, section.getAsJsonArray("entries").size());
@@ -64,10 +65,11 @@ class PlayerDataExportTest {
         membership.raiseRewardWatermark(player, GUILD, 3);
         membership.recordJoin(bystander, GUILD, T0);
 
-        String json = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
+        String json = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
+        assertEquals(0, root.getAsJsonObject("miner_quota").size());
         assertEquals("1.2.3-test", root.get("mod_version").getAsString());
         assertEquals("2023-11-14T22:13:20Z", root.get("generated_at").getAsString());
 
@@ -99,7 +101,7 @@ class PlayerDataExportTest {
     @Test
     void aPlayerTheModHoldsNothingForGetsAnEmptyEnvelope() {
         String json = PlayerDataExport.toJson(new FactionReputationState(),
-                new FactionMembershipState(), new ContractState(), UUID.randomUUID(), "1.2.3-test", T0);
+                new FactionMembershipState(), new ContractState(), new QuotaState(), new OutpostVisits(), UUID.randomUUID(), "1.2.3-test", T0);
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
@@ -122,8 +124,8 @@ class PlayerDataExportTest {
         membership.recordJoin(player, UNION, T0);
         membership.recordJoin(player, GUILD, T0);
 
-        String first = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
-        String second = PlayerDataExport.toJson(reputation, membership, new ContractState(), player, "1.2.3-test", T0);
+        String first = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
+        String second = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
         assertEquals(first, second, "same data + same stamp = identical bytes (sorted keys)");
         assertTrue(first.indexOf(GUILD.toString()) < first.indexOf(UNION.toString()),
                 "keys are sorted regardless of insertion order");

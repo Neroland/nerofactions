@@ -3,6 +3,7 @@ package za.co.neroland.nerofactions.registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
@@ -11,6 +12,9 @@ import za.co.neroland.nerolandcore.registry.RegistrationProvider.RegistryEntry;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.block.TradeTerminalBlock;
+import za.co.neroland.nerofactions.content.faction.minerunion.QuotaBoardBlock;
+import za.co.neroland.nerofactions.content.faction.spaceguild.NavigationBeaconBlock;
+import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 
 /**
  * Block registrations, through Neroland Core's {@link RegistrationProvider} — the same seam the
@@ -51,6 +55,25 @@ public final class NeroFactionsBlocks {
     public static final RegistryEntry<Block> CONTRACT_BOARD = BLOCKS.register("contract_board",
             key -> new za.co.neroland.nerofactions.block.ContractBoardBlock(BlockBehaviour.Properties.of()
                     .setId(key).mapColor(MapColor.COLOR_CYAN).strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
+    public static final RegistryEntry<Block> QUOTA_BOARD = BLOCKS.register("quota_board",
+            key -> new QuotaBoardBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_ORANGE)
+                    .strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
+    public static final RegistryEntry<Block> NAVIGATION_BEACON = BLOCKS.register("navigation_beacon",
+            key -> new NavigationBeaconBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_BLUE)
+                    .strength(3.0F, 6.0F).sound(SoundType.METAL).lightLevel(state -> 12)));
+
+    private static final RegistrationProvider<BlockEntityType<?>> BLOCK_ENTITIES =
+            RegistrationProvider.get(Registries.BLOCK_ENTITY_TYPE, NeroFactionsCommon.MOD_ID);
+
+    public static final RegistryEntry<BlockEntityType<QuotaBoardBlock.BoardEntity>> QUOTA_BOARD_ENTITY =
+            BLOCK_ENTITIES.register("quota_board",
+                    key -> BlockEntityTypeCompat.create(QuotaBoardBlock.BoardEntity::new, QUOTA_BOARD.get()));
+
+    public static final RegistryEntry<BlockEntityType<NavigationBeaconBlock.BeaconEntity>> NAVIGATION_BEACON_ENTITY =
+            BLOCK_ENTITIES.register("navigation_beacon",
+                    key -> BlockEntityTypeCompat.create(NavigationBeaconBlock.BeaconEntity::new, NAVIGATION_BEACON.get()));
 
     private NeroFactionsBlocks() {
     }

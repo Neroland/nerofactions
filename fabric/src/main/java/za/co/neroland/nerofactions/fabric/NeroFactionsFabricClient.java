@@ -2,9 +2,12 @@ package za.co.neroland.nerofactions.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.network.FactionsNetwork;
+import za.co.neroland.nerofactions.client.OutpostRenderers;
+import za.co.neroland.nerofactions.registry.NeroFactionsEntities;
 
 /** Fabric client entry point for NeroFactions. */
 public final class NeroFactionsFabricClient implements ClientModInitializer {
@@ -14,6 +17,8 @@ public final class NeroFactionsFabricClient implements ClientModInitializer {
         NeroFactionsCommon.LOGGER.info("[NeroFactions] Fabric client bootstrap");
         // Clientbound receivers (client-only API) — registered here, off the dedicated server.
         FabricFactionsNetwork.registerClient();
+        EntityRendererRegistry.register(NeroFactionsEntities.ENVOY.get(), OutpostRenderers.Envoy::new);
+        EntityRendererRegistry.register(NeroFactionsEntities.GUARD.get(), OutpostRenderers.Guard::new);
         net.minecraft.client.gui.screens.MenuScreens.register(
                 za.co.neroland.nerofactions.registry.NeroFactionsMenus.CONTRACT_BOARD.get(),
                 za.co.neroland.nerofactions.client.ContractBoardScreen::new);

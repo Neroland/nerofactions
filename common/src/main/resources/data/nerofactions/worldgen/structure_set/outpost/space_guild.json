@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "nerofactions:outpost/space_guild",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 40,
+    "separation": 18,
+    "salt": 74820625
+  }
+}

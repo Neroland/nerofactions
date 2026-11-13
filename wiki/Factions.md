@@ -44,7 +44,26 @@ Notes:
 - Tier **reward tables** vary per faction (mostly themed vanilla goods, e.g. the Space
   Guild's Trusted spyglass or the Salvagers' Inner Circle anvil) and are granted once, ever,
   per tier — see [Reputation & tiers](Reputation-and-Tiers).
-- Each faction ships one **gated perk recipe** — see [Gated recipes](Gated-Recipes).
+- Each faction ships a **gated perk recipe**. Void Cult standing at Member also unlocks
+  the **Rift Blade** recipe. Members at that tier can briefly blind targets with the blade
+  and gain two experience points on a lethal hit against a hostile mob. See [Gated recipes](Gated-Recipes).
+
+## Miner Union Quota Board
+
+Use an empty hand to check your weekly quota. Hold ores, ingots or raw metal blocks
+when using the board to deposit up to 16 items. Ores and ingots count as one tonne,
+and raw blocks count as nine. The quota rises with standing and applies across
+all boards. Deposits earn capped trade standing and two credits per tonne if a
+credit economy is active.
+
+The Union Breaker is a Member-tier recipe. It clears a 3×3 face of eligible
+stone or ore. Trusted members clear a second layer and pay less durability
+per block. Sneak to mine just the targeted block.
+
+The four Union Exosuit pieces are Trusted recipes. Eligible members gain Haste I
+and take 35% less explosion and fall damage below Y 40 or in dimensions without
+skylight. The complete set applies Slowness I in exposed daylight. The pieces
+continue to protect as armour below Trusted.
 
 ## Faction Registry
 

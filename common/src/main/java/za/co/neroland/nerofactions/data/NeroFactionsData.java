@@ -58,7 +58,10 @@ public final class NeroFactionsData {
         FactionReputationState.eraseFor(server, player);
         FactionMembershipState.eraseFor(server, player);
         ContractState.eraseFor(server, player);
+        OutpostVisits.eraseFor(server, player);
+        za.co.neroland.nerofactions.content.faction.minerunion.QuotaState.eraseFor(server, player);
         TerminalSessions.clear(player);
+        za.co.neroland.nerofactions.link.FactionsLinkActions.forget(player);
         za.co.neroland.nerofactions.network.StandingSync.send(server, player);
         var online = server.getPlayerList().getPlayer(player);
         if (online != null) za.co.neroland.nerofactions.platform.Services.NETWORK.sendToPlayer(online,

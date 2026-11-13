@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.resources.Identifier;
+import com.mojang.serialization.JsonOps;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import za.co.neroland.nerofactions.trade.TerminalSessions;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerolandcore.data.ErasureConformance;
 import za.co.neroland.nerolandcore.data.PlayerDataEraser;
 import za.co.neroland.nerolandcore.data.PlayerDataErasure;
@@ -43,6 +45,30 @@ import za.co.neroland.nerolandcore.reputation.ReputationProvider;
  * deliberately logs one "Data eraser ... failed" warning per run — that is the assertion working.
  */
 class NeroFactionsErasureConformanceTest {
+
+    @Test
+    void outpostVisitsRoundTripAndErasureLeavesOnlyTheOtherPlayer() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        Identifier overworld = Identifier.parse("minecraft:overworld");
+        var original = new OutpostVisits();
+        assertTrue(original.record(player, OutpostFaction.SPACE_GUILD, overworld));
+        assertFalse(original.record(player, OutpostFaction.SPACE_GUILD, overworld));
+        assertFalse(original.record(player, OutpostFaction.NONE, overworld));
+        assertTrue(original.record(bystander, OutpostFaction.SALVAGERS, overworld));
+        var encoded = OutpostVisits.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
+        var visits = OutpostVisits.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
+        var reputation = new FactionReputationState();
+        ReputationApi.setProvider(reputation);
+        register((server, uuid) -> {
+            visits.forget(uuid);
+            reputation.forgetPlayer(uuid);
+        });
+        ErasureConformance.create().probe("nerofactions:outpost_visits", uuid -> visits.knownPlayers().contains(uuid))
+                .verify(null, player);
+        assertTrue(visits.export(player).isEmpty());
+        assertFalse(visits.export(bystander).isEmpty());
+    }
 
     @Test
     void contractAssignmentsProgressTokensAndCountAreErasedForOnlyTheSubject() {

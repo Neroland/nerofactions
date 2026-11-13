@@ -72,6 +72,10 @@ and faction membership. This is not an optional or opt-in feature — reputation
   yesterday's counters are discarded on the first earning of a new day. A player whose records
   have all lapsed is removed from the store entirely, indistinguishable from a player the mod
   has never seen.
+- **What is stored — outpost visits:** the player UUID, faction ID and dimension ID,
+  with one row per faction and dimension. Export, erasure and inactivity retention
+  cover the store and its recovery backup. The server can disable future recording
+  with `outpostVisitsEnabled=false`.
 - **What is announced in-game:** when your standing crosses a tier boundary, NeroFactions
   announces it to other installed Neroland mods on Neroland Core's shared in-process event bus —
   and that announcement deliberately carries only the faction id, the tier reached or lost, its
@@ -211,3 +215,11 @@ Offline daily entries expire at the day boundary while the server is running. In
 uses `retentionDays`; export includes this store, and erasure removes the row and refreshes its
 recovery backup. The Board sends only the authenticated player's current contracts to their client.
 Client caches clear on disconnect and online erasure. These fields are never sent to telemetry.
+
+## Miner Union quotas
+
+Quota Board deposits store the player's UUID, the last deposit's week number,
+and the tonnes accepted for that week. The record is shared across all boards.
+It contains no item history or board coordinates. Export includes the quota.
+Core erasure removes the row and refreshes the recovery backup. Inactive
+profiles follow the server's `retentionDays` setting.

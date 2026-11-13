@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "nerofactions:block/navigation_beacon_side",
+    "top": "nerofactions:block/navigation_beacon_top",
+    "bottom": "minecraft:block/smooth_stone"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:space_guild",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [" HI", " CS", "I  "],
+    "key": {
+      "H": "minecraft:tripwire_hook",
+      "I": "minecraft:iron_ingot",
+      "C": "minecraft:copper_ingot",
+      "S": "minecraft:string"
+    },
+    "result": {"id": "nerofactions:guild_grapple", "count": 1}
+  }
+}

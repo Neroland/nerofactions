@@ -167,6 +167,26 @@ public class TradeTerminalBlock extends Block {
         }
     }
 
+    public static boolean tradeAtBoundTerminal(ServerPlayer player, BlockPos pos, OutpostFaction faction) {
+        Level level = player.level();
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof TradeTerminalBlock) || state.getValue(FACTION) != faction
+                || player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) > 64) {
+            return false;
+        }
+        var server = level.getServer();
+        if (server == null) {
+            return false;
+        }
+        var definition = FactionDefinitions.factionsForServer(server).get(faction.factionId());
+        if (definition == null) {
+            return false;
+        }
+        FactionDecay.apply(server, player.getUUID());
+        trade(player, server, level, pos, state, definition);
+        return true;
+    }
+
     public static Component refusal(FactionDefinition faction, FactionAccess access) {
         return Component.translatable(access == FactionAccess.REFUSE_STANDING
                 ? "message.nerofactions.terminal.hostile_standing"

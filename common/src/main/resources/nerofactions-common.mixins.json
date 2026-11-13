@@ -5,9 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CraftingMenuMixin",
-    "ResultSlotMixin"
+    "ResultSlotMixin",
+    "FactionGearDamageMixin"
   ],
-  "client": [],
+  "client": ["FactionGearTooltipMixin"],
   "injectors": {
     "defaultRequire": 1
   }

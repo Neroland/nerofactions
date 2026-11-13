@@ -19,6 +19,8 @@ no coordinates, no chat:
   tier whose one-time rewards you already received, so they can never pay twice). Each
   timestamp exists to make one gameplay rule computable and self-deletes when its purpose
   lapses.
+- **Outpost visits** — the faction and dimension of an outpost you entered,
+  recorded once per pair. Servers can stop recording with `outpostVisitsEnabled=false`.
 - **Not stored:** the trade terminal's remembered faction selection lives only in server
   memory for the session; nothing is ever sent to the developers or any external service.
 
@@ -62,8 +64,8 @@ logging, it will ship with a per-player opt-out in the same release.
   (exported and erased with your economy data). Treasuries are keyed by faction, never by a
   player. A market sale is used once to award trade reputation and is not kept; the buyer is
   never known.
-- A paired companion app can read **your own** record through the read-only
-  [link module](Link-Module) — never anyone else's, and it can change nothing.
+- A paired companion app can read **your own** record and spend your daily
+  contract reroll through the [link module](Link-Module).
 
 ## Crash telemetry
 
@@ -88,3 +90,11 @@ high-water day and a completion count per player. No visit coordinates are store
 assignments expire at the server day boundary; inactive rows follow `retentionDays`. Export and
 erasure cover the store and its recovery backup. Board snapshots contain only the receiving
 player's contracts and are cleared from client memory on disconnect or erasure.
+
+## Miner Union quotas
+
+Quota Board deposits store the player's UUID, the last deposit's week number,
+and the tonnes accepted for that week. The record is shared across all boards.
+It contains no item history or board coordinates. Export includes the quota.
+Core erasure removes the row and refreshes the recovery backup. Inactive
+profiles follow the server's `retentionDays` setting.

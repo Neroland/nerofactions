@@ -98,6 +98,21 @@ public final class ReputationSources {
                 NeroFactionsConfig.ENEMY_BLEED_RATIO.get());
     }
 
+    public static void awardGuardKill(MinecraftServer server, UUID player, FactionDefinition host) {
+        long day = Math.floorDiv(clock.getAsLong(), DAY_MS);
+        var state = FactionMembershipState.get(server);
+        double weight = weightFor(Source.COMBAT);
+        int cap = capFor(Source.COMBAT);
+        award(state, host, player, Source.COMBAT, -40, day, weight, cap, 0);
+        var factions = FactionDefinitions.factionsForServer(server);
+        for (Identifier enemy : host.enemies()) {
+            FactionDefinition rival = factions.get(enemy);
+            if (rival != null) {
+                award(state, rival, player, Source.COMBAT, 8, day, weight, cap, 0);
+            }
+        }
+    }
+
     /**
      * The deterministic core, parameterised for the plain-JVM tests. {@code cap < 0} means
      * uncapped (ADMIN); a weight of exactly 1.0 is applied without rounding artefacts.

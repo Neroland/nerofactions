@@ -4,14 +4,11 @@ If your server also runs the separate **NeroLink** bridge mod, a companion app a
 paired can read that player's own NeroFactions data through Neroland Core's link API.
 Without NeroLink installed the module costs one registry entry and does nothing.
 
-- **Module id:** `nerofactions` · **schema version:** `1`
-- **Sections:** `standing`, `membership` · **event topic:** `standing`
-- **Actions:** **none — by policy, permanently.** Joining or leaving a faction is a
-  committal in-world decision (it locks the allegiance slot, arms a cooldown, costs a
-  penalty and reshapes what you can craft and trade) and will never be a remote API call;
-  reputation is earned through play and can never be written from outside the game.
-- **Off switch:** `linkModuleEnabled=false` in `config/nerofactions.properties` — the
-  module is simply not registered and companion apps see no NeroFactions data at all.
+- **Module id** `nerofactions`, schema version 2.
+- **Sections** `standing`, `membership`, `contracts`, `gear` and `outposts_visited`.
+- **Event topics** `standing` and `contract_completed`.
+- **Action** `reroll_contract`. Membership changes and standing awards happen in game.
+- `linkModuleEnabled=false` disables the module. `linkRerollEnabled=false` disables remote rerolls.
 
 ## Scoping — your own data, structurally
 
@@ -32,7 +29,7 @@ faction you have never touched produces no row.
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "player_online": true,
   "standings": [
     {
@@ -53,7 +50,7 @@ bookkeeping (all timestamps are epoch milliseconds; `0` means none).
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "player_online": true,
   "memberships": {
     "nerofactions:space_guild": 1754640000000
@@ -75,7 +72,7 @@ identifier of any kind.
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "faction": "nerofactions:space_guild",
   "tier": 2,
   "tier_name": "member",
@@ -83,5 +80,25 @@ identifier of any kind.
 }
 ```
 
-The module stores nothing of its own and raises no persistent alerts. A player erased
-through Core's erasure hook immediately snapshots as empty. See [Privacy](Privacy).
+## Contracts and gear
+
+The `contracts` snapshot contains the current server day, the shared reroll
+availability, and rows with faction, contract ID, objective type and target, slot,
+progress, count, rewards and claim status. The `gear` snapshot reports unlock
+state per item and full-set eligibility from the requester's tier and membership.
+
+An online player can send `reroll_contract` with `factionId`, `slot` (0–2) and
+`requestId` (UUID). It spends the same token as the board. The player must still
+belong to the faction and the contract must be untouched. A successful response
+contains the updated contracts snapshot.
+
+## Outpost visits
+
+The `outposts_visited` section lists the requester's discoveries. Each row contains
+the faction and dimension IDs. Repeated visits to the same faction in a dimension
+produce one row. The companion app lists these discoveries on the Outposts tab.
+
+The `contract_completed` event carries the schema version, faction and contract
+ID. Core routes it to the player who claimed it. The new sections and events
+contain no coordinates. Core erasure clears the player's records and the
+in-memory reroll replay. See [Privacy](Privacy).

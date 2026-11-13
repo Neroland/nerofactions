@@ -43,6 +43,7 @@ public final class ForgeFactionsEvents {
             // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
             // in-memory UUID-keyed convenience data does not outlive the server).
             TerminalSessions.clearAll();
+            za.co.neroland.nerofactions.link.FactionsLinkActions.clear();
             // Forget the retention sweep's day-roll bookmark so the next world loaded in this
             // JVM sweeps on load instead of waiting for the next calendar day.
             RetentionSweep.onServerStopped();
@@ -85,6 +86,7 @@ public final class ForgeFactionsEvents {
             // And the trade terminal's transient per-player faction selections (POPIA/GDPR:
             // in-memory UUID-keyed convenience data does not outlive the server).
             TerminalSessions.clearAll();
+            za.co.neroland.nerofactions.link.FactionsLinkActions.clear();
             // Forget the retention sweep's day-roll bookmark so the next world loaded in this
             // JVM sweeps on load instead of waiting for the next calendar day.
             RetentionSweep.onServerStopped();
@@ -124,6 +126,7 @@ public final class ForgeFactionsEvents {
             FactionDefinitions.forgetServer();
             za.co.neroland.nerofactions.contracts.ContractDefinitions.forgetServer();
             TerminalSessions.clearAll();
+            za.co.neroland.nerofactions.link.FactionsLinkActions.clear();
             RetentionSweep.onServerStopped();
         });
         MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) ->

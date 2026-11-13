@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.miner_union_outpost_found.title",
+  "description": "quest.nerofactions.standing.miner_union_outpost_found.desc",
+  "icon": "nerofactions:faction_registry",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:outpost_found",
+      "event_scope": "nerofactions:miner_union",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

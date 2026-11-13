@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "III",
+    "PLP",
+    "SSS"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:paper",
+    "L": "minecraft:lectern",
+    "S": "minecraft:smooth_stone"
+  },
+  "result": {
+    "id": "nerofactions:quota_board",
+    "count": 1
+  }
+}

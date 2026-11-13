@@ -1,5 +1,9 @@
 # Contracts
 
+With NeroQuests installed, the Standing chapter has a shared first-contract milestone for
+each faction. A claimed reward publishes the `nerofactions:contract_completed` event with
+the faction ID as its scope. The event carries no player ID or location.
+
 Craft a Contract Board from paper, a book and planks. Join a faction at a Faction Registry,
 then use the Board to view three daily contracts for each of your factions. A Registry's
 **Contracts** button opens a Board within four blocks, provided it is also within your reach.

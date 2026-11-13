@@ -14,6 +14,9 @@ import za.co.neroland.nerolandcore.registry.RegistrationProvider.RegistryEntry;
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.content.faction.voidcult.RiftBlade;
+import za.co.neroland.nerofactions.content.faction.minerunion.UnionBreaker;
+import za.co.neroland.nerofactions.content.faction.minerunion.UnionExosuit;
+import za.co.neroland.nerofactions.content.faction.spaceguild.GuildGrapple;
 import za.co.neroland.nerofactions.cosmetics.FactionBanners;
 import za.co.neroland.nerofactions.cosmetics.FactionTrims;
 
@@ -41,8 +44,27 @@ public final class NeroFactionsItems {
     public static final RegistryEntry<BlockItem> CONTRACT_BOARD = ITEMS.register("contract_board",
             key -> new BlockItem(NeroFactionsBlocks.CONTRACT_BOARD.get(), new Item.Properties().setId(key).useBlockDescriptionPrefix()));
 
+    public static final RegistryEntry<BlockItem> QUOTA_BOARD = ITEMS.register("quota_board",
+            key -> new BlockItem(NeroFactionsBlocks.QUOTA_BOARD.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+
+    public static final RegistryEntry<UnionBreaker> UNION_BREAKER = ITEMS.register("union_breaker",
+            key -> new UnionBreaker(new Item.Properties().setId(key)));
+
     public static final RegistryEntry<RiftBlade> RIFT_BLADE = ITEMS.register("rift_blade",
             key -> new RiftBlade(new Item.Properties().setId(key)));
+
+    public static final RegistryEntry<GuildGrapple> GUILD_GRAPPLE = ITEMS.register("guild_grapple",
+            key -> new GuildGrapple(new Item.Properties().setId(key)));
+
+    public static final RegistryEntry<BlockItem> NAVIGATION_BEACON = ITEMS.register("navigation_beacon",
+            key -> new BlockItem(NeroFactionsBlocks.NAVIGATION_BEACON.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+
+    public static final RegistryEntry<Item> UNION_HELMET = UnionExosuit.register("helmet");
+    public static final RegistryEntry<Item> UNION_CHESTPLATE = UnionExosuit.register("chestplate");
+    public static final RegistryEntry<Item> UNION_LEGGINGS = UnionExosuit.register("leggings");
+    public static final RegistryEntry<Item> UNION_BOOTS = UnionExosuit.register("boots");
 
     private static final List<RegistryEntry<Item>> COSMETICS = registerCosmetics();
 
@@ -73,7 +95,9 @@ public final class NeroFactionsItems {
     /** Every NeroFactions item, in display order, for {@link NeroFactionsCreativeTab}. */
     public static List<ItemLike> creativeContents() {
         List<ItemLike> contents = new ArrayList<>(List.of(TRADE_TERMINAL.get(),
-                FACTION_REGISTRY.get(), CONTRACT_BOARD.get(), RIFT_BLADE.get()));
+                FACTION_REGISTRY.get(), CONTRACT_BOARD.get(), QUOTA_BOARD.get(), UNION_BREAKER.get(),
+                RIFT_BLADE.get(), NAVIGATION_BEACON.get(), GUILD_GRAPPLE.get(), UNION_HELMET.get(), UNION_CHESTPLATE.get(),
+                UNION_LEGGINGS.get(), UNION_BOOTS.get()));
         COSMETICS.forEach(item -> contents.add(item.get()));
         return List.copyOf(contents);
     }

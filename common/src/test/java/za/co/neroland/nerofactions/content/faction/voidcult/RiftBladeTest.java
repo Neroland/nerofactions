@@ -18,16 +18,16 @@ class RiftBladeTest {
 
     @Test
     void onlyEligibleMembersBlindSurvivingTargets() {
-        assertEquals(RiftBlade.HitEffect.BLINDNESS, RiftBlade.hitEffect(CULT, true, 400, false, true));
-        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.hitEffect(CULT, true, 399, false, true));
-        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.hitEffect(CULT, false, 2500, false, true));
-        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.hitEffect(null, true, 2500, false, true));
+        assertEquals(RiftBlade.HitEffect.BLINDNESS, RiftBlade.HitEffect.forHit(CULT, true, 400, false, true));
+        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.HitEffect.forHit(CULT, true, 399, false, true));
+        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.HitEffect.forHit(CULT, false, 2500, false, true));
+        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.HitEffect.forHit(null, true, 2500, false, true));
     }
 
     @Test
     void aLethalHitOnlySiphonsFromAHostileMob() {
-        assertEquals(RiftBlade.HitEffect.SIPHON, RiftBlade.hitEffect(CULT, true, 400, true, true));
-        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.hitEffect(CULT, true, 400, true, false));
-        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.hitEffect(CULT, true, 399, true, true));
+        assertEquals(RiftBlade.HitEffect.SIPHON, RiftBlade.HitEffect.forHit(CULT, true, 400, true, true));
+        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.HitEffect.forHit(CULT, true, 400, true, false));
+        assertEquals(RiftBlade.HitEffect.NONE, RiftBlade.HitEffect.forHit(CULT, true, 399, true, true));
     }
 }

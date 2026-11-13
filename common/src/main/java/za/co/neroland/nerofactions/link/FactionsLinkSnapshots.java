@@ -19,7 +19,12 @@ import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.contracts.ContractService;
+import za.co.neroland.nerofactions.data.ContractState;
 import za.co.neroland.nerofactions.data.FactionMembershipState;
+import za.co.neroland.nerofactions.data.OutpostVisits;
+import za.co.neroland.nerolandcore.economy.CurrencyApi;
 import za.co.neroland.nerofactions.data.FactionReputationState;
 import za.co.neroland.nerolandcore.link.LinkSnapshotProvider;
 
@@ -66,7 +71,10 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
 
     private static final List<String> SECTIONS = List.of(
             FactionsLinkModule.SECTION_STANDING,
-            FactionsLinkModule.SECTION_MEMBERSHIP);
+            FactionsLinkModule.SECTION_MEMBERSHIP,
+            FactionsLinkModule.SECTION_CONTRACTS,
+            FactionsLinkModule.SECTION_GEAR,
+            FactionsLinkModule.SECTION_OUTPOSTS_VISITED);
 
     private final Stores stores;
 
@@ -111,6 +119,13 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
             return switch (section) {
                 case FactionsLinkModule.SECTION_STANDING -> standing(view, playerId);
                 case FactionsLinkModule.SECTION_MEMBERSHIP -> membership(view, playerId);
+                case FactionsLinkModule.SECTION_CONTRACTS -> contracts(view, playerId);
+                case FactionsLinkModule.SECTION_GEAR -> gear(view, playerId);
+                case FactionsLinkModule.SECTION_OUTPOSTS_VISITED -> {
+                    JsonObject root = envelope(view, playerId);
+                    root.add("outposts_visited", view.outpostsVisited(playerId));
+                    yield root;
+                }
                 // Unknown section: nothing to say.
                 default -> new JsonObject();
             };
@@ -167,6 +182,63 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
         return root;
     }
 
+    private static JsonObject contracts(View view, UUID playerId) {
+        JsonObject root = envelope(view, playerId);
+        long day = view.contractDay(playerId);
+        boolean current = day != Long.MIN_VALUE && day >= view.worldDay();
+        JsonArray rows = new JsonArray();
+        if (current && NeroFactionsConfig.CONTRACTS_ENABLED.get()) {
+            Set<Identifier> memberships = view.memberships(playerId);
+            view.contracts(playerId).stream().filter(entry -> memberships.contains(entry.contract().faction())
+                    && view.factions().containsKey(entry.contract().faction())).forEach(entry -> {
+                var contract = entry.contract();
+                JsonObject row = new JsonObject();
+                row.addProperty("faction", contract.faction().toString());
+                row.addProperty("contract", contract.id().toString());
+                row.addProperty("slot", entry.slot());
+                row.addProperty("type", contract.type());
+                row.addProperty("target", contract.target());
+                row.addProperty("progress", entry.progress());
+                row.addProperty("count", contract.count());
+                row.addProperty("standing", contract.reputation());
+                row.addProperty("credits", CurrencyApi.hasRealProvider() ? contract.credits() : 0);
+                row.addProperty("claimed", entry.claimed());
+                rows.add(row);
+            });
+            root.addProperty("day", day);
+        }
+        root.add("contracts", rows);
+        root.addProperty("reroll_available", !rows.isEmpty() && view.rerollAvailable(playerId)
+                && NeroFactionsConfig.LINK_REROLL_ENABLED.get());
+        return root;
+    }
+
+    private static JsonObject gear(View view, UUID playerId) {
+        JsonObject root = envelope(view, playerId);
+        JsonArray sets = new JsonArray();
+        Identifier union = OutpostFaction.MINER_UNION.factionId();
+        FactionDefinition definition = view.factions().get(union);
+        if (definition != null) {
+            var tier = FactionTiers.tierOf(definition, view.standing(playerId, union));
+            JsonObject row = new JsonObject();
+            row.addProperty("faction", union.toString());
+            row.addProperty("set", "nerofactions:union_exosuit");
+            row.addProperty("eligible", tier.ordinal() >= FactionTier.TRUSTED.ordinal()
+                    && view.memberships(playerId).contains(union));
+            JsonArray pieces = new JsonArray();
+            for (String suffix : List.of("helmet", "chestplate", "leggings", "boots")) {
+                JsonObject piece = new JsonObject();
+                piece.addProperty("item", "nerofactions:union_exosuit_" + suffix);
+                piece.addProperty("unlocked", tier.ordinal() >= FactionTier.TRUSTED.ordinal());
+                pieces.add(piece);
+            }
+            row.add("pieces", pieces);
+            sets.add(row);
+        }
+        root.add("sets", sets);
+        return root;
+    }
+
     // --- helpers ----------------------------------------------------------------
 
     private static JsonObject envelope(View view, UUID playerId) {
@@ -213,6 +285,16 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
 
         /** Whether the requester is online right now. */
         boolean online(UUID player);
+
+        long worldDay();
+
+        long contractDay(UUID player);
+
+        boolean rerollAvailable(UUID player);
+
+        List<ContractState.Entry> contracts(UUID player);
+
+        JsonArray outpostsVisited(UUID player);
     }
 
     /** The production view: the bound server's stores and its loaded faction definitions. */
@@ -260,6 +342,12 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
             public boolean online(UUID player) {
                 return FactionsLinkAccess.isOnline(server, player);
             }
+
+            @Override public long worldDay() { return ContractService.worldDay(server); }
+            @Override public long contractDay(UUID player) { return ContractState.get(server).day(player); }
+            @Override public boolean rerollAvailable(UUID player) { return ContractState.get(server).rerollAvailable(player); }
+            @Override public List<ContractState.Entry> contracts(UUID player) { return ContractState.get(server).entries(player); }
+            @Override public JsonArray outpostsVisited(UUID player) { return OutpostVisits.get(server).export(player); }
         };
     }
 }

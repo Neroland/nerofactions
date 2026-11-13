@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": ["GAG", "ICI", "IRI"],
+  "key": {
+    "G": "minecraft:glass",
+    "A": "minecraft:amethyst_shard",
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:compass",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {"id": "nerofactions:navigation_beacon", "count": 1}
+}

@@ -45,10 +45,17 @@ class ShippedGatedRecipeTest {
             "salvagers_anvil.json", "nerofactions:salvagers");
 
     /** The plain (deliberately UNGATED) recipes that also ship. */
-    private static final Set<String> UNGATED = Set.of("trade_terminal.json", "faction_registry.json", "contract_board.json");
+    private static final Set<String> UNGATED = Set.of("trade_terminal.json", "faction_registry.json",
+            "contract_board.json", "quota_board.json", "navigation_beacon.json");
 
     private static final Map<String, String> SIGNATURE_TOOLS = Map.of(
-            "rift_blade.json", "nerofactions:void_cult");
+            "rift_blade.json", "nerofactions:void_cult",
+            "union_breaker.json", "nerofactions:miner_union",
+            "guild_grapple.json", "nerofactions:space_guild");
+
+    private static final Set<String> UNION_GEAR = Set.of(
+            "union_exosuit_helmet.json", "union_exosuit_chestplate.json",
+            "union_exosuit_leggings.json", "union_exosuit_boots.json");
 
     private static final Set<String> TRIMS = Set.of(
             "free_colonists_armor_trim.json", "miner_union_armor_trim.json", "nero_corporation_armor_trim.json",
@@ -79,6 +86,7 @@ class ShippedGatedRecipeTest {
         Set<String> expected = new LinkedHashSet<>(GATED_BY_FILE.keySet());
         expected.addAll(UNGATED);
         expected.addAll(TRIMS);
+        expected.addAll(UNION_GEAR);
         expected.addAll(SIGNATURE_TOOLS.keySet());
         assertEquals(expected, recipes.keySet(),
                 "exactly the declared gated, block and smithing recipes ship");
@@ -102,6 +110,12 @@ class ShippedGatedRecipeTest {
                     name + " must use the gated serializer");
 
             String faction = recipe.get("faction").getAsString();
+            if (UNION_GEAR.contains(name)) {
+                assertEquals("nerofactions:miner_union", faction, name);
+                assertEquals("trusted", recipe.get("tier").getAsString(), name);
+                assertWrappedRecipeCoherent(name, recipe.getAsJsonObject("recipe"), "nerofactions:");
+                continue;
+            }
             if (SIGNATURE_TOOLS.containsKey(name)) {
                 assertEquals(SIGNATURE_TOOLS.get(name), faction, name);
                 assertEquals("member", recipe.get("tier").getAsString(), name);

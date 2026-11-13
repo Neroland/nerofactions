@@ -19,8 +19,11 @@ import za.co.neroland.nerofactions.data.FactionReputationState;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
 import za.co.neroland.nerolandcore.economy.CoreCurrencies;
 import za.co.neroland.nerolandcore.economy.CurrencyApi;
+import za.co.neroland.nerolandcore.event.ThresholdEvents;
 
 public final class ContractService {
+    public static final Identifier COMPLETED_CHANNEL = Identifier.parse("nerofactions:contract_completed");
+
     private ContractService() {
     }
 
@@ -29,11 +32,7 @@ public final class ContractService {
         if (server == null || !server.isSameThread() || !NeroFactionsConfig.CONTRACTS_ENABLED.get()) return List.of();
         var state = ContractState.get(server);
         var memberships = FactionMembershipState.get(server).membershipsOf(player.getUUID());
-        //? if >=26.1 {
-        long day = Math.floorDiv(server.overworld().getDefaultClockTime(), 24000L);
-        //?} else {
-        /*long day = Math.floorDiv(server.overworld().getDayTime(), 24000L);
-        *///?}
+        long day = worldDay(server);
         state.expireDay(player.getUUID(), day);
         var definitions = FactionDefinitions.factionsForServer(server);
         var pool = List.copyOf(ContractDefinitions.forServer(server).values());
@@ -44,7 +43,9 @@ public final class ContractService {
             state.ensure(player.getUUID(), faction, FactionTiers.tierOf(definition, standing).ordinal(),
                     server.overworld().getSeed(), day, pool);
         }
-        return state.entries(player.getUUID()).stream().filter(e -> memberships.contains(e.contract().faction())).toList();
+        return state.entries(player.getUUID()).stream()
+                .filter(e -> memberships.contains(e.contract().faction()) && definitions.containsKey(e.contract().faction()))
+                .toList();
     }
 
     public static boolean itemMatches(ItemStack stack, String target) {
@@ -71,8 +72,7 @@ public final class ContractService {
             var stack = inventory.getItem(i);
             if (itemMatches(stack, entry.contract().target())) {
                 int take = Math.min(stack.getCount(), remaining - removed);
-                inventory.removeItem(i, take);
-                removed += take;
+                removed += inventory.removeItem(i, take).getCount();
             }
         }
         if (removed > 0) {
@@ -100,12 +100,18 @@ public final class ContractService {
                 player.getInventory().placeItemBackInInventory(stack);
                 //?}
             }
+            ThresholdEvents.fire(NeroFactionsCommon.MOD_ID, completionEvent(faction));
+            za.co.neroland.nerofactions.link.FactionsLinkEvents.onContractCompleted(player.getUUID(), faction, contract.id());
             return paid ? "gui.nerofactions.contract.completed" : "gui.nerofactions.contract.credit_refused";
         } catch (RuntimeException | LinkageError failure) {
             NeroFactionsCommon.LOGGER.error("[NeroFactions] Contract reward application failed ({}).",
                     failure.getClass().getSimpleName());
             return "gui.nerofactions.contract.reward_failed";
         }
+    }
+
+    static ThresholdEvents.ThresholdCrossing completionEvent(Identifier faction) {
+        return new ThresholdEvents.ThresholdCrossing(COMPLETED_CHANNEL, faction.toString(), 1, 1, true);
     }
 
     public static boolean reroll(ServerPlayer player, Identifier faction, int slot) {
@@ -146,13 +152,17 @@ public final class ContractService {
         }
     }
 
+    public static long worldDay(MinecraftServer server) {
+        //? if >=26.1 {
+        return Math.floorDiv(server.overworld().getDefaultClockTime(), 24000L);
+        //?} else {
+        /*return Math.floorDiv(server.overworld().getDayTime(), 24000L);
+        *///?}
+    }
+
     public static void tick(MinecraftServer server) {
         if (server.overworld().getGameTime() % 40 != 0) return;
-        //? if >=26.1 {
-        long day = Math.floorDiv(server.overworld().getDefaultClockTime(), 24000L);
-        //?} else {
-        /*long day = Math.floorDiv(server.overworld().getDayTime(), 24000L);
-        *///?}
+        long day = worldDay(server);
         ContractState.get(server).expireAll(day);
         if (!NeroFactionsConfig.CONTRACTS_ENABLED.get()) return;
         for (var player : server.getPlayerList().getPlayers()) {

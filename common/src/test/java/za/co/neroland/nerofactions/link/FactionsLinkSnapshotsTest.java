@@ -11,11 +11,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.resources.Identifier;
 
 import org.junit.jupiter.api.Test;
+import za.co.neroland.nerofactions.contracts.ContractFixtures;
+import za.co.neroland.nerofactions.data.ContractState;
+import za.co.neroland.nerofactions.data.OutpostVisits;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionTier;
@@ -48,6 +53,8 @@ class FactionsLinkSnapshotsTest {
         final Map<Identifier, FactionDefinition> factions = new LinkedHashMap<>();
         final FactionReputationState reputation = new FactionReputationState();
         final FactionMembershipState membership = new FactionMembershipState();
+        final ContractState contractState = new ContractState();
+        final OutpostVisits visits = new OutpostVisits();
 
         Fixture(FactionDefinition... definitions) {
             for (FactionDefinition definition : definitions) {
@@ -93,6 +100,51 @@ class FactionsLinkSnapshotsTest {
         public boolean online(UUID player) {
             return false;
         }
+
+        @Override public long worldDay() { return 5; }
+        @Override public long contractDay(UUID player) { return contractState.day(player); }
+        @Override public boolean rerollAvailable(UUID player) { return contractState.rerollAvailable(player); }
+        @Override public List<ContractState.Entry> contracts(UUID player) { return contractState.entries(player); }
+        @Override public JsonArray outpostsVisited(UUID player) { return visits.export(player); }
+    }
+
+    @Test
+    void outpostVisitsExposeOnlyTheRequestersFactionAndDimension() {
+        Fixture fixture = new Fixture();
+        Identifier overworld = Identifier.parse("minecraft:overworld");
+        fixture.visits.record(REQUESTER, OutpostFaction.MINER_UNION, overworld);
+        fixture.visits.record(BYSTANDER, OutpostFaction.VOID_CULT, overworld);
+
+        var rows = fixture.snapshots().snapshot(REQUESTER, FactionsLinkModule.SECTION_OUTPOSTS_VISITED,
+                Map.of("player", BYSTANDER.toString())).getAsJsonArray("outposts_visited");
+        assertEquals(1, rows.size());
+        var row = rows.get(0).getAsJsonObject();
+        assertEquals(Set.of("faction", "dimension"), row.keySet());
+        assertEquals("nerofactions:miner_union", row.get("faction").getAsString());
+        assertEquals("minecraft:overworld", row.get("dimension").getAsString());
+    }
+
+    @Test
+    void contractsAreRequesterScopedAndDoNotRevealStaleOrOtherPlayersProgress() {
+        Identifier faction = ContractFixtures.FACTION;
+        Fixture fixture = new Fixture(faction(faction.getPath(), "Contract faction"));
+        UUID requester = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        fixture.membership.recordJoin(requester, faction, 1);
+        fixture.membership.recordJoin(bystander, faction, 1);
+        fixture.contractState.ensure(requester, faction, 0, 4, 5, ContractFixtures.pool());
+        fixture.contractState.ensure(bystander, faction, 0, 4, 5, ContractFixtures.pool());
+        fixture.contractState.advance(bystander, faction, 0, 9);
+        var snapshot = fixture.snapshots().snapshot(requester, "contracts", Map.of("player", bystander.toString()));
+        var rows = snapshot.getAsJsonArray("contracts");
+        assertEquals(3, rows.size());
+        assertEquals(0, rows.get(0).getAsJsonObject().get("progress").getAsInt());
+        assertFalse(snapshot.toString().contains(bystander.toString()));
+        assertFalse(snapshot.toString().contains("coordinates"));
+        assertFalse(snapshot.toString().contains("position"));
+        fixture.membership.recordLeave(requester, faction, 2, 0);
+        assertEquals(0, fixture.snapshots().snapshot(requester, "contracts", Map.of())
+                .getAsJsonArray("contracts").size());
     }
 
     // --- standing: scoping ------------------------------------------------------
@@ -112,7 +164,7 @@ class FactionsLinkSnapshotsTest {
         JsonObject root = fixture.snapshots()
                 .snapshot(REQUESTER, FactionsLinkModule.SECTION_STANDING, Map.of());
 
-        assertEquals(1, root.getAsJsonPrimitive("schema_version").getAsInt());
+        assertEquals(2, root.getAsJsonPrimitive("schema_version").getAsInt());
         assertFalse(root.getAsJsonPrimitive("player_online").getAsBoolean());
         assertEquals(1, root.getAsJsonArray("standings").size(),
                 "one row: the requester's one faction — the bystander's salvagers row is absent");
@@ -193,7 +245,7 @@ class FactionsLinkSnapshotsTest {
         JsonObject root = fixture.snapshots()
                 .snapshot(REQUESTER, FactionsLinkModule.SECTION_MEMBERSHIP, Map.of());
 
-        assertEquals(1, root.getAsJsonPrimitive("schema_version").getAsInt());
+        assertEquals(2, root.getAsJsonPrimitive("schema_version").getAsInt());
         assertFalse(root.getAsJsonPrimitive("player_online").getAsBoolean());
         JsonObject memberships = root.getAsJsonObject("memberships");
         assertEquals(1, memberships.size());
@@ -253,6 +305,6 @@ class FactionsLinkSnapshotsTest {
         FactionsLinkSnapshots snapshots = new FactionsLinkSnapshots(() -> null);
         assertEquals("nerofactions", snapshots.moduleId());
         assertEquals(FactionsLinkModule.SCHEMA_VERSION, snapshots.schemaVersion());
-        assertEquals(List.of("standing", "membership"), snapshots.sections());
+        assertEquals(List.of("standing", "membership", "contracts", "gear", "outposts_visited"), snapshots.sections());
     }
 }

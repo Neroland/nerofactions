@@ -12,11 +12,9 @@ time by default, with a cooldown and a penalty for switching — and it is what 
 at a faction's terminal, while your *standing* decides what you can craft, what rates you
 get, and which one-time rewards and progression gates open.
 
-Version 0.1.0-beta.1 keeps its content honest and vanilla-flavoured: faction perks are gated
-recipes for vanilla items, cosmetics are pre-styled vanilla banners, and the one block — the
-Faction Trade Terminal — uses the vanilla merchant screen. There are no custom textures, no
-faction gear items and no per-faction machines in this release; what is documented here is
-exactly what ships.
+Use a Faction Registry to choose an allegiance, then visit a Contract Board to
+take daily assignments. Faction outposts offer both, alongside an Envoy, Guards
+and the faction's own Trade Terminal.
 
 ## Contents
 
@@ -28,17 +26,18 @@ exactly what ships.
 - [Configuration](Configuration) — every config key, its default and what it does.
 - [Trading](Trading) — the Faction Trade Terminal: membership, sneak-cycling, tier-scaled
   offers, earning standing by trading, and buying your faction's banner.
+- [Outposts and Guards](Outposts-and-Guards) — discovering outposts and trading with Envoys.
+- [Contracts](Contracts) — the standalone Contract Board, daily objectives and rewards.
 - [Gated recipes](Gated-Recipes) — the seven shipped faction perk recipes, the
   `nerofactions:gated` recipe format for pack authors, and the
   `nerofactions:reputation_tier` event channel for quest authors.
 - [Privacy](Privacy) — what is stored, export, erasure and retention, in practical terms.
-- [Link module](Link-Module) — what a paired Neroland companion app can see (and what it
-  can never do).
+- [Link module](Link-Module) — snapshots and the companion app's contract reroll.
 
 ## Requirements
 
-- **Minecraft 26.1.2 or 26.2** on **NeoForge**, **MinecraftForge/Forge** or **Fabric**.
-- **Neroland Core 1.15.0 or newer** — required, and the only dependency. NeroFactions
+- **Minecraft 26.3** on **NeoForge**, **MinecraftForge/Forge** or **Fabric**.
+- **Neroland Core 1.17.5 or newer** — required, and the only dependency. NeroFactions
   refuses to load against an older Core.
 - Everything else is optional: with **NeroQuests** installed, the shipped quest chapter
   *Standing Among the Stars* appears in the quest book, quests can pay reputation and gate on
@@ -60,5 +59,3 @@ exactly what ships.
 - [Privacy & telemetry disclosure (PRIVACY.md)](https://github.com/Neroland/nerofactions/blob/main/PRIVACY.md)
 - [Changelog](https://github.com/Neroland/nerofactions/blob/main/CHANGELOG.md)
 - [Issues](https://github.com/Neroland/nerofactions/issues)
-
-- [Contracts](Contracts) — the standalone Contract Board, daily objectives and rewards.

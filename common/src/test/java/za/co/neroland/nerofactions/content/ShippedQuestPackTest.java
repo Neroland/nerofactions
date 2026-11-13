@@ -21,6 +21,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import org.junit.jupiter.api.Test;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.content.faction.OutpostStructure;
+import za.co.neroland.nerofactions.contracts.ContractService;
 
 /**
  * The shipped quest pack ({@code data/nerofactions/neroquests/}) is inert data for an optional quest
@@ -35,6 +38,34 @@ class ShippedQuestPackTest {
 
     private static final String NAMESPACE = "nerofactions";
     private static final String CHAPTER = "standing";
+
+    @Test
+    void firstContractQuestsUseFactionScopeWithoutBroadcastingPlayerCredit() throws Exception {
+        assertFactionMilestones("_first_contract", ContractService.COMPLETED_CHANNEL.toString());
+    }
+
+    @Test
+    void outpostQuestsUseFactionScopeWithoutBroadcastingPlayerCredit() throws Exception {
+        assertFactionMilestones("_outpost_found", OutpostStructure.FOUND_CHANNEL.toString());
+    }
+
+    private static void assertFactionMilestones(String suffix, String channel) throws Exception {
+        Path directory = shippedDir(Path.of("data", NAMESPACE, "neroquests", "quests", CHAPTER));
+        for (OutpostFaction faction : OutpostFaction.values()) {
+            if (faction == OutpostFaction.NONE) {
+                continue;
+            }
+            JsonObject quest = parse(directory.resolve(faction.getSerializedName() + suffix + ".json"));
+            assertEquals("server", quest.get("scope").getAsString());
+            JsonArray objectives = quest.getAsJsonArray("objectives");
+            assertEquals(1, objectives.size());
+            JsonObject objective = objectives.get(0).getAsJsonObject();
+            assertEquals("neroquests:custom_event", objective.get("type").getAsString());
+            assertEquals(channel, objective.get("channel").getAsString());
+            assertEquals(faction.factionId().toString(), objective.get("event_scope").getAsString());
+            assertEquals("world", objective.get("audience").getAsString());
+        }
+    }
 
     @Test
     void shippedStandingChapterFollowsThePackContract() throws Exception {

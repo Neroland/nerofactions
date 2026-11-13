@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:stony_peaks",
+    "minecraft:windswept_hills",
+    "minecraft:badlands",
+    {
+      "id": "nerospace:mars_canyons",
+      "required": false
+    }
+  ]
+}

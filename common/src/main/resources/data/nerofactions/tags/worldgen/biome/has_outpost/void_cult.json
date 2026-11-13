@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:dark_forest",
+    {
+      "id": "minecraft:pale_garden",
+      "required": false
+    },
+    {
+      "id": "nerospace:nyxara_twilight_band",
+      "required": false
+    }
+  ]
+}

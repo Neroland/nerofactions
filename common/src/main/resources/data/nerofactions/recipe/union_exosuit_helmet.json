@@ -1,0 +1,21 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:miner_union",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "CII",
+      "C I"
+    ],
+    "key": {
+      "I": "minecraft:iron_ingot",
+      "C": "minecraft:copper_ingot"
+    },
+    "result": {
+      "id": "nerofactions:union_exosuit_helmet",
+      "count": 1
+    }
+  }
+}

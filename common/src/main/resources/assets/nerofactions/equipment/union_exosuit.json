@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:union_exosuit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:union_exosuit"
+      }
+    ]
+  }
+}

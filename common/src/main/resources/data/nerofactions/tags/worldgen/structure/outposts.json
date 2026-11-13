@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "nerofactions:outpost/free_colonists",
+    "nerofactions:outpost/miner_union",
+    "nerofactions:outpost/nero_corporation",
+    "nerofactions:outpost/salvagers",
+    "nerofactions:outpost/space_guild",
+    "nerofactions:outpost/terraforming_authority",
+    "nerofactions:outpost/void_cult"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "condition": {"type": "minecraft:survives_explosion"},
+      "entries": [{"type": "minecraft:item", "name": "nerofactions:navigation_beacon"}]
+    }
+  ],
+  "random_sequence": "nerofactions:blocks/navigation_beacon"
+}

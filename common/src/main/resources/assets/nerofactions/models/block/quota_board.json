@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "nerofactions:block/quota_board_side",
+    "end": "nerofactions:block/quota_board_top"
+  }
+}

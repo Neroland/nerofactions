@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:snowy_plains",
+    "minecraft:snowy_slopes",
+    {
+      "id": "nerospace:luna_highlands",
+      "required": false
+    },
+    {
+      "id": "nerospace:luna_maria",
+      "required": false
+    }
+  ]
+}

@@ -32,7 +32,7 @@ operates on real numbers.
 - **Tier rewards** — item and banner rewards granted once, ever, per tier via a persisted
   watermark.
 - **Optional integrations** — NeroQuests (a shipped quest chapter, `nerofactions:standing`
-  "Standing Among the Stars", 19 quests, appears in the quest book when NeroQuests is installed and
+  "Standing Among the Stars", 26 quests, appears in the quest book when NeroQuests is installed and
   is inert data otherwise; quest rewards pay reputation; quests can gate on tier crossings and on
   NeroFactions' record gates) and NeroEconomy (faction speciality discounts / enemy surcharges on market
   prices, capped by config; faction treasuries with dues and Inner Circle payouts; trade reputation

@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.miner_union_first_contract.title",
+  "description": "quest.nerofactions.standing.miner_union_first_contract.desc",
+  "icon": "nerofactions:contract_board",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:contract_completed",
+      "event_scope": "nerofactions:miner_union",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:desert",
+    "minecraft:wooded_badlands",
+    {
+      "id": "nerospace:cindara_ember_plains",
+      "required": false
+    }
+  ]
+}

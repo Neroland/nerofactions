@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.server.MinecraftServer;
 
+import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
 import za.co.neroland.nerofactions.platform.Services;
 
 /**
@@ -53,12 +54,13 @@ public final class PlayerDataExport {
     /** The export for {@code player} from the live server's stores, stamped with the real clock. */
     public static String forPlayer(MinecraftServer server, UUID player) {
         return toJson(FactionReputationState.get(server), FactionMembershipState.get(server),
-                ContractState.get(server), player, Services.PLATFORM.getModVersion(), System.currentTimeMillis());
+                ContractState.get(server), QuotaState.get(server), OutpostVisits.get(server), player,
+                Services.PLATFORM.getModVersion(), System.currentTimeMillis());
     }
 
     /** The pure core, parameterised for the plain-JVM tests. */
     static String toJson(FactionReputationState reputation, FactionMembershipState membership,
-            ContractState contracts, UUID player, String modVersion, long generatedAtMs) {
+            ContractState contracts, QuotaState quota, OutpostVisits visits, UUID player, String modVersion, long generatedAtMs) {
         JsonObject root = new JsonObject();
         root.addProperty("mod", "nerofactions");
         root.addProperty("mod_version", modVersion);
@@ -96,6 +98,8 @@ public final class PlayerDataExport {
         membershipSection.add("reward_watermarks", watermarks);
         root.add("membership", membershipSection);
         root.add("contracts", contracts.export(player));
+        root.add("miner_quota", quota.export(player));
+        root.add("outposts_visited", visits.export(player));
 
         return GSON.toJson(root);
     }

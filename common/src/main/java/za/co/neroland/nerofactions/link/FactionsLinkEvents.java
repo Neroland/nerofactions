@@ -1,6 +1,7 @@
 package za.co.neroland.nerofactions.link;
 
 import java.util.UUID;
+import net.minecraft.resources.Identifier;
 
 import com.google.gson.JsonObject;
 
@@ -100,6 +101,23 @@ public final class FactionsLinkEvents {
     private static String tierName(long ordinal) {
         FactionTier[] tiers = FactionTier.values();
         return ordinal >= 0 && ordinal < tiers.length ? tiers[(int) ordinal].jsonName() : "unknown";
+    }
+
+    public static void onContractCompleted(UUID playerId, Identifier faction, Identifier contract) {
+        if (!enabled()) {
+            return;
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("schema_version", FactionsLinkModule.SCHEMA_VERSION);
+        payload.addProperty("faction", faction.toString());
+        payload.addProperty("contract", contract.toString());
+        try {
+            NeroLinkRegistry.eventBus().publish(LinkEvent.forPlayer(FactionsLinkModule.MODULE_ID,
+                    FactionsLinkModule.TOPIC_CONTRACT_COMPLETED, playerId, payload));
+        } catch (RuntimeException e) {
+            NeroFactionsCommon.LOGGER.warn("[NeroFactions] Publishing a NeroLink contract event failed ({}).",
+                    e.getClass().getSimpleName());
+        }
     }
 
     private static boolean enabled() {

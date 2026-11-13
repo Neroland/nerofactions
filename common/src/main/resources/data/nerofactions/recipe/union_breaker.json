@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:miner_union",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "DID",
+      " S ",
+      " S "
+    ],
+    "key": {
+      "D": "minecraft:diamond",
+      "I": "minecraft:iron_ingot",
+      "S": "minecraft:stick"
+    },
+    "result": {
+      "id": "nerofactions:union_breaker",
+      "count": 1
+    }
+  }
+}

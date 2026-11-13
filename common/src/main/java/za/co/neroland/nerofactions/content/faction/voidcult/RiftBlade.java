@@ -37,7 +37,18 @@ public final class RiftBlade extends Item {
     enum HitEffect {
         NONE,
         BLINDNESS,
-        SIPHON
+        SIPHON;
+
+        static HitEffect forHit(FactionDefinition faction, boolean member, int standing,
+                boolean lethal, boolean hostileMob) {
+            if (!member || !GatedRecipeCheck.standingMet(faction, standing, FactionTier.MEMBER)) {
+                return HitEffect.NONE;
+            }
+            if (!lethal) {
+                return HitEffect.BLINDNESS;
+            }
+            return hostileMob ? HitEffect.SIPHON : HitEffect.NONE;
+        }
     }
 
     public RiftBlade(Item.Properties properties) {
@@ -64,21 +75,10 @@ public final class RiftBlade extends Item {
         boolean member = FactionMembership.membershipOf(server, playerId).contains(FACTION);
         FactionDefinition faction = FactionDefinitions.factionsForServer(server).get(FACTION);
         int standing = ReputationApi.getReputation(playerId, FACTION);
-        switch (hitEffect(faction, member, standing, target.isDeadOrDying(), target instanceof Enemy)) {
+        switch (HitEffect.forHit(faction, member, standing, target.isDeadOrDying(), target instanceof Enemy)) {
             case NONE -> { }
             case BLINDNESS -> target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_TICKS), player);
             case SIPHON -> player.giveExperiencePoints(KILL_XP);
         }
-    }
-
-    static HitEffect hitEffect(FactionDefinition faction, boolean member, int standing,
-            boolean lethal, boolean hostileMob) {
-        if (!member || !GatedRecipeCheck.standingMet(faction, standing, FactionTier.MEMBER)) {
-            return HitEffect.NONE;
-        }
-        if (!lethal) {
-            return HitEffect.BLINDNESS;
-        }
-        return hostileMob ? HitEffect.SIPHON : HitEffect.NONE;
     }
 }

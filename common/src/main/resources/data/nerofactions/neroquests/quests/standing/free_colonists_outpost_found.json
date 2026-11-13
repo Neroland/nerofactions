@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.free_colonists_outpost_found.title",
+  "description": "quest.nerofactions.standing.free_colonists_outpost_found.desc",
+  "icon": "nerofactions:faction_registry",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:outpost_found",
+      "event_scope": "nerofactions:free_colonists",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}
