@@ -24,6 +24,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Miner Union Quota Board. Members can deposit ores, ingots or raw metal blocks for
   capped trade standing and, when a credit provider is installed, credits.
 - Union Breaker area pickaxe and Union Exosuit, with tier-gated effects.
+- Space Guild Navigation Beacon, Guild Grapple and Guild Flight Suit.
+- Void Altar rites and the Void Vestments armour set.
+- Corporate Power Suit, Authority Environment Suit, Colonist Field Gear and
+  Salvager Patchwork, each with a Trusted full-set bonus and a trade-off.
+- Seven naturally generated faction outposts, each with an Envoy, two Guards, a Registry,
+  a Contract Board, a Trade Terminal and a patterned banner.
+- Seven outpost discovery milestones for the optional Standing quest chapter.
+- Outpost visit records retain only faction and dimension for export and NeroLink.
 - NeroLink schema 2 contract and gear views, contract completion events and a daily reroll action.
 - Owner-only in-game standing snapshots, including membership, cooldown and hostile-band status.
 - `hostileBelowStanding` setting; the hostile band remains separate from the five reputation tiers.

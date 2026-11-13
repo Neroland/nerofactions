@@ -17,7 +17,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,15 +33,16 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
         super(properties);
     }
 
-    @Override
     protected MapCodec<NavigationBeaconBlock> codec() {
         return CODEC;
     }
 
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
+    //? if <26.3 {
+    /*@Override
+    protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
+        return net.minecraft.world.level.block.RenderShape.MODEL;
     }
+    *///?}
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -92,11 +92,11 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
                 new LodestoneTracker(Optional.of(GlobalPos.of(player.level().dimension(), pos)), false));
         if (stack.getCount() == 1) {
             player.setItemInHand(hand, waypoint);
-        } else {
+        } else if (player.getInventory().add(waypoint)) {
             stack.shrink(1);
-            if (!player.getInventory().add(waypoint)) {
-                player.drop(waypoint, false);
-            }
+        } else {
+            player.sendSystemMessage(Component.translatable("message.nerofactions.navigation_beacon.no_space"));
+            return;
         }
         player.sendSystemMessage(Component.translatable("message.nerofactions.navigation_beacon.bound"));
     }

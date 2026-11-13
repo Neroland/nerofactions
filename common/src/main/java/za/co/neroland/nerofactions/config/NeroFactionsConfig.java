@@ -92,6 +92,13 @@ public final class NeroFactionsConfig {
     public static final ConfigValue<Boolean> NAVIGATION_BEACON_ENABLED = SCHEMA.bool(
             "navigationBeaconEnabled", true, true, "Enable waypoint binding and the Navigation Beacon's 24-block fall protection.");
 
+    public static final ConfigValue<Boolean> VOID_ALTAR_ENABLED = SCHEMA.bool(
+            "voidAltarEnabled", true, true, "Enable Void Cult rites.");
+    public static final ConfigValue<Integer> VOID_RITE_SECONDS = SCHEMA.intRange(
+            "voidRiteSeconds", 90, 15, 180, true, "Seconds a successful rite's reach and wither protection last.");
+    public static final ConfigValue<Integer> VOID_BACKLASH_PERCENT = SCHEMA.intRange(
+            "voidBacklashPercent", 15, 0, 100, true, "Percent chance that a Void Cult rite backfires.");
+
     public static final ConfigValue<Boolean> ALLOW_MULTIPLE_FACTIONS = SCHEMA.bool(
             "allowMultipleFactions", false, true,
             "Whether a player may belong to more than one faction at once. Off (the default) is the "

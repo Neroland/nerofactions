@@ -59,6 +59,12 @@ public final class NeoForgeFactionsEvents {
             }
         });
 
+        NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) -> {
+            if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+                za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(player);
+            }
+        });
+
         // Combat reputation: the internal trigger filters to player-credited hostile-monster
         // kills and routes through ReputationSources (weight + daily cap + enemy bleed).
         NeoForge.EVENT_BUS.addListener((LivingDeathEvent event) ->

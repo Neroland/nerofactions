@@ -98,6 +98,8 @@ The `outposts_visited` section lists the requester's discoveries. Each row conta
 the faction and dimension IDs. Repeated visits to the same faction in a dimension
 produce one row. The companion app lists these discoveries on the Outposts tab.
 
+## Contract completion event
+
 The `contract_completed` event carries the schema version, faction and contract
 ID. Core routes it to the player who claimed it. The new sections and events
 contain no coordinates. Core erasure clears the player's records and the

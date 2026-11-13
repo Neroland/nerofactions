@@ -22,7 +22,6 @@ import com.google.gson.JsonParser;
 
 import org.junit.jupiter.api.Test;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
-import za.co.neroland.nerofactions.content.faction.OutpostStructure;
 import za.co.neroland.nerofactions.contracts.ContractService;
 
 /**
@@ -46,7 +45,7 @@ class ShippedQuestPackTest {
 
     @Test
     void outpostQuestsUseFactionScopeWithoutBroadcastingPlayerCredit() throws Exception {
-        assertFactionMilestones("_outpost_found", OutpostStructure.FOUND_CHANNEL.toString());
+        assertFactionMilestones("_outpost_found", "nerofactions:outpost_found");
     }
 
     private static void assertFactionMilestones(String suffix, String channel) throws Exception {

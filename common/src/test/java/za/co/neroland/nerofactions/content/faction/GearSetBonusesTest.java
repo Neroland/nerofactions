@@ -35,4 +35,13 @@ class GearSetBonusesTest {
         assertEquals(UnionEnvironment.NEUTRAL, GearSetBonuses.unionEnvironment(60, true, false, true));
         assertEquals(UnionEnvironment.NEUTRAL, GearSetBonuses.unionEnvironment(60, true, true, false));
     }
+
+    @Test
+    void salvagerToolsMaySaveWearWhileArmorWearsFaster() {
+        assertEquals(0, GearSetBonuses.SalvageWear.adjust(1, false, 0));
+        assertEquals(1, GearSetBonuses.SalvageWear.adjust(1, false, 1));
+        assertEquals(2, GearSetBonuses.SalvageWear.adjust(1, true, 0));
+        assertEquals(1, GearSetBonuses.SalvageWear.adjust(1, true, 1));
+        assertEquals(5, GearSetBonuses.SalvageWear.adjust(4, true, 3));
+    }
 }

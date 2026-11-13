@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:free_colonists",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "L L",
+      "I I",
+      "A A"
+    ],
+    "key": {
+      "L": "minecraft:leather",
+      "I": "minecraft:copper_ingot",
+      "A": "minecraft:wheat"
+    },
+    "result": {
+      "id": "nerofactions:colonist_field_gear_boots",
+      "count": 1
+    }
+  }
+}

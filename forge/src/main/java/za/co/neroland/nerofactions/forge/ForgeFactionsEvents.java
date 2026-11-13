@@ -30,9 +30,16 @@ public final class ForgeFactionsEvents {
     private ForgeFactionsEvents() {
     }
 
+    private static void logout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(player);
+        }
+    }
+
     /** Called once from the Forge entry point. */
     //? if >=1.21.9 {
     public static void register() {
+        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(ForgeFactionsEvents::logout);
         ServerStartedEvent.BUS.addListener(event ->
                 NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
         ServerStoppedEvent.BUS.addListener(event -> {
@@ -76,6 +83,7 @@ public final class ForgeFactionsEvents {
     //?} else if >=1.21.6 {
     /*public static void register() {
         // Forge 1.21.6 - 1.21.8: the tick event exposes its server through getServer().
+        PlayerEvent.PlayerLoggedOutEvent.BUS.addListener(ForgeFactionsEvents::logout);
         ServerStartedEvent.BUS.addListener(event ->
                 NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
         ServerStoppedEvent.BUS.addListener(event -> {
@@ -119,6 +127,7 @@ public final class ForgeFactionsEvents {
     *///?} else {
     /*public static void register() {
         // Forge before 1.21.6 (EventBus 6): one shared bus, listeners typed by their lambda parameter.
+        MinecraftForge.EVENT_BUS.addListener(ForgeFactionsEvents::logout);
         MinecraftForge.EVENT_BUS.addListener((ServerStartedEvent event) ->
                 NeroFactionsCommon.REPUTATION_PROVIDER.bind(event.getServer()));
         MinecraftForge.EVENT_BUS.addListener((ServerStoppedEvent event) -> {

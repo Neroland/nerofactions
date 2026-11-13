@@ -59,6 +59,7 @@ public final class NeroFactionsData {
         FactionMembershipState.eraseFor(server, player);
         ContractState.eraseFor(server, player);
         OutpostVisits.eraseFor(server, player);
+        za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.forget(server, player);
         za.co.neroland.nerofactions.content.faction.minerunion.QuotaState.eraseFor(server, player);
         TerminalSessions.clear(player);
         za.co.neroland.nerofactions.link.FactionsLinkActions.forget(player);

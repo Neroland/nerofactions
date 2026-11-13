@@ -69,7 +69,7 @@ public final class GuildGrapple extends Item {
             message(player, "no_anchor");
             return;
         }
-        Vec3 pull = impulse(hit.getLocation().subtract(player.getEyePosition()));
+        Vec3 pull = Traversal.impulse(hit.getLocation().subtract(player.getEyePosition()));
         if (pull == Vec3.ZERO) {
             message(player, "no_anchor");
             return;
@@ -89,11 +89,16 @@ public final class GuildGrapple extends Item {
                 Component.translatable("message.nerofactions.grapple." + key)));
     }
 
-    static Vec3 impulse(Vec3 towardAnchor) {
-        double length = towardAnchor.length();
-        if (!Double.isFinite(length) || length < 2 || length > RANGE + 0.01) {
-            return Vec3.ZERO;
+    static final class Traversal {
+        private Traversal() {
         }
-        return towardAnchor.scale(Math.min(1.55, 0.55 + 0.09 * length) / length);
+
+        static Vec3 impulse(Vec3 towardAnchor) {
+            double length = towardAnchor.length();
+            if (!Double.isFinite(length) || length < 2 || length > RANGE + 0.01) {
+                return Vec3.ZERO;
+            }
+            return towardAnchor.scale(Math.min(1.55, 0.55 + 0.09 * length) / length);
+        }
     }
 }

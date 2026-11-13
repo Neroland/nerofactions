@@ -58,8 +58,14 @@ class ShippedFactionContentTest {
                     .map(suffix -> "nerofactions:" + faction + suffix))
             .collect(Collectors.toUnmodifiableSet());
 
+    private static final Set<String> SHIPPED_SIGNATURE_REWARDS = Set.of(
+            "nerofactions:quota_board", "nerofactions:union_breaker", "nerofactions:union_exosuit_helmet",
+            "nerofactions:guild_grapple", "nerofactions:guild_flight_suit_boots", "nerofactions:navigation_beacon",
+            "nerofactions:rift_blade", "nerofactions:void_altar", "nerofactions:void_vestments_helmet");
+
     private static final Predicate<Identifier> ITEM_EXISTS = id ->
-            KNOWN_VANILLA_ITEMS.contains(id.toString()) || SHIPPED_COSMETIC_ITEMS.contains(id.toString());
+            KNOWN_VANILLA_ITEMS.contains(id.toString()) || SHIPPED_COSMETIC_ITEMS.contains(id.toString())
+                    || SHIPPED_SIGNATURE_REWARDS.contains(id.toString());
 
     @Test
     void allSevenShippedFactionsParseAndValidateClean() throws Exception {

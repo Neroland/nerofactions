@@ -12,19 +12,26 @@
     "associate": [
       {
         "type": "item",
-        "id": "minecraft:coal",
-        "count": 16
+        "id": "nerofactions:quota_board",
+        "count": 1
       },
       {
         "type": "cosmetic",
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {
+        "type": "item",
+        "id": "nerofactions:union_breaker",
+        "count": 1
+      }
+    ],
     "trusted": [
       {
         "type": "item",
-        "id": "minecraft:iron_ingot",
-        "count": 8
+        "id": "nerofactions:union_exosuit_helmet",
+        "count": 1
       },
       {
         "type": "item",

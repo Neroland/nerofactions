@@ -12,6 +12,8 @@ operator subcommands require **gamemaster** permission (permission level 2, the 
 /nerofactions data export                               players, no permission (own data)
 /nerofactions data export <player>                      gamemaster
 /nerofactions reload-check                              gamemaster
+/nerofactions gallery <x> <y> <z>                       gamemaster
+/nerofactions gallery clear <x> <y> <z>                 gamemaster
 /nerofactions admin grant <player> <faction> <amount>   gamemaster
 /nerofactions admin revoke <player> <faction> <amount>  gamemaster
 /nerofactions admin reset <player> [<faction>]          gamemaster
@@ -65,6 +67,12 @@ The trade terminal's credit counter: lists, or buys one line of, the credit cata
 terminal you last used. You must still be standing at it. See [Trading](Trading).
 
 ## Operator commands
+
+### `/nerofactions gallery <x> <y> <z>`
+
+Builds a faction showroom from the specified origin in a loaded, empty
+42 × 5 × 4 space. Run `/nerofactions gallery clear <x> <y> <z>` at the same
+origin to remove the display.
 
 ### `/nerofactions data export <player>` *(gamemaster)*
 

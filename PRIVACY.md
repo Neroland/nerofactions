@@ -76,6 +76,9 @@ and faction membership. This is not an optional or opt-in feature — reputation
   with one row per faction and dimension. Export, erasure and inactivity retention
   cover the store and its recovery backup. The server can disable future recording
   with `outpostVisitsEnabled=false`.
+- **What is stored — Void Altar boons:** active boon expiry and the attached
+  Night Vision effect reference live in server memory while the player is
+  online. Logout and erasure clear the record. The export reports remaining ticks.
 - **What is announced in-game:** when your standing crosses a tier boundary, NeroFactions
   announces it to other installed Neroland mods on Neroland Core's shared in-process event bus —
   and that announcement deliberately carries only the faction id, the tier reached or lost, its

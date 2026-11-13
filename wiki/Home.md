@@ -28,6 +28,8 @@ and the faction's own Trade Terminal.
   offers, earning standing by trading, and buying your faction's banner.
 - [Outposts and Guards](Outposts-and-Guards) — discovering outposts and trading with Envoys.
 - [Contracts](Contracts) — the standalone Contract Board, daily objectives and rewards.
+- [Faction gear](Faction-Gear) — armour sets, active bonuses and trade-offs.
+- [Machines](Machines) — the Quota Board, Navigation Beacon and Void Altar.
 - [Gated recipes](Gated-Recipes) — the seven shipped faction perk recipes, the
   `nerofactions:gated` recipe format for pack authors, and the
   `nerofactions:reputation_tier` event channel for quest authors.

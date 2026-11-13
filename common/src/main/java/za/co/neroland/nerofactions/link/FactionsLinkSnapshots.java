@@ -19,7 +19,7 @@ import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
-import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.content.faction.FactionArmor;
 import za.co.neroland.nerofactions.contracts.ContractService;
 import za.co.neroland.nerofactions.data.ContractState;
 import za.co.neroland.nerofactions.data.FactionMembershipState;
@@ -216,19 +216,22 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
     private static JsonObject gear(View view, UUID playerId) {
         JsonObject root = envelope(view, playerId);
         JsonArray sets = new JsonArray();
-        Identifier union = OutpostFaction.MINER_UNION.factionId();
-        FactionDefinition definition = view.factions().get(union);
-        if (definition != null) {
-            var tier = FactionTiers.tierOf(definition, view.standing(playerId, union));
+        for (var set : FactionArmor.values()) {
+            Identifier faction = set.factionId();
+            FactionDefinition definition = view.factions().get(faction);
+            if (definition == null) {
+                continue;
+            }
+            var tier = FactionTiers.tierOf(definition, view.standing(playerId, faction));
             JsonObject row = new JsonObject();
-            row.addProperty("faction", union.toString());
-            row.addProperty("set", "nerofactions:union_exosuit");
+            row.addProperty("faction", faction.toString());
+            row.addProperty("set", "nerofactions:" + set.id());
             row.addProperty("eligible", tier.ordinal() >= FactionTier.TRUSTED.ordinal()
-                    && view.memberships(playerId).contains(union));
+                    && view.memberships(playerId).contains(faction));
             JsonArray pieces = new JsonArray();
             for (String suffix : List.of("helmet", "chestplate", "leggings", "boots")) {
                 JsonObject piece = new JsonObject();
-                piece.addProperty("item", "nerofactions:union_exosuit_" + suffix);
+                piece.addProperty("item", "nerofactions:" + set.id() + "_" + suffix);
                 piece.addProperty("unlocked", tier.ordinal() >= FactionTier.TRUSTED.ordinal());
                 pieces.add(piece);
             }

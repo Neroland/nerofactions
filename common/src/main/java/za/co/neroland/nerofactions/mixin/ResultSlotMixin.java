@@ -45,6 +45,7 @@ abstract class ResultSlotMixin {
             org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         if (player instanceof ServerPlayer serverPlayer && removeCount > 0) {
             za.co.neroland.nerofactions.contracts.ContractService.crafted(serverPlayer, stack, removeCount);
+            za.co.neroland.nerofactions.progression.FactionMilestones.machineCrafted(stack);
         }
     }
 

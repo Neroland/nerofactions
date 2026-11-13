@@ -21,6 +21,8 @@ no coordinates, no chat:
   lapses.
 - **Outpost visits** — the faction and dimension of an outpost you entered,
   recorded once per pair. Servers can stop recording with `outpostVisitsEnabled=false`.
+- **Void Altar boons** — active boon timers live in server memory and are cleared
+  on expiry, logout or erasure. The export reports remaining ticks while a boon is active.
 - **Not stored:** the trade terminal's remembered faction selection lives only in server
   memory for the session; nothing is ever sent to the developers or any external service.
 

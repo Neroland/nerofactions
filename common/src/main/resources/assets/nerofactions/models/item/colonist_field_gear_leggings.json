@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "nerofactions:item/colonist_field_gear_leggings"
+  }
+}

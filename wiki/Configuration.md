@@ -48,6 +48,21 @@ never force it on or off.
 - A server datapack can override `nerofactions:outpost/<faction>` in the
   `worldgen/structure_set` registry to tune the spacing and separation in chunks.
 
+## Space Guild Navigation Beacon
+
+- `navigationBeaconEnabled` defaults to `true`. Disable it to stop new compass
+  bindings and fall protection.
+- Fall protection applies to Guild members within 24 blocks of a loaded beacon.
+  Binding a stack of compasses uses one compass and needs space for the result.
+
+## Void Cult altar
+
+| Key | Default | Range | Meaning |
+| --- | --- | --- | --- |
+| `voidAltarEnabled` | `true` | — | Enable rites at the Void Altar. |
+| `voidRiteSeconds` | `90` | 15–180 | Duration of a successful rite in seconds. |
+| `voidBacklashPercent` | `15` | 0–100 | Percentage chance of a backlash instead of a boon. |
+
 ## Reputation sources — weights and daily caps
 
 Weights multiply the base award; caps are per player, per faction, per source, per

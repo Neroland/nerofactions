@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:authority_environment_suit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:authority_environment_suit"
+      }
+    ]
+  }
+}

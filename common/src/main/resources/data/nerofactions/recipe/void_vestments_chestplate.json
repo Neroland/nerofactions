@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:void_cult",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "L L",
+      "IAI",
+      "LLL"
+    ],
+    "key": {
+      "L": "minecraft:leather",
+      "I": "minecraft:obsidian",
+      "A": "minecraft:amethyst_shard"
+    },
+    "result": {
+      "id": "nerofactions:void_vestments_chestplate",
+      "count": 1
+    }
+  }
+}

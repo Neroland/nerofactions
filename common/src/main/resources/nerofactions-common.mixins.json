@@ -6,9 +6,14 @@
   "mixins": [
     "CraftingMenuMixin",
     "ResultSlotMixin",
-    "FactionGearDamageMixin"
+    "FactionGearDamageMixin",
+    "VoidVestmentsMeleeMixin",
+    "FactionGearConsumptionMixin",
+    "FactionGearWearMixin",
+    "FactionGearExhaustionMixin",
+    "SalvagerLootMixin"
   ],
-  "client": ["FactionGearTooltipMixin"],
+  "client": ["FactionGearTooltipMixin", "VoidVestmentsSightMixin"],
   "injectors": {
     "defaultRequire": 1
   }

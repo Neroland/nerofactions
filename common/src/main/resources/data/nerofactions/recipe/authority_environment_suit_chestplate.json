@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:terraforming_authority",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "L L",
+      "IAI",
+      "LLL"
+    ],
+    "key": {
+      "L": "minecraft:leather",
+      "I": "minecraft:copper_ingot",
+      "A": "minecraft:kelp"
+    },
+    "result": {
+      "id": "nerofactions:authority_environment_suit_chestplate",
+      "count": 1
+    }
+  }
+}

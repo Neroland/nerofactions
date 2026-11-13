@@ -22,7 +22,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import za.co.neroland.nerofactions.content.FactionDefinitions;
 import za.co.neroland.nerofactions.reputation.ReputationSources;
-import za.co.neroland.nerofactions.reputation.ReputationSources.Source;
 
 public final class FactionGuard extends OutpostResident implements RangedAttackMob {
     private static final int DEFENSE_TICKS = 200;
@@ -72,13 +71,18 @@ public final class FactionGuard extends OutpostResident implements RangedAttackM
         var envoys = level().getEntitiesOfClass(FactionEnvoy.class, getBoundingBox().inflate(16),
                 envoy -> envoy.faction() == faction() && insideOutpost(envoy.blockPosition()));
         LivingEntity nearest = null;
-        double bestDistance = 16 * 16;
+        double bestDistance = Double.POSITIVE_INFINITY;
         for (var player : level().players()) {
             if (!(player instanceof ServerPlayer visitor) || !visitor.isAlive() || visitor.isCreative()
                     || visitor.isSpectator() || !insideOutpost(visitor.blockPosition())) {
                 continue;
             }
             double distance = distanceToSqr(visitor);
+            boolean cultVested = host.enemies().contains(OutpostFaction.VOID_CULT.factionId())
+                    && GearSetBonuses.active(visitor, FactionArmor.VOID_VESTMENTS);
+            if (distance > detectionRangeSquared(cultVested)) {
+                continue;
+            }
             if (distance < bestDistance && (FactionAccess.evaluate(server, visitor.getUUID(), host).refusesService()
                     || attacked(this, visitor) || envoys.stream().anyMatch(envoy -> attacked(envoy, visitor)))) {
                 nearest = visitor;
@@ -92,6 +96,10 @@ public final class FactionGuard extends OutpostResident implements RangedAttackM
                 getNavigation().stop();
             }
         }
+    }
+
+    static double detectionRangeSquared(boolean cultVested) {
+        return cultVested ? 20 * 20 : 12 * 12;
     }
 
     private static boolean attacked(OutpostResident resident, ServerPlayer player) {

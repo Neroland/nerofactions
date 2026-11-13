@@ -4,6 +4,15 @@ This page covers the faction perk recipes players unlock, the `nerofactions:gate
 format for datapack authors, and the `nerofactions:reputation_tier` event channel quest
 authors can build on.
 
+Signature tools unlock at Member and faction armour recipes unlock at Trusted.
+The tools and armour check membership again when their special effects are used.
+See [Faction gear](Faction-Gear).
+
+The Standing chapter also listens for `nerofactions:contract_completed`,
+`nerofactions:outpost_found`, `nerofactions:signature_machine_built` and
+`nerofactions:full_set_worn`. The scope is the faction ID. These are
+server-wide milestones with no player identifier in the event.
+
 ## The seven shipped perk recipes
 
 Each faction ships one gated crafting recipe — a themed discount or a vanilla-uncraftable —

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:guild_flight_suit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:guild_flight_suit"
+      }
+    ]
+  }
+}

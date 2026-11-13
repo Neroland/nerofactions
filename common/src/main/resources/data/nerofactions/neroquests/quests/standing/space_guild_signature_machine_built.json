@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.space_guild_signature_machine_built.title",
+  "description": "quest.nerofactions.standing.space_guild_signature_machine_built.desc",
+  "icon": "nerofactions:navigation_beacon",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:signature_machine_built",
+      "event_scope": "nerofactions:space_guild",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.server.MinecraftServer;
 
 import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
+import za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock;
 import za.co.neroland.nerofactions.platform.Services;
 
 /**
@@ -53,13 +54,20 @@ public final class PlayerDataExport {
 
     /** The export for {@code player} from the live server's stores, stamped with the real clock. */
     public static String forPlayer(MinecraftServer server, UUID player) {
-        return toJson(FactionReputationState.get(server), FactionMembershipState.get(server),
+        JsonObject root = export(FactionReputationState.get(server), FactionMembershipState.get(server),
                 ContractState.get(server), QuotaState.get(server), OutpostVisits.get(server), player,
                 Services.PLATFORM.getModVersion(), System.currentTimeMillis());
+        root.addProperty("void_boon_ticks_remaining", VoidAltarBlock.remaining(server, player));
+        return GSON.toJson(root);
     }
 
     /** The pure core, parameterised for the plain-JVM tests. */
     static String toJson(FactionReputationState reputation, FactionMembershipState membership,
+            ContractState contracts, QuotaState quota, OutpostVisits visits, UUID player, String modVersion, long generatedAtMs) {
+        return GSON.toJson(export(reputation, membership, contracts, quota, visits, player, modVersion, generatedAtMs));
+    }
+
+    private static JsonObject export(FactionReputationState reputation, FactionMembershipState membership,
             ContractState contracts, QuotaState quota, OutpostVisits visits, UUID player, String modVersion, long generatedAtMs) {
         JsonObject root = new JsonObject();
         root.addProperty("mod", "nerofactions");
@@ -101,7 +109,7 @@ public final class PlayerDataExport {
         root.add("miner_quota", quota.export(player));
         root.add("outposts_visited", visits.export(player));
 
-        return GSON.toJson(root);
+        return root;
     }
 
     private static <V> Map<String, V> sorted(Map<String, V> map) {

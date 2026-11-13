@@ -3,8 +3,13 @@
 Every Neroland Core surface this mod actually consumes, verified against the imports in
 `common/src`. NeroFactions compiles against **Core 1.17.5** and pins its loader-manifest floor
 to that compiled version: it needs 1.11.0's `SavedDataRecovery`, `ErasureConformance` and
-`PlayerActivity`, 1.13.0's 26.3 cells, and 1.15.0's offline-capable player gate writes and sourced
+`PlayerActivity`, 1.13.0's cross-loader foundation, and 1.15.0's offline-capable player gate writes and sourced
 threshold crossings, in addition to the older reputation/config/gate/link APIs.
+
+Contract, quota and outpost-visit stores use Core's recovery and player-data
+erasure hooks. Outpost residents register their attributes through Core's
+`EntityRegistrationSupport`. The faction Link module advertises schema 2
+and routes authenticated rerolls through the shared action registry.
 
 ## Reputation — `za.co.neroland.nerolandcore.reputation`
 
@@ -114,21 +119,23 @@ channel externally with zero coupling.
 
 ## Link — `za.co.neroland.nerolandcore.link`
 
-**Used:** `NeroLinkRegistry`, `LinkModuleInfo`, `LinkSnapshotProvider`, `LinkEvent`.
+**Used:** `NeroLinkRegistry`, `LinkModuleInfo`, `LinkSnapshotProvider`,
+`LinkActionHandler` and `LinkEvent`.
 
 - `link/FactionsLinkModule` registers `LinkModuleInfo("nerofactions", <mod version>,
-  schema 1, sections [standing, membership], actions [])` — the empty action list is
-  policy, not backlog — guarded by the `linkModuleEnabled` config switch, last in init.
-- `link/FactionsLinkSnapshots` implements `LinkSnapshotProvider`: the two sections are
-  derived solely from the requesting player's own rows (structural scoping, no roster).
-- `link/FactionsLinkEvents` publishes the `standing` topic with `LinkEvent.forPlayer` via
+  schema 2, sections [standing, membership, contracts, gear, outposts_visited],
+  actions [reroll_contract])`, guarded by `linkModuleEnabled`.
+- `link/FactionsLinkSnapshots` derives each section from the authenticated
+  requester's own rows. `link/FactionsLinkActions` verifies membership, slot and
+  the daily token before rerolling.
+- `link/FactionsLinkEvents` publishes `standing` and `contract_completed` with `LinkEvent.forPlayer` via
   `NeroLinkRegistry.eventBus()` — routed by Core to the one player concerned, payload free
   of player identifiers.
 
 ## What is *not* used
 
-No Core currency, machine/power, fluid/gas, upgrade, material or highlight APIs — 0.1.0 has
-no machines and no economy of its own. `LinkAlerts` is deliberately unused (internal API,
+The Quota Board uses Core currency when a provider is installed. The current
+machines do not consume Core energy or fluid. `LinkAlerts` is deliberately unused (internal API,
 and nothing here is urgent enough to be an alert). The NeroQuests and NeroEconomy
 integrations import no Core APIs beyond the ones above — the quests contract rides entirely
 on `ReputationApi` + `ThresholdEvents`, and the economy bridge is a compile-only adapter to

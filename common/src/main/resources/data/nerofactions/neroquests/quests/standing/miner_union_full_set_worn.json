@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.miner_union_full_set_worn.title",
+  "description": "quest.nerofactions.standing.miner_union_full_set_worn.desc",
+  "icon": "nerofactions:union_exosuit_helmet",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:full_set_worn",
+      "event_scope": "nerofactions:miner_union",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

@@ -316,6 +316,15 @@ def resident_skin(accent, rows, guard=False, legacy=False):
 
 def textures():
     yield from union_exosuit_textures()
+    yield from guild_flight_suit_textures()
+    yield from void_vestments_textures()
+    for set_id, base, accent in (
+        ("corporate_power_suit", (40, 44, 51), (223, 180, 77)),
+        ("authority_environment_suit", (42, 91, 77), (181, 223, 170)),
+        ("colonist_field_gear", (97, 71, 52), (145, 194, 126)),
+        ("salvager_patchwork", (83, 70, 67), (207, 111, 74)),
+    ):
+        yield from faction_armor_palette(set_id, base, accent)
     yield "item/union_breaker", union_breaker()
     yield "block/quota_board_side", quota_board_texture(False)
     yield "block/quota_board_top", quota_board_texture(True)
@@ -323,6 +332,8 @@ def textures():
     yield "item/guild_grapple", guild_grapple()
     yield "block/navigation_beacon_side", navigation_beacon(False)
     yield "block/navigation_beacon_top", navigation_beacon(True)
+    yield "block/void_altar_side", void_altar(False)
+    yield "block/void_altar_top", void_altar(True)
     yield "block/faction_registry_side", registry_texture()
     yield "block/faction_registry_top", registry_texture(top=True)
     for faction, (accent, rows) in FACTION_MARKS.items():
@@ -362,6 +373,80 @@ def navigation_beacon(top):
         draw.line((6, 12, 10, 12), fill="#6881a0")
         draw.point((8, 5), fill="#dcf5f7")
     return image
+
+
+def guild_flight_suit_textures():
+    for name, source in union_exosuit_textures():
+        image = Image.new("RGBA", source.size)
+        for y in range(source.height):
+            for x in range(source.width):
+                red, green, blue, alpha = source.getpixel((x, y))
+                if not alpha:
+                    continue
+                light = (red + green + blue) // 3
+                if red - blue > 45:
+                    color = (min(215, light), min(245, light + 56), min(255, light + 72), alpha)
+                else:
+                    color = (min(208, light + 19), min(225, light + 33), min(240, light + 47), alpha)
+                image.putpixel((x, y), color)
+        draw = ImageDraw.Draw(image)
+        if name == "item/union_exosuit_helmet":
+            draw.rectangle((5, 8, 12, 9), fill="#213c54")
+            draw.line((6, 8, 11, 8), fill="#88edff")
+        if name == "item/union_exosuit_chestplate":
+            draw.line((7, 9, 8, 10, 10, 8), fill="#c8f6f6")
+        yield name.replace("union_exosuit", "guild_flight_suit"), image
+
+
+def void_altar(top):
+    image = Image.new("RGB", (16, 16), "#292130")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((0, 0, 15, 15), outline="#4b395b")
+    draw.rectangle((2, 2, 13, 13), fill="#342940", outline="#8366a1")
+    draw.rectangle((3, 3, 12, 12), outline="#171320")
+    if top:
+        emblem = motif(FACTION_MARKS["void_cult"][1], (211, 164, 246, 255))
+        image.paste(emblem, (4, 4), emblem)
+    else:
+        draw.line((3, 10, 7, 6, 11, 10), fill="#996aca")
+        draw.line((5, 12, 10, 12), fill="#694186")
+        draw.point((7, 8), fill="#e0bcff")
+    return image
+
+
+def void_vestments_textures():
+    for name, source in union_exosuit_textures():
+        image = Image.new("RGBA", source.size)
+        for y in range(source.height):
+            for x in range(source.width):
+                red, green, blue, alpha = source.getpixel((x, y))
+                if alpha:
+                    light = (red + green + blue) // 3
+                    color = (min(220, light + 21), max(8, light - 29), min(242, light + 43), alpha)
+                    image.putpixel((x, y), color)
+        if name == "item/union_exosuit_helmet":
+            draw = ImageDraw.Draw(image)
+            draw.polygon([(4, 6), (8, 3), (12, 6), (10, 11), (6, 11)], fill="#2e223b")
+            draw.line((6, 8, 10, 8), fill="#d098f6")
+        yield name.replace("union_exosuit", "void_vestments"), image
+
+
+def faction_armor_palette(set_id, base, accent):
+    for name, source in union_exosuit_textures():
+        image = Image.new("RGBA", source.size)
+        for y in range(source.height):
+            for x in range(source.width):
+                red, green, blue, alpha = source.getpixel((x, y))
+                if alpha:
+                    light = (red + green + blue) // 3 - 80
+                    palette = accent if red - blue > 45 else base
+                    rgb = tuple(max(0, min(255, channel + light // 2)) for channel in palette)
+                    image.putpixel((x, y), (*rgb, alpha))
+        if name == "item/union_exosuit_chestplate":
+            draw = ImageDraw.Draw(image)
+            draw.line((7, 9, 10, 9), fill=accent)
+            draw.point((8, 11), fill=accent)
+        yield name.replace("union_exosuit", set_id), image
 
 
 def main():

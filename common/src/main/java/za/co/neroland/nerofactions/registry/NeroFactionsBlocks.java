@@ -14,6 +14,7 @@ import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.block.TradeTerminalBlock;
 import za.co.neroland.nerofactions.content.faction.minerunion.QuotaBoardBlock;
 import za.co.neroland.nerofactions.content.faction.spaceguild.NavigationBeaconBlock;
+import za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock;
 import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 
 /**
@@ -64,6 +65,10 @@ public final class NeroFactionsBlocks {
             key -> new NavigationBeaconBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_BLUE)
                     .strength(3.0F, 6.0F).sound(SoundType.METAL).lightLevel(state -> 12)));
 
+    public static final RegistryEntry<Block> VOID_ALTAR = BLOCKS.register("void_altar",
+            key -> new VoidAltarBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_PURPLE)
+                    .strength(4.0F, 8.0F).sound(SoundType.AMETHYST).lightLevel(state -> 6)));
+
     private static final RegistrationProvider<BlockEntityType<?>> BLOCK_ENTITIES =
             RegistrationProvider.get(Registries.BLOCK_ENTITY_TYPE, NeroFactionsCommon.MOD_ID);
 
@@ -74,6 +79,10 @@ public final class NeroFactionsBlocks {
     public static final RegistryEntry<BlockEntityType<NavigationBeaconBlock.BeaconEntity>> NAVIGATION_BEACON_ENTITY =
             BLOCK_ENTITIES.register("navigation_beacon",
                     key -> BlockEntityTypeCompat.create(NavigationBeaconBlock.BeaconEntity::new, NAVIGATION_BEACON.get()));
+
+    public static final RegistryEntry<BlockEntityType<VoidAltarBlock.AltarEntity>> VOID_ALTAR_ENTITY =
+            BLOCK_ENTITIES.register("void_altar",
+                    key -> BlockEntityTypeCompat.create(VoidAltarBlock.AltarEntity::new, VOID_ALTAR.get()));
 
     private NeroFactionsBlocks() {
     }

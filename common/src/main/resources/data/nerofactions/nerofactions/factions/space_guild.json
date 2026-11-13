@@ -20,16 +20,23 @@
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {
+        "type": "item",
+        "id": "nerofactions:guild_grapple",
+        "count": 1
+      }
+    ],
     "trusted": [
       {
         "type": "item",
-        "id": "minecraft:spyglass",
+        "id": "nerofactions:guild_flight_suit_boots",
         "count": 1
       },
       {
         "type": "item",
-        "id": "minecraft:gold_ingot",
-        "count": 4
+        "id": "nerofactions:navigation_beacon",
+        "count": 1
       }
     ],
     "inner_circle": [

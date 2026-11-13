@@ -1,0 +1,22 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:salvagers",
+  "tier": "trusted",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      "LIL",
+      "A A"
+    ],
+    "key": {
+      "L": "minecraft:leather",
+      "I": "minecraft:iron_ingot",
+      "A": "minecraft:copper_ingot"
+    },
+    "result": {
+      "id": "nerofactions:salvager_patchwork_helmet",
+      "count": 1
+    }
+  }
+}

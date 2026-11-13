@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:corporate_power_suit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:corporate_power_suit"
+      }
+    ]
+  }
+}

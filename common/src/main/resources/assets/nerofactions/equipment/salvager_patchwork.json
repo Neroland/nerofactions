@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:salvager_patchwork"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:salvager_patchwork"
+      }
+    ]
+  }
+}

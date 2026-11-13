@@ -2,6 +2,8 @@ package za.co.neroland.nerofactions.registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
@@ -15,7 +17,7 @@ import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.content.faction.voidcult.RiftBlade;
 import za.co.neroland.nerofactions.content.faction.minerunion.UnionBreaker;
-import za.co.neroland.nerofactions.content.faction.minerunion.UnionExosuit;
+import za.co.neroland.nerofactions.content.faction.FactionArmor;
 import za.co.neroland.nerofactions.content.faction.spaceguild.GuildGrapple;
 import za.co.neroland.nerofactions.cosmetics.FactionBanners;
 import za.co.neroland.nerofactions.cosmetics.FactionTrims;
@@ -61,10 +63,24 @@ public final class NeroFactionsItems {
             key -> new BlockItem(NeroFactionsBlocks.NAVIGATION_BEACON.get(),
                     new Item.Properties().setId(key).useBlockDescriptionPrefix()));
 
-    public static final RegistryEntry<Item> UNION_HELMET = UnionExosuit.register("helmet");
-    public static final RegistryEntry<Item> UNION_CHESTPLATE = UnionExosuit.register("chestplate");
-    public static final RegistryEntry<Item> UNION_LEGGINGS = UnionExosuit.register("leggings");
-    public static final RegistryEntry<Item> UNION_BOOTS = UnionExosuit.register("boots");
+    public static final RegistryEntry<BlockItem> VOID_ALTAR = ITEMS.register("void_altar",
+            key -> new BlockItem(NeroFactionsBlocks.VOID_ALTAR.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+
+    private static final Map<FactionArmor, List<RegistryEntry<Item>>> ARMOR = registerArmor();
+
+    private static Map<FactionArmor, List<RegistryEntry<Item>>> registerArmor() {
+        var armor = new EnumMap<FactionArmor, List<RegistryEntry<Item>>>(FactionArmor.class);
+        for (FactionArmor set : FactionArmor.values()) {
+            armor.put(set, List.of(set.register("helmet"), set.register("chestplate"),
+                    set.register("leggings"), set.register("boots")));
+        }
+        return Map.copyOf(armor);
+    }
+
+    public static List<RegistryEntry<Item>> armorPieces(FactionArmor set) {
+        return ARMOR.get(set);
+    }
 
     private static final List<RegistryEntry<Item>> COSMETICS = registerCosmetics();
 
@@ -96,8 +112,10 @@ public final class NeroFactionsItems {
     public static List<ItemLike> creativeContents() {
         List<ItemLike> contents = new ArrayList<>(List.of(TRADE_TERMINAL.get(),
                 FACTION_REGISTRY.get(), CONTRACT_BOARD.get(), QUOTA_BOARD.get(), UNION_BREAKER.get(),
-                RIFT_BLADE.get(), NAVIGATION_BEACON.get(), GUILD_GRAPPLE.get(), UNION_HELMET.get(), UNION_CHESTPLATE.get(),
-                UNION_LEGGINGS.get(), UNION_BOOTS.get()));
+                VOID_ALTAR.get(), RIFT_BLADE.get(), NAVIGATION_BEACON.get(), GUILD_GRAPPLE.get()));
+        for (FactionArmor set : FactionArmor.values()) {
+            armorPieces(set).forEach(piece -> contents.add(piece.get()));
+        }
         COSMETICS.forEach(item -> contents.add(item.get()));
         return List.copyOf(contents);
     }

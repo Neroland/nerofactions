@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "nerofactions:colonist_field_gear"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "nerofactions:colonist_field_gear"
+      }
+    ]
+  }
+}

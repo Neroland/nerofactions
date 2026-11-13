@@ -4,6 +4,11 @@ Standing (reputation) is a per-player integer with each faction, stored on the s
 resolves to a **tier** on that faction's ladder, and the tier is what the rest of the mod
 asks about: gated recipes, terminal rates, rewards and progression gates all read your tier.
 
+Standing can fall below zero. Below `hostileBelowStanding` (default −100)
+the Registry marks the faction hostile, its Envoy and bound Trade Terminal
+refuse service, and its Guards may attack. Hostile is a display band and the
+tier ladder still has five entries.
+
 ## The tier ladder
 
 Five tiers, fixed in order; only the thresholds are data-driven. All seven shipped factions

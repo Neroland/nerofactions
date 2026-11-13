@@ -1,0 +1,134 @@
+package za.co.neroland.nerofactions.content.faction;
+
+import java.util.Map;
+import java.util.List;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+//? if >=1.21.2 {
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+//?} else {
+/*import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ArmorItem.Type;
+import net.minecraft.world.item.crafting.Ingredient;
+import za.co.neroland.nerolandcore.registry.RegistrationProvider;
+*///?}
+//? if <1.21.5 {
+/*import net.minecraft.world.item.ArmorItem;
+*///?}
+import za.co.neroland.nerofactions.registry.NeroFactionsItems;
+import za.co.neroland.nerolandcore.registry.RegistrationProvider.RegistryEntry;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+
+public enum FactionArmor {
+    UNION_EXOSUIT(OutpostFaction.MINER_UNION, "union_exosuit", 18, 2, 6, 5, 2, 1.0F),
+    GUILD_FLIGHT_SUIT(OutpostFaction.SPACE_GUILD, "guild_flight_suit", 15, 2, 5, 4, 2, 0.5F),
+    VOID_VESTMENTS(OutpostFaction.VOID_CULT, "void_vestments", 16, 2, 5, 4, 2, 0.25F),
+    CORPORATE_POWER_SUIT(OutpostFaction.NERO_CORPORATION, "corporate_power_suit", 22, 3, 7, 5, 3, 1.0F),
+    AUTHORITY_ENVIRONMENT_SUIT(OutpostFaction.TERRAFORMING_AUTHORITY, "authority_environment_suit", 17, 2, 5, 4, 2, 0.5F),
+    COLONIST_FIELD_GEAR(OutpostFaction.FREE_COLONISTS, "colonist_field_gear", 12, 1, 3, 2, 1, 0.0F),
+    SALVAGER_PATCHWORK(OutpostFaction.SALVAGERS, "salvager_patchwork", 20, 2, 6, 5, 2, 0.75F);
+
+    //? if >=1.21.2 {
+    private final ArmorMaterial material;
+    //?} else {
+    /*private final RegistryEntry<ArmorMaterial> material;
+    private final int durability;
+    *///?}
+    private final String name;
+    private final OutpostFaction faction;
+
+    FactionArmor(OutpostFaction faction, String name, int durability, int helmet, int chestplate,
+            int leggings, int boots, float toughness) {
+        this.faction = faction;
+        this.name = name;
+        var id = Identifier.fromNamespaceAndPath("nerofactions", name);
+        TagKey<Item> repair = TagKey.create(Registries.ITEM,
+                Identifier.fromNamespaceAndPath("nerofactions", "repairs_" + name));
+        //? if >=1.21.2 {
+        this.material = new ArmorMaterial(durability, Map.of(ArmorType.HELMET, helmet, ArmorType.CHESTPLATE, chestplate,
+                ArmorType.LEGGINGS, leggings, ArmorType.BOOTS, boots), 12, SoundEvents.ARMOR_EQUIP_IRON,
+                toughness, 0.0F, repair, ResourceKey.create(EquipmentAssets.ROOT_ID, id));
+        //?} else {
+        /*this.durability = durability;
+        this.material = RegistrationProvider.get(Registries.ARMOR_MATERIAL, id.getNamespace()).register(name,
+                key -> new ArmorMaterial(Map.of(Type.HELMET, helmet, Type.CHESTPLATE, chestplate,
+                        Type.LEGGINGS, leggings, Type.BOOTS, boots), 12, SoundEvents.ARMOR_EQUIP_IRON,
+                        () -> Ingredient.of(repair), List.of(new ArmorMaterial.Layer(id)), toughness, 0.0F));
+        *///?}
+    }
+
+    public String id() {
+        return name;
+    }
+
+    public Identifier factionId() {
+        return faction.factionId();
+    }
+
+    public OutpostFaction faction() {
+        return faction;
+    }
+
+    public List<RegistryEntry<Item>> pieces() {
+        return NeroFactionsItems.armorPieces(this);
+    }
+
+    public boolean includes(ItemStack stack) {
+        return pieces().stream().anyMatch(piece -> stack.is(piece.get()));
+    }
+
+    public int equipped(Player player) {
+        var pieces = pieces();
+        int count = 0;
+        if (player.getItemBySlot(EquipmentSlot.HEAD).is(pieces.get(0).get())) count++;
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(pieces.get(1).get())) count++;
+        if (player.getItemBySlot(EquipmentSlot.LEGS).is(pieces.get(2).get())) count++;
+        if (player.getItemBySlot(EquipmentSlot.FEET).is(pieces.get(3).get())) count++;
+        return count;
+    }
+
+    public RegistryEntry<Item> register(String part) {
+        String id = name + "_" + part;
+        //? if >=1.21.2 {
+        ArmorType type = switch (part) {
+            case "helmet" -> ArmorType.HELMET;
+            case "chestplate" -> ArmorType.CHESTPLATE;
+            case "leggings" -> ArmorType.LEGGINGS;
+            case "boots" -> ArmorType.BOOTS;
+            default -> throw new IllegalArgumentException(part);
+        };
+        //?} else {
+        /*Type type = switch (part) {
+            case "helmet" -> Type.HELMET;
+            case "chestplate" -> Type.CHESTPLATE;
+            case "leggings" -> Type.LEGGINGS;
+            case "boots" -> Type.BOOTS;
+            default -> throw new IllegalArgumentException(part);
+        };
+        *///?}
+        //? if >=1.21.5 {
+        return NeroFactionsItems.ITEMS.register(id,
+                key -> new Item(new Item.Properties().setId(key).humanoidArmor(material, type)));
+        //?} else if >=1.21.2 {
+        /*return NeroFactionsItems.ITEMS.register(id,
+                key -> new ArmorItem(material, type, new Item.Properties().setId(key)));
+        *///?} else {
+        /*ResourceKey<ArmorMaterial> materialKey = ResourceKey.create(Registries.ARMOR_MATERIAL, material.id());
+        return NeroFactionsItems.ITEMS.register(id, key -> new ArmorItem(
+                ((MappedRegistry<ArmorMaterial>) BuiltInRegistries.ARMOR_MATERIAL)
+                        .createRegistrationLookup().getOrThrow(materialKey),
+                type, new Item.Properties().durability(type.getDurability(durability))));
+        *///?}
+    }
+}

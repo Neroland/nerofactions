@@ -46,7 +46,7 @@ class ShippedGatedRecipeTest {
 
     /** The plain (deliberately UNGATED) recipes that also ship. */
     private static final Set<String> UNGATED = Set.of("trade_terminal.json", "faction_registry.json",
-            "contract_board.json", "quota_board.json", "navigation_beacon.json");
+            "contract_board.json", "quota_board.json", "navigation_beacon.json", "void_altar.json");
 
     private static final Map<String, String> SIGNATURE_TOOLS = Map.of(
             "rift_blade.json", "nerofactions:void_cult",
@@ -56,6 +56,17 @@ class ShippedGatedRecipeTest {
     private static final Set<String> UNION_GEAR = Set.of(
             "union_exosuit_helmet.json", "union_exosuit_chestplate.json",
             "union_exosuit_leggings.json", "union_exosuit_boots.json");
+    private static final Set<String> GUILD_GEAR = Set.of(
+            "guild_flight_suit_helmet.json", "guild_flight_suit_chestplate.json",
+            "guild_flight_suit_leggings.json", "guild_flight_suit_boots.json");
+    private static final Set<String> VOID_GEAR = Set.of(
+            "void_vestments_helmet.json", "void_vestments_chestplate.json",
+            "void_vestments_leggings.json", "void_vestments_boots.json");
+    private static final Map<String, String> ADDITIONAL_ARMOR = Map.of(
+            "corporate_power_suit", "nero_corporation",
+            "authority_environment_suit", "terraforming_authority",
+            "colonist_field_gear", "free_colonists",
+            "salvager_patchwork", "salvagers");
 
     private static final Set<String> TRIMS = Set.of(
             "free_colonists_armor_trim.json", "miner_union_armor_trim.json", "nero_corporation_armor_trim.json",
@@ -87,6 +98,10 @@ class ShippedGatedRecipeTest {
         expected.addAll(UNGATED);
         expected.addAll(TRIMS);
         expected.addAll(UNION_GEAR);
+        expected.addAll(GUILD_GEAR);
+        expected.addAll(VOID_GEAR);
+        ADDITIONAL_ARMOR.keySet().forEach(set -> Stream.of("helmet", "chestplate", "leggings", "boots")
+                .forEach(part -> expected.add(set + "_" + part + ".json")));
         expected.addAll(SIGNATURE_TOOLS.keySet());
         assertEquals(expected, recipes.keySet(),
                 "exactly the declared gated, block and smithing recipes ship");
@@ -110,8 +125,17 @@ class ShippedGatedRecipeTest {
                     name + " must use the gated serializer");
 
             String faction = recipe.get("faction").getAsString();
-            if (UNION_GEAR.contains(name)) {
-                assertEquals("nerofactions:miner_union", faction, name);
+            if (UNION_GEAR.contains(name) || GUILD_GEAR.contains(name) || VOID_GEAR.contains(name)) {
+                String owner = UNION_GEAR.contains(name) ? "miner_union"
+                        : GUILD_GEAR.contains(name) ? "space_guild" : "void_cult";
+                assertEquals("nerofactions:" + owner, faction, name);
+                assertEquals("trusted", recipe.get("tier").getAsString(), name);
+                assertWrappedRecipeCoherent(name, recipe.getAsJsonObject("recipe"), "nerofactions:");
+                continue;
+            }
+            String additionalOwner = ADDITIONAL_ARMOR.get(name.substring(0, name.lastIndexOf('_')));
+            if (additionalOwner != null) {
+                assertEquals("nerofactions:" + additionalOwner, faction, name);
                 assertEquals("trusted", recipe.get("tier").getAsString(), name);
                 assertWrappedRecipeCoherent(name, recipe.getAsJsonObject("recipe"), "nerofactions:");
                 continue;

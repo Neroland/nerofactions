@@ -65,6 +65,31 @@ and take 35% less explosion and fall damage below Y 40 or in dimensions without
 skylight. The complete set applies Slowness I in exposed daylight. The pieces
 continue to protect as armour below Trusted.
 
+## Space Guild equipment
+
+- The **Navigation Beacon** binds a compass to a waypoint for Guild members.
+  Members within 24 blocks of an enabled beacon are protected from falls.
+- The **Guild Grapple** pulls active Guild members with Member standing toward
+  solid terrain between 2 and 12 blocks away. A successful pull starts a
+  three-second cooldown.
+- The **Guild Flight Suit** needs four equipped pieces and Trusted standing
+  with active Guild membership. It prevents fall damage, grants Slow Falling
+  while sneaking in the air, and adds 10% movement speed. The active bonus
+  removes two points of armour toughness and increases incoming melee damage by 15%.
+
+## Void Cult equipment
+
+The **Void Altar** accepts four amethyst shards and three experience levels
+from a Void Cult member with Member standing. A successful rite grants night
+vision, 0.75 blocks of extra reach and protection from Wither. A backlash instead
+applies temporary Blindness and Weakness. The **Rift Blade** briefly blinds
+surviving targets and grants two experience points for killing a hostile mob.
+
+**Void Vestments** grant melee life steal and reveal invisible entities to a
+Trusted Void Cult member wearing all four pieces. Incoming damage increases by
+20% in exposed daylight. Guards of rival factions can detect the wearer from
+farther away within their outpost.
+
 ## Faction Registry
 
 Craft a Faction Registry from iron ingots, paper and a book. Use it to browse faction standing and

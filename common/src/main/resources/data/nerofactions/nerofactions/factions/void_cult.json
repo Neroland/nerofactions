@@ -20,11 +20,23 @@
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {
+        "type": "item",
+        "id": "nerofactions:rift_blade",
+        "count": 1
+      }
+    ],
     "trusted": [
       {
         "type": "item",
-        "id": "minecraft:ender_pearl",
-        "count": 4
+        "id": "nerofactions:void_vestments_helmet",
+        "count": 1
+      },
+      {
+        "type": "item",
+        "id": "nerofactions:void_altar",
+        "count": 1
       }
     ],
     "inner_circle": [

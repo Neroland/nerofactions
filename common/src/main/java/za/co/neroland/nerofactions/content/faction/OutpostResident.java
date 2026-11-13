@@ -60,6 +60,12 @@ public abstract class OutpostResident extends PathfinderMob {
         return OutpostFaction.byName(entityData.get(FACTION));
     }
 
+    public void displayInGallery(OutpostFaction faction) {
+        entityData.set(FACTION, faction.getSerializedName());
+        setNoAi(true);
+        setNoGravity(true);
+    }
+
     final boolean insideOutpost(BlockPos pos) {
         return bounds != null && bounds.isInside(pos);
     }
@@ -86,7 +92,7 @@ public abstract class OutpostResident extends PathfinderMob {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide()) {
+        if (level().isClientSide() || isNoAi()) {
             return;
         }
         var level = level().getServer().getLevel(level().dimension());

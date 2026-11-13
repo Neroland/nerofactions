@@ -167,6 +167,36 @@
       "quest": "nerofactions:standing/void_cult_outpost_found",
       "x": 8,
       "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_signature_machine_built",
+      "x": 10,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/miner_union_full_set_worn",
+      "x": 12,
+      "y": 2
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_signature_machine_built",
+      "x": 10,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/space_guild_full_set_worn",
+      "x": 12,
+      "y": 8
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_signature_machine_built",
+      "x": 10,
+      "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/void_cult_full_set_worn",
+      "x": 12,
+      "y": 12
     }
   ]
 }

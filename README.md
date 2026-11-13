@@ -46,8 +46,10 @@ operates on real numbers.
   set `telemetryEnabled=false` in `config/nerofactions.properties`. See [PRIVACY.md](PRIVACY.md).
 
 The current source includes an original-textured Faction Registry and a custom membership screen.
-The Contract Board offers daily faction contracts. Faction gear and signature machines are still under development. The trade
-terminal uses vanilla textures. Each faction offers a loom pattern and a matching armour trim
+The Contract Board offers daily faction contracts. All seven factions have outposts
+with traders, guards and their own patterned banners. Miner Union, Space Guild and
+Void Cult have signature tools and machines. All seven factions have four-piece
+armour sets, loom patterns and matching armour trims
 at Inner Circle.
 
 ## Requirements

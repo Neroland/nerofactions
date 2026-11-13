@@ -98,6 +98,7 @@ public final class FactionCommands {
     /** Builds {@code /nerofactions …}. Called once per loader from its command-registration hook. */
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("nerofactions")
+                .then(FactionGallery.command())
                 .then(Commands.literal("standing")
                         .executes(ctx -> runSafely(ctx.getSource(), "standing",
                                 () -> standing(ctx.getSource()))))

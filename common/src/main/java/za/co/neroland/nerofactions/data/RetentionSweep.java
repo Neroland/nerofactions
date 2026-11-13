@@ -80,6 +80,8 @@ public final class RetentionSweep {
      */
     public static void onServerStopped() {
         lastRunDay = Long.MIN_VALUE;
+        za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.clear();
+        za.co.neroland.nerofactions.progression.FactionMilestones.clear();
     }
 
     /** Runs one sweep now against the live server and config. @return how many players were purged. */
