@@ -103,8 +103,12 @@ public final class FactionsLinkEvents {
         return ordinal >= 0 && ordinal < tiers.length ? tiers[(int) ordinal].jsonName() : "unknown";
     }
 
+    /**
+     * A contract reward was applied for one player. Routed to that player only; the payload names
+     * the faction and contract, never the player. Null arguments publish nothing.
+     */
     public static void onContractCompleted(UUID playerId, Identifier faction, Identifier contract) {
-        if (!enabled()) {
+        if (playerId == null || faction == null || contract == null || !enabled()) {
             return;
         }
         JsonObject payload = new JsonObject();

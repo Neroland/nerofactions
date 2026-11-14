@@ -15,8 +15,9 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Plain-JVM tests for the retention sweep's decision core and day-roll schedule. The live wiring
- * ({@code sweep(server)}: Core's {@code PlayerActivity.stalerThan} + both stores'
- * {@code knownPlayers} + {@code NeroFactionsData.eraseLocal}) needs a server; the parameterised
+ * ({@code sweep(server)}: Core's {@code PlayerActivity.stalerThan} + every
+ * {@code FactionsStores} store's {@code knownPlayers} + {@code NeroFactionsData.eraseLocal})
+ * needs a server; the parameterised
  * seams below are exactly what it delegates to.
  */
 class RetentionSweepTest {
@@ -41,7 +42,7 @@ class RetentionSweepTest {
                     assertEquals(365, days, "the configured window must reach the activity query");
                     return List.of(inactive, staleStranger);
                 },
-                erased::add);
+                erased::add).purged();
 
         assertEquals(1, purged);
         assertEquals(List.of(inactive), erased,
@@ -58,7 +59,7 @@ class RetentionSweepTest {
                     queried[0] = true;
                     return List.of();
                 },
-                erased::add);
+                erased::add).purged();
 
         assertEquals(0, purged);
         assertFalse(queried[0], "0 = disabled; the activity record must not even be consulted");
@@ -74,10 +75,39 @@ class RetentionSweepTest {
             return List.of();
         }, uuid -> {
             throw new AssertionError("nothing may be erased");
-        });
+        }).purged();
 
         assertEquals(0, purged);
         assertFalse(queried[0]);
+    }
+
+    @Test
+    void aFailingErasureIsCountedAndTheSweepCarriesOn() {
+        UUID first = UUID.randomUUID();
+        UUID broken = UUID.randomUUID();
+        UUID last = UUID.randomUUID();
+        List<UUID> erased = new ArrayList<>();
+
+        RetentionSweep.Outcome outcome = RetentionSweep.sweep(365, Set.of(first, broken, last),
+                days -> List.of(first, broken, last),
+                uuid -> {
+                    if (uuid.equals(broken)) {
+                        throw new IllegalStateException("backup write failed");
+                    }
+                    erased.add(uuid);
+                });
+
+        assertEquals(List.of(first, last), erased, "players after a failing one must still be purged");
+        assertEquals(2, outcome.purged());
+        assertEquals(1, outcome.failed());
+    }
+
+    @Test
+    void aCleanSweepReportsNoFailures() {
+        UUID inactive = UUID.randomUUID();
+        RetentionSweep.Outcome outcome = RetentionSweep.sweep(365, Set.of(inactive),
+                days -> List.of(inactive), uuid -> { });
+        assertEquals(new RetentionSweep.Outcome(1, 0), outcome);
     }
 
     @Test

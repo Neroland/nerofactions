@@ -72,22 +72,39 @@ public final class CorporateCounter {
 
     static void stamp(ServerPlayer player, ServerLevel level, InteractionHand hand) {
         ItemStack input = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-        if (!eligible(player, level)) { message(player, "denied"); return; }
-        if (!input.is(Items.GOLD_INGOT) || input.getCount() < STAMP_GOLD || !input.getComponentsPatch().isEmpty()) {
-            message(player, "stamp_input", STAMP_GOLD);
-            return;
-        }
         var server = level.getServer();
-        if (!CorporateLedger.get(server).reserveStamp(player.getUUID(), ContractService.worldDay(server))) {
-            message(player, "stamp_cap");
-            return;
+        var outcome = stampOutcome(eligible(player, level), CurrencyApi.hasRealProvider(),
+                input.is(Items.GOLD_INGOT) && input.getCount() >= STAMP_GOLD && input.getComponentsPatch().isEmpty(),
+                () -> CorporateLedger.get(server).reserveStamp(player.getUUID(), ContractService.worldDay(server)));
+        switch (outcome) {
+            case DENIED -> message(player, "denied");
+            case NO_CURRENCY -> message(player, "stamp_no_currency");
+            case BAD_INPUT -> message(player, "stamp_input", STAMP_GOLD);
+            case CAPPED -> message(player, "stamp_cap");
+            case STAMPED -> {
+                input.shrink(STAMP_GOLD);
+                player.getInventory().setChanged();
+                player.getItemInHand(hand).hurtAndBreak(1, player,
+                        hand == InteractionHand.MAIN_HAND ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+                give(player, new ItemStack(NeroFactionsItems.CORPORATE_WRIT.get()));
+                message(player, "stamped");
+            }
         }
-        input.shrink(STAMP_GOLD);
-        player.getInventory().setChanged();
-        player.getItemInHand(hand).hurtAndBreak(1, player,
-                hand == InteractionHand.MAIN_HAND ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
-        give(player, new ItemStack(NeroFactionsItems.CORPORATE_WRIT.get()));
-        message(player, "stamped");
+    }
+
+    enum StampOutcome { DENIED, NO_CURRENCY, BAD_INPUT, CAPPED, STAMPED }
+
+    /**
+     * Writs are only worth anything through a real currency provider (see {@link #redeem}), so without one the
+     * stamp refuses before any gold is taken or a daily stamp is reserved. {@code reserveStamp} runs last and only
+     * when every other check passed.
+     */
+    static StampOutcome stampOutcome(boolean eligible, boolean currencyProvider, boolean inputOk,
+            java.util.function.BooleanSupplier reserveStamp) {
+        if (!eligible) return StampOutcome.DENIED;
+        if (!currencyProvider) return StampOutcome.NO_CURRENCY;
+        if (!inputOk) return StampOutcome.BAD_INPUT;
+        return reserveStamp.getAsBoolean() ? StampOutcome.STAMPED : StampOutcome.CAPPED;
     }
 
     public static boolean redeem(ServerPlayer player, ItemStack stack) {

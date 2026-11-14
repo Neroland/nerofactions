@@ -4,33 +4,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.minecraft.resources.Identifier;
 
 import org.junit.jupiter.api.Test;
-import za.co.neroland.nerofactions.contracts.ContractFixtures;
-import za.co.neroland.nerofactions.data.ContractState;
-import za.co.neroland.nerofactions.data.OutpostVisits;
-import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 import za.co.neroland.nerofactions.content.FactionDefinition;
 import za.co.neroland.nerofactions.content.FactionTier;
-import za.co.neroland.nerofactions.data.FactionMembershipState;
-import za.co.neroland.nerofactions.data.FactionReputationState;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.contracts.ContractFixtures;
 
 /**
  * The snapshot sections' shapes and — above all — their scoping: a request sees the requesting
  * UUID's rows and nothing else, even when a bystander's record is richer. Plain JVM, null server:
- * the {@link FactionsLinkSnapshots.Stores} seam is filled with direct stores, exactly the shape
+ * the {@link FactionsLinkSnapshots.Stores} seam is filled with direct stores ({@link LinkFixture}), exactly the shape
  * the production path resolves from the bound server.
  */
 class FactionsLinkSnapshotsTest {
@@ -39,78 +35,12 @@ class FactionsLinkSnapshotsTest {
     private static final UUID BYSTANDER = UUID.randomUUID();
 
     private static FactionDefinition faction(String path, String displayName) {
-        return new FactionDefinition(
-                Identifier.fromNamespaceAndPath("nerofactions", path),
-                displayName, "A test faction.",
-                Map.of("outsider", 0, "associate", 100, "member", 400,
-                        "trusted", 1000, "inner_circle", 2500),
-                Map.of(), List.of(), List.of(), Optional.empty());
-    }
-
-    /** Direct stores behind the seam — the same reads production makes, no server required. */
-    private static final class Fixture implements FactionsLinkSnapshots.View {
-
-        final Map<Identifier, FactionDefinition> factions = new LinkedHashMap<>();
-        final FactionReputationState reputation = new FactionReputationState();
-        final FactionMembershipState membership = new FactionMembershipState();
-        final ContractState contractState = new ContractState();
-        final OutpostVisits visits = new OutpostVisits();
-
-        Fixture(FactionDefinition... definitions) {
-            for (FactionDefinition definition : definitions) {
-                factions.put(definition.id(), definition);
-            }
-        }
-
-        FactionsLinkSnapshots snapshots() {
-            return new FactionsLinkSnapshots(() -> this);
-        }
-
-        @Override
-        public Map<Identifier, FactionDefinition> factions() {
-            return factions;
-        }
-
-        @Override
-        public int standing(UUID player, Identifier faction) {
-            return reputation.getReputation(player, faction);
-        }
-
-        @Override
-        public Set<Identifier> memberships(UUID player) {
-            return membership.membershipsOf(player);
-        }
-
-        @Override
-        public long joinedAt(UUID player, Identifier faction) {
-            return membership.joinedAt(player, faction);
-        }
-
-        @Override
-        public long cooldownUntil(UUID player) {
-            return membership.cooldownUntil(player);
-        }
-
-        @Override
-        public Map<Identifier, Long> leftFactions(UUID player) {
-            return membership.leftFactions(player);
-        }
-
-        @Override
-        public boolean online(UUID player) {
-            return false;
-        }
-
-        @Override public long worldDay() { return 5; }
-        @Override public long contractDay(UUID player) { return contractState.day(player); }
-        @Override public boolean rerollAvailable(UUID player) { return contractState.rerollAvailable(player); }
-        @Override public List<ContractState.Entry> contracts(UUID player) { return contractState.entries(player); }
-        @Override public JsonArray outpostsVisited(UUID player) { return visits.export(player); }
+        return LinkFixture.faction(path, displayName);
     }
 
     @Test
     void outpostVisitsExposeOnlyTheRequestersFactionAndDimension() {
-        Fixture fixture = new Fixture();
+        LinkFixture fixture = new LinkFixture();
         Identifier overworld = Identifier.parse("minecraft:overworld");
         fixture.visits.record(REQUESTER, OutpostFaction.MINER_UNION, overworld);
         fixture.visits.record(BYSTANDER, OutpostFaction.VOID_CULT, overworld);
@@ -127,7 +57,7 @@ class FactionsLinkSnapshotsTest {
     @Test
     void contractsAreRequesterScopedAndDoNotRevealStaleOrOtherPlayersProgress() {
         Identifier faction = ContractFixtures.FACTION;
-        Fixture fixture = new Fixture(faction(faction.getPath(), "Contract faction"));
+        LinkFixture fixture = new LinkFixture(faction(faction.getPath(), "Contract faction"));
         UUID requester = UUID.randomUUID();
         UUID bystander = UUID.randomUUID();
         fixture.membership.recordJoin(requester, faction, 1);
@@ -153,7 +83,7 @@ class FactionsLinkSnapshotsTest {
     void standingReturnsExactlyTheRequestersRows() {
         FactionDefinition guild = faction("space_guild", "Space Guild");
         FactionDefinition salvagers = faction("salvagers", "Salvagers");
-        Fixture fixture = new Fixture(guild, salvagers);
+        LinkFixture fixture = new LinkFixture(guild, salvagers);
         fixture.reputation.setReputation(REQUESTER, guild.id(), 1200);
         // The bystander's record is deliberately RICHER: higher standing, and a faction the
         // requester has never touched. None of it may appear.
@@ -187,7 +117,7 @@ class FactionsLinkSnapshotsTest {
     @Test
     void membershipAtZeroStandingStillGetsAnOutsiderRow() {
         FactionDefinition guild = faction("space_guild", "Space Guild");
-        Fixture fixture = new Fixture(guild);
+        LinkFixture fixture = new LinkFixture(guild);
         fixture.membership.recordJoin(REQUESTER, guild.id(), 5_000L);
         // No reputation stored at all: canonical zero — the pledge alone earns the row.
 
@@ -204,7 +134,7 @@ class FactionsLinkSnapshotsTest {
     @Test
     void tierResolutionMatchesTheLadderAtTheBoundaries() {
         FactionDefinition guild = faction("space_guild", "Space Guild");
-        Fixture fixture = new Fixture(guild);
+        LinkFixture fixture = new LinkFixture(guild);
         fixture.reputation.setReputation(REQUESTER, guild.id(), 2500); // exactly at-threshold
 
         JsonObject row = fixture.snapshots()
@@ -219,7 +149,7 @@ class FactionsLinkSnapshotsTest {
     @Test
     void negativeStandingIsReportedAsAnOutsiderRow() {
         FactionDefinition guild = faction("space_guild", "Space Guild");
-        Fixture fixture = new Fixture(guild);
+        LinkFixture fixture = new LinkFixture(guild);
         fixture.reputation.setReputation(REQUESTER, guild.id(), -300);
 
         JsonObject row = fixture.snapshots()
@@ -236,7 +166,7 @@ class FactionsLinkSnapshotsTest {
     void membershipSectionCarriesTheRequestersBookkeepingOnly() {
         FactionDefinition guild = faction("space_guild", "Space Guild");
         FactionDefinition salvagers = faction("salvagers", "Salvagers");
-        Fixture fixture = new Fixture(guild, salvagers);
+        LinkFixture fixture = new LinkFixture(guild, salvagers);
         fixture.membership.recordJoin(REQUESTER, guild.id(), 1_000L);
         fixture.membership.recordJoin(REQUESTER, salvagers.id(), 2_000L);
         fixture.membership.recordLeave(REQUESTER, salvagers.id(), 5_000L, 7_000L);
@@ -259,7 +189,7 @@ class FactionsLinkSnapshotsTest {
 
     @Test
     void membershipSectionForAnUnknownPlayerIsShapedButEmpty() {
-        Fixture fixture = new Fixture(faction("space_guild", "Space Guild"));
+        LinkFixture fixture = new LinkFixture(faction("space_guild", "Space Guild"));
 
         JsonObject root = fixture.snapshots()
                 .snapshot(REQUESTER, FactionsLinkModule.SECTION_MEMBERSHIP, Map.of());
@@ -273,7 +203,7 @@ class FactionsLinkSnapshotsTest {
 
     @Test
     void unknownSectionYieldsAnEmptyObject() {
-        Fixture fixture = new Fixture(faction("space_guild", "Space Guild"));
+        LinkFixture fixture = new LinkFixture(faction("space_guild", "Space Guild"));
         fixture.reputation.setReputation(REQUESTER, fixture.factions.keySet().iterator().next(), 500);
 
         JsonObject root = fixture.snapshots().snapshot(REQUESTER, "colonies", Map.of());
@@ -283,7 +213,7 @@ class FactionsLinkSnapshotsTest {
 
     @Test
     void nullPlayerYieldsAnEmptyObject() {
-        Fixture fixture = new Fixture(faction("space_guild", "Space Guild"));
+        LinkFixture fixture = new LinkFixture(faction("space_guild", "Space Guild"));
         assertTrue(fixture.snapshots()
                 .snapshot(null, FactionsLinkModule.SECTION_STANDING, Map.of()).isEmpty());
     }
@@ -296,6 +226,98 @@ class FactionsLinkSnapshotsTest {
                 .snapshot(REQUESTER, FactionsLinkModule.SECTION_STANDING, Map.of()).isEmpty());
         assertTrue(snapshots
                 .snapshot(REQUESTER, FactionsLinkModule.SECTION_MEMBERSHIP, Map.of()).isEmpty());
+    }
+
+    // --- gear --------------------------------------------------------------------
+
+    @Test
+    void gearUnlocksFollowTheRequestersOwnTierNotABystanders() {
+        Identifier union = Identifier.parse("nerofactions:miner_union");
+        LinkFixture fixture = new LinkFixture(faction("miner_union", "Miner Union"));
+        fixture.membership.recordJoin(REQUESTER, union, 1L);
+        fixture.membership.recordJoin(BYSTANDER, union, 1L);
+        fixture.reputation.setReputation(REQUESTER, union, 150);   // ASSOCIATE
+        fixture.reputation.setReputation(BYSTANDER, union, 1500);  // TRUSTED
+
+        JsonObject associate = unionSet(fixture);
+        assertFalse(associate.get("eligible").getAsBoolean());
+        associate.getAsJsonArray("pieces").forEach(piece ->
+                assertFalse(piece.getAsJsonObject().get("unlocked").getAsBoolean(),
+                        "a bystander's TRUSTED standing must not unlock the requester's gear"));
+
+        fixture.reputation.setReputation(REQUESTER, union, 1200);  // TRUSTED
+        JsonObject trusted = unionSet(fixture);
+        assertTrue(trusted.get("eligible").getAsBoolean());
+        assertEquals(4, trusted.getAsJsonArray("pieces").size());
+        trusted.getAsJsonArray("pieces").forEach(piece ->
+                assertTrue(piece.getAsJsonObject().get("unlocked").getAsBoolean()));
+    }
+
+    private static JsonObject unionSet(LinkFixture fixture) {
+        JsonArray sets = fixture.snapshots()
+                .snapshot(REQUESTER, FactionsLinkModule.SECTION_GEAR, Map.of()).getAsJsonArray("sets");
+        assertEquals(1, sets.size(), "only sets whose faction is loaded are listed");
+        JsonObject set = sets.get(0).getAsJsonObject();
+        assertEquals("nerofactions:miner_union", set.get("faction").getAsString());
+        return set;
+    }
+
+    // --- every section: no coordinates, no bystander -----------------------------
+
+    private static final Pattern POSITION_KEY =
+            Pattern.compile("x|y|z|pos|position|block_pos|coords", Pattern.CASE_INSENSITIVE);
+
+    @Test
+    void noSectionCarriesAPositionKeyOrAnyBystanderData() {
+        Identifier union = ContractFixtures.FACTION;
+        String hiddenPath = "hidden_" + UUID.randomUUID().toString().replace("-", "");
+        Identifier hidden = Identifier.fromNamespaceAndPath("nerofactions", hiddenPath);
+        LinkFixture fixture = new LinkFixture(faction(union.getPath(), "Miner Union"),
+                faction(hiddenPath, "Bystander Only"));
+        UUID requester = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        Identifier overworld = Identifier.parse("minecraft:overworld");
+
+        fixture.online.add(requester);
+        fixture.online.add(bystander);
+        fixture.membership.recordJoin(requester, union, 1_000L);
+        fixture.reputation.setReputation(requester, union, 150);
+        fixture.contractState.ensure(requester, union, 0, 4, 5, ContractFixtures.pool());
+        fixture.visits.record(requester, OutpostFaction.MINER_UNION, overworld);
+
+        // A richer bystander record, every value unique to them.
+        fixture.membership.recordJoin(bystander, union, 1_111_111L);
+        fixture.membership.recordJoin(bystander, hidden, 1_234_567L);
+        fixture.membership.recordLeave(bystander, union, 7_654_321L, 9_876_543L);
+        fixture.reputation.setReputation(bystander, union, 2777);
+        fixture.reputation.setReputation(bystander, hidden, 2888);
+        fixture.contractState.ensure(bystander, union, 0, 4, 5, ContractFixtures.pool());
+        fixture.contractState.advance(bystander, union, 0, 9);
+        fixture.visits.record(bystander, OutpostFaction.VOID_CULT, Identifier.parse("minecraft:the_nether"));
+
+        FactionsLinkSnapshots snapshots = fixture.snapshots();
+        for (String section : snapshots.sections()) {
+            JsonObject root = snapshots.snapshot(requester, section, Map.of("player", bystander.toString()));
+            assertTrue(root.has("schema_version"), section + " must answer, not fail closed");
+            assertNoPositionKey(section, root);
+            String serialised = root.toString();
+            for (String leak : List.of(bystander.toString(), "1111111", "1234567", "7654321", "9876543",
+                    "2777", "2888", "the_nether", "void_cult", hiddenPath)) {
+                assertFalse(serialised.contains(leak), section + " leaked a bystander value");
+            }
+        }
+    }
+
+    private static void assertNoPositionKey(String section, JsonElement element) {
+        if (element.isJsonObject()) {
+            for (Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+                assertFalse(POSITION_KEY.matcher(entry.getKey()).matches(),
+                        section + " carries a position-shaped key: " + entry.getKey());
+                assertNoPositionKey(section, entry.getValue());
+            }
+        } else if (element.isJsonArray()) {
+            element.getAsJsonArray().forEach(child -> assertNoPositionKey(section, child));
+        }
     }
 
     // --- discovery metadata -----------------------------------------------------

@@ -102,11 +102,30 @@ public abstract class OutpostResident extends PathfinderMob {
         if (bounds == null && tickCount % 20 == 0) {
             bind(level);
         }
-        if (bounds != null && !insideOutpost(blockPosition())) {
+        boolean bound = bounds != null;
+        boolean inside = bound && insideOutpost(blockPosition());
+        // A bound resident never rides: a boat or minecart would otherwise carry it out and snap it back.
+        if (Leash.dismount(bound, isPassenger())) {
+            stopRiding();
+        }
+        if (Leash.returnHome(bound, inside)) {
             setTarget(null);
             getNavigation().stop();
             teleportTo(post.getX() + 0.5, post.getY(), post.getZ() + 0.5);
             setDeltaMovement(0, 0, 0);
+        }
+    }
+
+    static final class Leash {
+        private Leash() {
+        }
+
+        static boolean dismount(boolean bound, boolean passenger) {
+            return bound && passenger;
+        }
+
+        static boolean returnHome(boolean bound, boolean inside) {
+            return bound && !inside;
         }
     }
 

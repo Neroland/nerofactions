@@ -15,8 +15,6 @@
   1.21.11, 26.1.2, 26.2 and 26.3**, across Fabric, Forge and NeoForge (27 cells). The development
   and runtime acceptance target is 26.3. Java 25 builds 26.x; 1.21.x targets Java 21 bytecode.
 
-For the current overhaul, continue through Stage 8 without stopping early; record verified progress and only stop when a real execution limit or a required external action prevents further work.
-
 ## Working rules
 
 - **Keep responses concise and direct** — minimal verbosity, minimal formatting.

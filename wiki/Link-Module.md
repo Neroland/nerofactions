@@ -92,6 +92,11 @@ An online player can send `reroll_contract` with `factionId`, `slot` (0–2) and
 belong to the faction and the contract must be untouched. A successful response
 contains the updated contracts snapshot.
 
+Requests are rate-limited per player before any data is read. Retrying with the
+same `requestId` returns the original answer while the server is running. After a
+server restart a retry is refused because the daily reroll is already spent; read
+the `contracts` section to see the result.
+
 ## Outpost visits
 
 The `outposts_visited` section lists the requester's discoveries. Each row contains

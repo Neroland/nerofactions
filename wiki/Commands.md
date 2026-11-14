@@ -11,12 +11,17 @@ operator subcommands require **gamemaster** permission (permission level 2, the 
 /nerofactions leave <faction>                           players, no permission
 /nerofactions data export                               players, no permission (own data)
 /nerofactions data export <player>                      gamemaster
+/nerofactions treasury                                  faction members (NeroEconomy 0.3.0+)
+/nerofactions treasury dues <faction> <amount>          faction members (NeroEconomy 0.3.0+)
+/nerofactions treasury payout <faction> <player> <amount>  Inner Circle or gamemaster
+/nerofactions terminal credits                          players at a trade terminal (credit economy)
+/nerofactions terminal buy <offer>                      players at a trade terminal (credit economy)
 /nerofactions reload-check                              gamemaster
 /nerofactions gallery <x> <y> <z>                       gamemaster
 /nerofactions gallery clear <x> <y> <z>                 gamemaster
 /nerofactions workbench grant <x> <y> <z> <player>      workbench owner
 /nerofactions workbench revoke <x> <y> <z> <player>     workbench owner
-/nerofactions workbench recover <x> <y> <z> <player>   gamemaster
+/nerofactions workbench recover <x> <y> <z> <player>    gamemaster
 /nerofactions admin grant <player> <faction> <amount>   gamemaster
 /nerofactions admin revoke <player> <faction> <amount>  gamemaster
 /nerofactions admin reset <player> [<faction>]          gamemaster
@@ -69,6 +74,11 @@ is told which treasury paid them, not who issued it.
 The trade terminal's credit counter: lists, or buys one line of, the credit catalogue of the
 terminal you last used. You must still be standing at it. See [Trading](Trading).
 
+### `/nerofactions workbench grant|revoke <x> <y> <z> <player>` *(workbench owner)*
+
+Invites a Free Colonists member to, or removes a guest from, a Community Workbench you own.
+`<player>` must be online.
+
 ## Operator commands
 
 ### `/nerofactions gallery <x> <y> <z>`
@@ -99,6 +109,11 @@ Tier crossings caused by an admin grant are real — rewards and gates trigger n
 
 Sets the player's standing with one faction — or, with no faction given, with every loaded
 faction — back to exactly 0.
+
+### `/nerofactions workbench recover <x> <y> <z> <player>` *(gamemaster)*
+
+Gives an ownerless Community Workbench (for example after its owner's data was erased) to a
+Free Colonists member. `<player>` must be online.
 
 ## Related Core commands
 

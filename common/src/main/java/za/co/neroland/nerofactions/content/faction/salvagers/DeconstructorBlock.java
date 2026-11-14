@@ -3,6 +3,8 @@ package za.co.neroland.nerofactions.content.faction.salvagers;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.mojang.serialization.MapCodec;
 
@@ -36,6 +38,9 @@ public final class DeconstructorBlock extends BaseEntityBlock {
     private static final TagKey<Item> DENIED = TagKey.create(Registries.ITEM, Identifier.parse("nerofactions:no_deconstruct"));
     private static final TagKey<Item> ALLOWED = TagKey.create(Registries.ITEM, Identifier.parse("nerofactions:deconstructible"));
     private static final TagKey<Item> NEVER_COMMODITY = TagKey.create(Registries.ITEM, Identifier.parse("neroeconomy:never_commodity"));
+    private static final int COOLDOWN_TICKS = 10;
+    /** Server tick of each player's last deconstruct attempt; in memory only, cleared by {@link #forget(UUID)}. */
+    private static final Map<UUID, Long> LAST_USE = new ConcurrentHashMap<>();
 
     public DeconstructorBlock(Properties properties) {
         super(properties);
@@ -46,11 +51,11 @@ public final class DeconstructorBlock extends BaseEntityBlock {
     }
 
     //? if <26.3 {
-    /*@Override
+    @Override
     protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
         return net.minecraft.world.level.block.RenderShape.MODEL;
     }
-    *///?}
+    //?}
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -86,8 +91,18 @@ public final class DeconstructorBlock extends BaseEntityBlock {
     }
     *///?}
 
+    /** Drops a player's rate-limit entry; call on logout and on data erasure. */
+    public static void forget(UUID player) {
+        LAST_USE.remove(player);
+    }
+
     private static void deconstruct(ServerPlayer player, ItemStack input) {
         var server = player.level().getServer();
+        if (server != null) {
+            long now = server.getTickCount();
+            if (!Cooldown.allowed(now, LAST_USE.get(player.getUUID()), COOLDOWN_TICKS)) return;
+            LAST_USE.put(player.getUUID(), now);
+        }
         if (server == null || !NeroFactionsConfig.DECONSTRUCTOR_ENABLED.get() || player.getAbilities().instabuild
                 || player.isSpectator() || !FactionMembership.membershipOf(server, player.getUUID())
                         .contains(OutpostFaction.SALVAGERS.factionId())) {
@@ -160,6 +175,16 @@ public final class DeconstructorBlock extends BaseEntityBlock {
     }
 
     private record Plan(int batch, Map<Item, Integer> ingredients) {}
+
+    static final class Cooldown {
+        private Cooldown() {
+        }
+
+        /** Allowed with no previous use, once {@code ticks} have passed, or if the clock went backwards (restart). */
+        static boolean allowed(long now, Long lastUse, int ticks) {
+            return lastUse == null || now < lastUse || now - lastUse >= ticks;
+        }
+    }
 
     static final class Yield {
         static int units(int count, int percent) {

@@ -53,6 +53,25 @@ Seven signature machines include the Quota Board, Navigation Beacon, Void Altar,
 Deconstructor, Atmosphere Processor, Community Workbench and Corporate Contract
 Terminal. The seven signature tools include the Union Breaker, Guild Grapple,
 Rift Blade, Salvage Scanner, Survey Spade, Settler's Multitool and Executive Stamp.
+
+A few rules worth knowing:
+
+- The **Atmosphere Processor** converts only natural ground (dirt, sand, gravel and
+  grass) and never stone or building blocks. Every target is checked through the
+  loader's own block-break event first, so claim and protection mods can refuse it,
+  and a refused target costs nothing. It runs only on player-triggered pulses.
+- The **Executive Stamp** needs a currency provider such as NeroEconomy; without one it
+  refuses and keeps your gold.
+- The **Settler's Multitool** axe and hoe right-click actions need Free Colonists
+  membership at Member standing; anyone else gets shovel behaviour.
+- The **Deconstructor** has a short per-player cooldown between uses.
+- **Delivery contracts** accept plain items only (no renamed, damaged or modified stacks).
+- **Salvager Patchwork** rolls a loot container's own loot table once more on its first
+  opening, filling empty slots only. The **Corporate Power Suit** gives 15 armour
+  (2/6/5/2) and 0.5 toughness per piece, and the **Authority Environment Suit** makes its
+  wearer immune to poison damage.
+- Outpost **Guards and Envoys** cannot be carried off in boats or minecarts.
+
 See the [changelog](CHANGELOG.md) for deferred content.
 
 ## Requirements

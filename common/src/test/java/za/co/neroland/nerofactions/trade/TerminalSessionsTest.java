@@ -3,12 +3,14 @@ package za.co.neroland.nerofactions.trade;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.resources.Identifier;
+import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,34 @@ class TerminalSessionsTest {
     @AfterEach
     void wipe() {
         TerminalSessions.clearAll();
+    }
+
+    private static final Identifier OVERWORLD = Identifier.parse("minecraft:overworld");
+
+    @Test
+    void clearDropsTheLastTerminalPosition() {
+        UUID player = UUID.randomUUID();
+        TerminalSessions.rememberTerminal(player, OVERWORLD, 42L, OutpostFaction.SPACE_GUILD, GUILD);
+        assertEquals(42L, TerminalSessions.lastTerminal(player).pos());
+
+        TerminalSessions.clear(player); // the logout hook and the erasure path
+
+        assertNull(TerminalSessions.lastTerminal(player),
+                "the dimension + position must not outlive the session");
+    }
+
+    @Test
+    void clearLeavesAnotherPlayersLastTerminal() {
+        UUID leaving = UUID.randomUUID();
+        UUID staying = UUID.randomUUID();
+        TerminalSessions.rememberTerminal(leaving, OVERWORLD, 1L, OutpostFaction.SPACE_GUILD, GUILD);
+        TerminalSessions.rememberTerminal(staying, OVERWORLD, 2L, OutpostFaction.SALVAGERS, UNION);
+
+        TerminalSessions.clear(leaving);
+
+        assertNull(TerminalSessions.lastTerminal(leaving));
+        assertEquals(new TerminalSessions.TerminalVisit(OVERWORLD, 2L, OutpostFaction.SALVAGERS, UNION),
+                TerminalSessions.lastTerminal(staying), "a logout must not touch anyone else's visit");
     }
 
     @Test

@@ -1,8 +1,11 @@
 package za.co.neroland.nerofactions.content.faction.terraformingauthority;
 
+import java.util.function.Predicate;
+
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +28,8 @@ import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.crafting.GatedRecipeCheck;
 import za.co.neroland.nerofactions.membership.FactionMembership;
+import za.co.neroland.nerofactions.platform.BuildPermission;
+import za.co.neroland.nerofactions.platform.Services;
 import za.co.neroland.nerofactions.registry.NeroFactionsBlocks;
 import za.co.neroland.nerolandcore.machine.AbstractMachineBlockEntity;
 import za.co.neroland.nerolandcore.registry.BlockCodecs;
@@ -38,7 +43,17 @@ public final class AtmosphereProcessorBlock extends BaseEntityBlock {
     private static final MapCodec<AtmosphereProcessorBlock> CODEC = BlockCodecs.simple(AtmosphereProcessorBlock::new);
     private static final int ENERGY_PER_PULSE = 120;
 
-    public AtmosphereProcessorBlock(Properties properties) { super(properties); }
+    /**
+     * The loader's break-event seam, so claim and protection mods can refuse each target. Resolved
+     * when the block is constructed (registration, i.e. mod init), never lazily on a tick path; while
+     * unresolved every target is refused.
+     */
+    private static volatile BuildPermission permission;
+
+    public AtmosphereProcessorBlock(Properties properties) {
+        super(properties);
+        if (permission == null) permission = Services.load(BuildPermission.class);
+    }
     protected MapCodec<AtmosphereProcessorBlock> codec() { return CODEC; }
 
     //? if <26.3 {
@@ -84,11 +99,54 @@ public final class AtmosphereProcessorBlock extends BaseEntityBlock {
 
     static int radius(int pulses, int limit) { return Math.min(Math.clamp(limit, 1, 8), 1 + Math.max(0, pulses) / 4); }
 
-    static Block conversion(Block substrate, boolean seeds) {
-        if (substrate == Blocks.DIRT) return seeds ? Blocks.GRASS_BLOCK : Blocks.PODZOL;
-        if (substrate == Blocks.SAND || substrate == Blocks.GRAVEL || substrate == Blocks.STONE) return Blocks.MOSS_BLOCK;
-        if (seeds && (substrate == Blocks.GRASS_BLOCK || substrate == Blocks.PODZOL)) return Blocks.OAK_SAPLING;
-        return null;
+    /**
+     * The conversion table, keyed by block registry id so it stays testable without a bootstrapped
+     * registry. Only natural loose ground converts: stone, cobblestone, planks, bricks and every other
+     * material players build with are deliberately absent, so a pulse cannot eat a neighbour's floor,
+     * wall or roof. Returns null when the substrate does not convert.
+     */
+    static Output conversion(String substrateId, boolean seeds) {
+        return switch (substrateId) {
+            case "minecraft:dirt" -> seeds ? Output.GRASS_BLOCK : Output.PODZOL;
+            case "minecraft:sand", "minecraft:gravel" -> Output.MOSS_BLOCK;
+            case "minecraft:grass_block", "minecraft:podzol" -> seeds ? Output.OAK_SAPLING : null;
+            default -> null;
+        };
+    }
+
+    /**
+     * Plans one target: the conversion for the substrate, provided the space above is clear, the
+     * world-side checks pass ({@code placeable}) and the loader's break event lets the player modify
+     * it ({@code permitted}). The permission seam is only asked for a real candidate, after the cheap
+     * checks, and a refusal returns null, so nothing is converted and no input or energy is spent.
+     */
+    static Output plan(String substrateId, boolean seeds, boolean airAbove,
+            Predicate<Output> placeable, Predicate<Output> permitted) {
+        Output output = conversion(substrateId, seeds);
+        if (output == null || !airAbove || !placeable.test(output) || !permitted.test(output)) return null;
+        return output;
+    }
+
+    /** True only when the loader seam is resolved and lets {@code player} modify {@code pos}. */
+    private static boolean permitted(ServerLevel level, ServerPlayer player, BlockPos pos, BlockState current) {
+        BuildPermission seam = permission;
+        return seam != null && seam.mayModify(level, player, pos, current);
+    }
+
+    /** What a pulse can turn a substrate into. Saplings are placed on top; the rest replace the substrate. */
+    enum Output {
+        GRASS_BLOCK, PODZOL, MOSS_BLOCK, OAK_SAPLING;
+
+        boolean onTop() { return this == OAK_SAPLING; }
+
+        Block block() {
+            return switch (this) {
+                case GRASS_BLOCK -> Blocks.GRASS_BLOCK;
+                case PODZOL -> Blocks.PODZOL;
+                case MOSS_BLOCK -> Blocks.MOSS_BLOCK;
+                case OAK_SAPLING -> Blocks.OAK_SAPLING;
+            };
+        }
     }
 
     public static final class Processor extends AbstractMachineBlockEntity {
@@ -126,19 +184,32 @@ public final class AtmosphereProcessorBlock extends BaseEntityBlock {
                 int surface = world.getHeight(Heightmap.Types.MOTION_BLOCKING, column.getX(), column.getZ()) - 1;
                 if (Math.abs(surface - worldPosition.getY()) > 2) continue;
                 BlockPos substrate = new BlockPos(column.getX(), surface, column.getZ());
-                Block output = conversion(world.getBlockState(substrate).getBlock(), seeds);
-                if (output == null || !world.getBlockState(substrate.above()).isAir()) continue;
-                BlockPos target = output == Blocks.OAK_SAPLING ? substrate.above() : substrate;
-                if (!world.getWorldBorder().isWithinBounds(target) || !world.mayInteract(player, target)
-                        || !player.mayUseItemAt(target, Direction.UP, input) || world.getBlockEntity(target) != null
-                        || !output.defaultBlockState().canSurvive(world, target)) continue;
-                if (!world.setBlockAndUpdate(target, output.defaultBlockState())) continue;
+                BlockState substrateState = world.getBlockState(substrate);
+                Output output = plan(BuiltInRegistries.BLOCK.getKey(substrateState.getBlock()).toString(), seeds,
+                        world.getBlockState(substrate.above()).isAir(),
+                        out -> {
+                            BlockPos target = out.onTop() ? substrate.above() : substrate;
+                            return world.getWorldBorder().isWithinBounds(target) && world.mayInteract(player, target)
+                                    && player.mayUseItemAt(target, Direction.UP, input)
+                                    && world.getBlockEntity(target) == null
+                                    && out.block().defaultBlockState().canSurvive(world, target);
+                        },
+                        out -> {
+                            // Vet the column's ground through the loader's break event (claim mods
+                            // listen there), and the air above too when a sapling goes on top.
+                            if (!permitted(world, player, substrate, substrateState)) return false;
+                            BlockPos above = substrate.above();
+                            return !out.onTop() || permitted(world, player, above, world.getBlockState(above));
+                        });
+                if (output == null) continue;
+                BlockPos target = output.onTop() ? substrate.above() : substrate;
+                if (!world.setBlockAndUpdate(target, output.block().defaultBlockState())) continue;
                 input.shrink(1);
                 player.getInventory().setChanged();
                 energyBuffer().consume(ENERGY_PER_PULSE);
                 pulses = Math.min(28, pulses + 1);
                 setChanged();
-                message(player, "converted", output.getName(), radius);
+                message(player, "converted", output.block().getName(), radius);
                 return;
             }
             message(player, "no_target");

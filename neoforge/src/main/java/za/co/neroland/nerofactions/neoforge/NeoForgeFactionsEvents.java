@@ -62,6 +62,10 @@ public final class NeoForgeFactionsEvents {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedOutEvent event) -> {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
                 za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(player);
+                // The terminal selection and last-used terminal position are session data: drop
+                // them when the session ends (POPIA/GDPR minimisation).
+                TerminalSessions.clear(player.getUUID());
+                za.co.neroland.nerofactions.content.faction.salvagers.DeconstructorBlock.forget(player.getUUID());
             }
         });
 

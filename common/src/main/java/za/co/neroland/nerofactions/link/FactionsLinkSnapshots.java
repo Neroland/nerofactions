@@ -1,5 +1,6 @@
 package za.co.neroland.nerofactions.link;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +40,16 @@ import za.co.neroland.nerolandcore.link.LinkSnapshotProvider;
  *       tier (ordinal + JSON name). A faction the requester has never touched produces no row, so
  *       the section is as empty as the player's record is;</li>
  *   <li>{@code membership} — the requester's current memberships with their joined-at timestamps,
- *       the join-cooldown end, and the left-faction decay bookkeeping.</li>
+ *       the join-cooldown end, and the left-faction decay bookkeeping;</li>
+ *   <li>{@code contracts} — the requester's current-day contracts for factions they still belong
+ *       to (faction, contract id, slot, type, target, progress/count, rewards, claimed), the day,
+ *       and whether the daily reroll is still available. Empty when contracts are disabled or the
+ *       stored day is stale;</li>
+ *   <li>{@code gear} — one row per faction armour set whose faction is loaded: whether the
+ *       requester's own standing unlocks its pieces (TRUSTED or above) and whether they are
+ *       eligible (unlocked <em>and</em> a member);</li>
+ *   <li>{@code outposts_visited} — the factions and dimensions of outposts the requester has
+ *       visited. Faction and dimension only — never a position.</li>
  * </ul>
  *
  * <p>Any other section name yields an empty object, as Core's contract prescribes. No parameters
@@ -216,7 +226,7 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
     private static JsonObject gear(View view, UUID playerId) {
         JsonObject root = envelope(view, playerId);
         JsonArray sets = new JsonArray();
-        for (var set : FactionArmor.values()) {
+        for (GearSet set : view.gearSets()) {
             Identifier faction = set.factionId();
             FactionDefinition definition = view.factions().get(faction);
             if (definition == null) {
@@ -298,6 +308,13 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
         List<ContractState.Entry> contracts(UUID player);
 
         JsonArray outpostsVisited(UUID player);
+
+        /** The faction armour sets (world content, not player data). */
+        List<GearSet> gearSets();
+    }
+
+    /** One faction armour set as the gear section needs it: the owning faction and the set id. */
+    record GearSet(Identifier factionId, String id) {
     }
 
     /** The production view: the bound server's stores and its loaded faction definitions. */
@@ -351,6 +368,9 @@ public final class FactionsLinkSnapshots implements LinkSnapshotProvider {
             @Override public boolean rerollAvailable(UUID player) { return ContractState.get(server).rerollAvailable(player); }
             @Override public List<ContractState.Entry> contracts(UUID player) { return ContractState.get(server).entries(player); }
             @Override public JsonArray outpostsVisited(UUID player) { return OutpostVisits.get(server).export(player); }
+            @Override public List<GearSet> gearSets() {
+                return Arrays.stream(FactionArmor.values()).map(set -> new GearSet(set.factionId(), set.id())).toList();
+            }
         };
     }
 }

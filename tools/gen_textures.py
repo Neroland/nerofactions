@@ -581,6 +581,12 @@ def faction_armor_palette(set_id, base, accent):
         yield name.replace("union_exosuit", set_id), image
 
 
+def same_pixels(path, texture):
+    """Compares decoded pixels, not PNG bytes: zlib builds differ between machines."""
+    with Image.open(path) as stored:
+        return stored.size == texture.size and stored.convert("RGBA").tobytes() == texture.convert("RGBA").tobytes()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
@@ -593,7 +599,7 @@ def main():
         path = directory / f"{name}.png"
         data = output.getvalue()
         if args.check:
-            if not path.exists() or path.read_bytes() != data:
+            if not path.exists() or not same_pixels(path, texture):
                 mismatches.append(name)
         else:
             path.parent.mkdir(parents=True, exist_ok=True)

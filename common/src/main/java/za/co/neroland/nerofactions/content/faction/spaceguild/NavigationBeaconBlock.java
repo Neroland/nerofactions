@@ -38,11 +38,11 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
     }
 
     //? if <26.3 {
-    /*@Override
+    @Override
     protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
         return net.minecraft.world.level.block.RenderShape.MODEL;
     }
-    *///?}
+    //?}
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

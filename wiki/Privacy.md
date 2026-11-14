@@ -7,8 +7,10 @@ repository — that page is authoritative; this one is the tour.
 
 ## What is stored
 
-Everything lives **inside the world save**, keyed by player UUID only — no names, no IPs,
-no coordinates, no chat:
+NeroFactions keeps seven persistent stores **inside the world save**, keyed by player UUID
+only — no names, no IPs, no player coordinates, no chat: reputation, membership, contracts,
+Miner Union quota, outpost visits, Community Workbench access and the Corporate ledger.
+Contracts and quotas are described in their own sections below.
 
 - **Reputation** — your UUID mapped to an integer standing per faction. A standing of zero
   is not stored at all: a player at neutral and a player the mod has never seen are
@@ -22,17 +24,24 @@ no coordinates, no chat:
 - **Outpost visits** — the faction and dimension of an outpost you entered,
   recorded once per pair. Servers can stop recording with `outpostVisitsEnabled=false`.
 - **Community Workbench access** — the bench's random ID, owner UUID and up to 16
-  invited player UUIDs. The record contains no position. Erasing an owner makes
-  the bench ownerless and preserves its stored items. Erasing a guest removes
-  their access. Export includes only your owned and invited bench IDs.
+  invited player UUIDs. The record contains no position. Erasing an owner removes
+  the bench's whole access grant: guests lose access and the bench becomes ownerless,
+  while its stored items stay in the block. An operator can hand an ownerless bench to
+  a Free Colonists member with `/nerofactions workbench recover <x> <y> <z> <player>`.
+  Erasing a guest removes their access. Export includes only your owned and invited bench IDs.
 - **Corporate limits** — current world day, premium delivery completion and
   stamped writ count. A newer day expires old counters. Export and erasure
   include the counters. The writ itself holds no player identity.
 - **Void Altar boons** — active boon timers live in server memory and are cleared
-  on expiry, logout or erasure. The export reports remaining ticks while a boon is active.
-- **Session state** — remembered terminal faction and companion reroll request IDs are
-  held in server memory. The game keeps a short-lived last-attacker reference when a Guard
+  on expiry, logout or erasure. The export reports the remaining ticks while you are
+  online and still eligible for the boon, and 0 otherwise.
+- **Session state** — the terminal faction you selected, the terminal you last used,
+  companion reroll request IDs and your Deconstructor cooldown are held in server memory
+  only. The last-used terminal is forgotten when you log out; all of it is cleared by
+  erasure and on restart. The game keeps a short-lived last-attacker reference when a Guard
   defends a resident. These records are separate from crash telemetry.
+- **Navigation Beacon** — binding a compass writes a lodestone-style target (the beacon's
+  dimension and position) into your own compass item. You trigger it; the mod keeps no record.
 
 Neroland Core's crash-recovery system keeps a last-known-good backup of the same stores,
 also inside the world save — and erasure refreshes those backups too.
@@ -46,20 +55,21 @@ logging, it will ship with a per-player opt-out in the same release.
 
 ## Your data, in-game
 
-- **Export** — `/nerofactions data export` hands you your complete NeroFactions record as
-  JSON in chat with a click-to-copy component; nothing touches disk. Operators can run
+- **Export** — `/nerofactions data export` hands you your complete NeroFactions record
+  (every store above, plus any remaining Void Altar boon time) as JSON in chat with a click-to-copy component; nothing touches disk. Operators can run
   `/nerofactions data export <player>` (name or UUID) to answer an access request from a
   departed player.
 - **Erasure** — Neroland Core's shared erasure hook covers this mod: `/neroland data
-  eraseme` (any player, own data) or `/neroland data erase <uuid>` (operator) purges your
-  standing, all membership bookkeeping, the recovery backups and the terminal session in
-  one request, alongside your data in every other Neroland mod. Erasure leaves **no
+  eraseme` (any player, own data) or `/neroland data erase <uuid>` (operator) purges all
+  seven stores and their recovery backups, plus the in-memory state above, in one request, alongside your data in every other Neroland mod. Erasure leaves **no
   tombstone** — an erased player who returns simply starts factionless at neutral standing
   (which also clears negative standing and restores one-time reward eligibility; both are
-  accepted consequences of a clean erasure). This wiring is machine-verified by Core's
-  erasure-conformance harness on every build.
+  accepted consequences of a clean erasure). Each store is erased independently, so a
+  problem with one does not stop the others. The erasure path is covered by an automated
+  conformance test built on Core's erasure-conformance harness.
 - **Retention** — NeroFactions runs its own daily inactivity sweep: players who have not
-  logged in for `retentionDays` (default **365**, `0` disables) are purged automatically
+  logged in for `retentionDays` (default **365**, `0` disables) are purged from every store
+  automatically
   through the same erasure path, measured against Core's shared last-seen record so no new
   personal data is created. Core's opt-in ecosystem-wide sweep
   (`/neroland data purge-inactive`) reaches this mod too.
@@ -74,8 +84,9 @@ logging, it will ship with a per-player opt-out in the same release.
   (exported and erased with your economy data). Treasuries are keyed by faction, never by a
   player. A market sale is used once to award trade reputation and is not kept; the buyer is
   never known.
-- A paired companion app can read **your own** record and spend your daily
-  contract reroll through the [link module](Link-Module).
+- A paired companion app can read **your own** standing, membership, contracts, gear and
+  outpost visits, receive your tier-change and contract-completion events, and spend your
+  daily contract reroll through the [link module](Link-Module).
 
 ## Crash telemetry
 
@@ -88,7 +99,7 @@ disabled, and nothing is ever sent before your config choice has loaded. Full de
 
 ## In-game standing sync
 
-The server sends the connected player their own faction standings, memberships, tiers and cooldown,
+The server sends the connected player their own faction standings, memberships, tiers, cooldown and contracts,
 plus the faction catalogue needed to display them. This snapshot contains no player identifier or
 coordinates. The client keeps it in memory and clears it when disconnecting. It is not additional
 persistent storage or telemetry.

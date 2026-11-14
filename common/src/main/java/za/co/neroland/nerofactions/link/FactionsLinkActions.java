@@ -8,6 +8,9 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.contracts.ContractService;
 import za.co.neroland.nerofactions.data.ContractState;
@@ -15,10 +18,42 @@ import za.co.neroland.nerolandcore.link.LinkActionHandler;
 import za.co.neroland.nerolandcore.link.LinkActionResult;
 import za.co.neroland.nerolandcore.link.LinkActionResult.Error;
 
+/**
+ * The write half of the link module: one action, {@code reroll_contract}, which spends the
+ * requester's own daily contract reroll on one of their own slots.
+ *
+ * <p>Gate order, each step refusing before the next runs: the three kill switches
+ * ({@code linkModuleEnabled}, {@code linkRerollEnabled}, {@code contractsEnabled}); a bound server
+ * on its own thread; the action id; strict parameter parsing; the per-player rate limit
+ * (<b>before any state is read</b>, so a refused call never marks a store dirty; a replay of the
+ * remembered request (same faction, slot and request ID) is exempt so an idempotent retry is never throttled); the
+ * player being online; and only then the contract state itself.
+ *
+ * <p><b>Replays are memory-only.</b> The replay cache is not persisted, so after a restart a
+ * replay of a request that already spent the day's reroll is answered "No daily contract reroll
+ * remains" rather than with its original result. The reroll itself was durable, so a client
+ * recovers by reading the {@code contracts} section. Nothing durable records which slot was
+ * rerolled or by which request, so answering {@code ok} there could not be told apart from a new
+ * request trying a second reroll, and refusing is the safe side.
+ *
+ * <p>Server thread only. Nothing here logs a player identifier.
+ */
 public final class FactionsLinkActions implements LinkActionHandler {
     private static final String REROLL = "reroll_contract";
     private static final ReplayCache CACHE = new ReplayCache();
     private static final int LIMIT = 4096;
+
+    private final Host host;
+
+    /** Production: config switches and the bound server, resolved per call. */
+    public FactionsLinkActions() {
+        this(PRODUCTION);
+    }
+
+    /** Test seam: the switches and the game state are injectable so plain-JVM tests can drive execute. */
+    FactionsLinkActions(Host host) {
+        this.host = host;
+    }
 
     @Override
     public String moduleId() {
@@ -32,12 +67,11 @@ public final class FactionsLinkActions implements LinkActionHandler {
 
     @Override
     public LinkActionResult execute(UUID playerId, String actionId, JsonObject params) {
-        if (!NeroFactionsConfig.LINK_MODULE_ENABLED.get() || !NeroFactionsConfig.LINK_REROLL_ENABLED.get()
-                || !NeroFactionsConfig.CONTRACTS_ENABLED.get()) {
+        if (!host.linkModuleEnabled() || !host.linkRerollEnabled() || !host.contractsEnabled()) {
             return LinkActionResult.error(Error.ACTION_DISABLED, "Remote contract rerolls are disabled.");
         }
-        var server = FactionsLinkAccess.server();
-        if (server == null || !server.isSameThread()) {
+        Game game = host.open();
+        if (game == null) {
             return LinkActionResult.error(Error.INTERNAL, "Faction server is unavailable.");
         }
         if (!REROLL.equals(actionId) || playerId == null) {
@@ -47,13 +81,14 @@ public final class FactionsLinkActions implements LinkActionHandler {
         if (request == null) {
             return LinkActionResult.error(Error.VALIDATION, "Expected a faction ID, slot 0–2 and request UUID.");
         }
-        var player = server.getPlayerList().getPlayer(playerId);
-        if (player == null) {
+        if (!CACHE.isRemembered(playerId, request) && !CACHE.tryRequest(playerId, game.tick())) {
+            return LinkActionResult.error(Error.VALIDATION, "Wait before requesting another reroll.");
+        }
+        if (!game.online(playerId)) {
             return LinkActionResult.error(Error.PLAYER_OFFLINE_REQUIRED, "Join the server to reroll a contract.");
         }
-        ContractService.current(player);
-        var state = ContractState.get(server);
-        long day = state.day(playerId);
+        game.refresh(playerId);
+        long day = game.contractDay(playerId);
         if (day == Long.MIN_VALUE) {
             return LinkActionResult.error(Error.VALIDATION, "No active faction contracts.");
         }
@@ -64,16 +99,13 @@ public final class FactionsLinkActions implements LinkActionHandler {
                     ? LinkActionResult.ok(previous.snapshot().deepCopy())
                     : LinkActionResult.error(Error.VALIDATION, "That request ID was already used.");
         }
-        if (!state.rerollAvailable(playerId)) {
+        if (!game.rerollAvailable(playerId)) {
             return LinkActionResult.error(Error.VALIDATION, "No daily contract reroll remains.");
         }
-        if (!CACHE.tryRequest(playerId, server.getTickCount())) {
-            return LinkActionResult.error(Error.VALIDATION, "Wait before requesting another reroll.");
-        }
-        if (!ContractService.reroll(player, request.faction(), request.slot())) {
+        if (!game.reroll(playerId, request.faction(), request.slot())) {
             return LinkActionResult.error(Error.VALIDATION, "This contract cannot be rerolled.");
         }
-        JsonObject result = new FactionsLinkSnapshots().snapshot(playerId, FactionsLinkModule.SECTION_CONTRACTS, Map.of());
+        JsonObject result = game.contracts(playerId);
         CACHE.remember(playerId, day, request, result);
         return LinkActionResult.ok(result);
     }
@@ -118,6 +150,12 @@ public final class FactionsLinkActions implements LinkActionHandler {
         private final Map<UUID, Replay> replays = new LinkedHashMap<>();
         private final Map<UUID, Integer> lastRequests = new LinkedHashMap<>();
 
+        /** Whether this exact request is the player's remembered one (any day): an idempotent retry. */
+        boolean isRemembered(UUID player, Request request) {
+            Replay replay = replays.get(player);
+            return replay != null && replay.request().equals(request);
+        }
+
         Replay get(UUID player, long day, UUID request) {
             Replay replay = replays.get(player);
             return replay != null && replay.day() == day && replay.request().id().equals(request) ? replay : null;
@@ -138,4 +176,83 @@ public final class FactionsLinkActions implements LinkActionHandler {
             return true;
         }
     }
+
+    // --- the server seam --------------------------------------------------------
+
+    /**
+     * Where one action call's switches and state come from. Package-private so tests can drive
+     * {@link #execute} without a live server; {@link #PRODUCTION} is the only other implementation.
+     */
+    interface Host {
+        boolean linkModuleEnabled();
+
+        boolean linkRerollEnabled();
+
+        boolean contractsEnabled();
+
+        /** The game state for this call, or {@code null} when no server is bound or off-thread. */
+        @Nullable
+        Game open();
+    }
+
+    /** Everything one action call may read or change, keyed by the requesting player. */
+    interface Game {
+        /** The server tick counter, for the rate limit. Not player state. */
+        int tick();
+
+        boolean online(UUID player);
+
+        /** Bring the player's contracts up to today (production: {@code ContractService.current}). */
+        void refresh(UUID player);
+
+        long contractDay(UUID player);
+
+        boolean rerollAvailable(UUID player);
+
+        /** Spend the daily reroll on one of the player's own slots; {@code false} when refused. */
+        boolean reroll(UUID player, Identifier faction, int slot);
+
+        /** The player's {@code contracts} snapshot after a successful reroll. */
+        JsonObject contracts(UUID player);
+    }
+
+    private static final Host PRODUCTION = new Host() {
+        @Override public boolean linkModuleEnabled() { return NeroFactionsConfig.LINK_MODULE_ENABLED.get(); }
+        @Override public boolean linkRerollEnabled() { return NeroFactionsConfig.LINK_REROLL_ENABLED.get(); }
+        @Override public boolean contractsEnabled() { return NeroFactionsConfig.CONTRACTS_ENABLED.get(); }
+
+        @Override
+        public Game open() {
+            MinecraftServer server = FactionsLinkAccess.server();
+            if (server == null || !server.isSameThread()) {
+                return null;
+            }
+            return new Game() {
+                @Override public int tick() { return server.getTickCount(); }
+                @Override public boolean online(UUID player) { return FactionsLinkAccess.isOnline(server, player); }
+
+                @Override
+                public void refresh(UUID player) {
+                    ServerPlayer online = server.getPlayerList().getPlayer(player);
+                    if (online != null) {
+                        ContractService.current(online);
+                    }
+                }
+
+                @Override public long contractDay(UUID player) { return ContractState.get(server).day(player); }
+                @Override public boolean rerollAvailable(UUID player) { return ContractState.get(server).rerollAvailable(player); }
+
+                @Override
+                public boolean reroll(UUID player, Identifier faction, int slot) {
+                    ServerPlayer online = server.getPlayerList().getPlayer(player);
+                    return online != null && ContractService.reroll(online, faction, slot);
+                }
+
+                @Override
+                public JsonObject contracts(UUID player) {
+                    return new FactionsLinkSnapshots().snapshot(player, FactionsLinkModule.SECTION_CONTRACTS, Map.of());
+                }
+            };
+        }
+    };
 }

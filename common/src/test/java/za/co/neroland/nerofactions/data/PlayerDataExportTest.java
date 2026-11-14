@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
+import java.util.function.BiFunction;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonParser;
 
 import net.minecraft.resources.Identifier;
@@ -15,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
 
 /**
- * Plain-JVM tests for the DSAR export serialiser: everything both stores hold for the subject —
+ * Plain-JVM tests for the DSAR export serialiser: everything every listed store holds for the subject —
  * and nothing about anyone else — lands in a stable JSON envelope; a player the mod holds nothing
  * for gets the same envelope with empty sections (an honest "we store nothing about you").
  */
@@ -31,8 +34,7 @@ class PlayerDataExportTest {
         contracts.ensure(player, faction, 0, 123, 5, pool);
         contracts.ensure(other, faction, 0, 123, 6, pool);
         contracts.advance(player, faction, 0, 3);
-        String json = PlayerDataExport.toJson(new FactionReputationState(), new FactionMembershipState(),
-                contracts, new QuotaState(), new OutpostVisits(), player, "test", T0);
+        String json = export(stores(new FactionReputationState(), new FactionMembershipState(), contracts, new QuotaState(), new OutpostVisits()), player, "test");
         var section = JsonParser.parseString(json).getAsJsonObject().getAsJsonObject("contracts");
         assertEquals(5, section.get("day").getAsLong());
         assertEquals(3, section.getAsJsonArray("entries").size());
@@ -47,6 +49,62 @@ class PlayerDataExportTest {
     private static final Identifier UNION = Identifier.parse("nerofactions:test_union");
     private static final long T0 = 1_700_000_000_000L;
     private static final long DAY_STAMP = 19_000L;
+
+    private static final int BOON_TICKS = 640;
+
+    /** The five stores the older tests seed, installed into an otherwise fresh store set. */
+    private static FactionsStores.Snapshot stores(FactionReputationState reputation,
+            FactionMembershipState membership, ContractState contracts, QuotaState quota, OutpostVisits visits) {
+        return FactionsStores.fresh().with(FactionsStores.REPUTATION, reputation)
+                .with(FactionsStores.MEMBERSHIP, membership).with(FactionsStores.CONTRACTS, contracts)
+                .with(FactionsStores.MINER_QUOTA, quota).with(FactionsStores.OUTPOST_VISITS, visits);
+    }
+
+    /** Exports with no transient state held for anyone. */
+    private static String export(FactionsStores.Snapshot stores, UUID player, String version) {
+        return PlayerDataExport.toJson(stores, (state, uuid) -> new JsonPrimitive(0), player, version, T0);
+    }
+
+    @Test
+    void everyStoreInTheListHasASectionInTheExport() {
+        JsonObject root = JsonParser.parseString(
+                export(FactionsStores.fresh(), UUID.randomUUID(), "test")).getAsJsonObject();
+        for (FactionsStores.Persistent<?> store : FactionsStores.PERSISTENT) {
+            assertTrue(root.has(store.exportKey()), "missing export section for " + store.id());
+        }
+        for (FactionsStores.Transient state : FactionsStores.TRANSIENT) {
+            if (state.exportKey() != null) {
+                assertTrue(root.has(state.exportKey()), "missing export section for " + state.id());
+            }
+        }
+    }
+
+    @Test
+    void corporateWorkbenchAndVoidBoonAreExportedForTheSubjectOnly() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        UUID bench = UUID.randomUUID();
+        FactionsStores.Snapshot stores = FactionsStores.fresh();
+        assertTrue(stores.get(FactionsStores.CORPORATE_LEDGER).reserveDelivery(player, 15));
+        assertTrue(stores.get(FactionsStores.WORKBENCH_ACCESS).claim(bench, player));
+        BiFunction<FactionsStores.Transient, UUID, JsonElement> boons = (state, uuid) ->
+                new JsonPrimitive(player.equals(uuid) ? BOON_TICKS : 0);
+
+        JsonObject subject = JsonParser.parseString(
+                PlayerDataExport.toJson(stores, boons, player, "test", T0)).getAsJsonObject();
+        assertEquals(15, subject.getAsJsonObject("corporate_daily").get("day").getAsLong());
+        assertTrue(subject.getAsJsonObject("corporate_daily").get("delivered").getAsBoolean());
+        assertEquals(1, subject.getAsJsonObject("workbench_access").getAsJsonArray("owned").size());
+        assertEquals(BOON_TICKS, subject.get("void_boon_ticks_remaining").getAsInt());
+
+        JsonObject other = JsonParser.parseString(
+                PlayerDataExport.toJson(stores, boons, bystander, "test", T0)).getAsJsonObject();
+        assertEquals(0, other.getAsJsonObject("corporate_daily").size(),
+                "the subject's ledger row must not appear in another player's export");
+        assertEquals(0, other.getAsJsonObject("workbench_access").getAsJsonArray("owned").size());
+        assertEquals(0, other.getAsJsonObject("workbench_access").getAsJsonArray("invited").size());
+        assertEquals(0, other.get("void_boon_ticks_remaining").getAsInt());
+    }
 
     @Test
     void seededStoresSerialiseEverySection() {
@@ -65,7 +123,7 @@ class PlayerDataExportTest {
         membership.raiseRewardWatermark(player, GUILD, 3);
         membership.recordJoin(bystander, GUILD, T0);
 
-        String json = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
+        String json = export(stores(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits()), player, "1.2.3-test");
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
@@ -100,8 +158,7 @@ class PlayerDataExportTest {
 
     @Test
     void aPlayerTheModHoldsNothingForGetsAnEmptyEnvelope() {
-        String json = PlayerDataExport.toJson(new FactionReputationState(),
-                new FactionMembershipState(), new ContractState(), new QuotaState(), new OutpostVisits(), UUID.randomUUID(), "1.2.3-test", T0);
+        String json = export(stores(new FactionReputationState(), new FactionMembershipState(), new ContractState(), new QuotaState(), new OutpostVisits()), UUID.randomUUID(), "1.2.3-test");
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
 
         assertEquals("nerofactions", root.get("mod").getAsString());
@@ -124,8 +181,8 @@ class PlayerDataExportTest {
         membership.recordJoin(player, UNION, T0);
         membership.recordJoin(player, GUILD, T0);
 
-        String first = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
-        String second = PlayerDataExport.toJson(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits(), player, "1.2.3-test", T0);
+        String first = export(stores(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits()), player, "1.2.3-test");
+        String second = export(stores(reputation, membership, new ContractState(), new QuotaState(), new OutpostVisits()), player, "1.2.3-test");
         assertEquals(first, second, "same data + same stamp = identical bytes (sorted keys)");
         assertTrue(first.indexOf(GUILD.toString()) < first.indexOf(UNION.toString()),
                 "keys are sorted regardless of insertion order");

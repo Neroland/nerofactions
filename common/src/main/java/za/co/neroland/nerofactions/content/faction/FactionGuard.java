@@ -72,19 +72,19 @@ public final class FactionGuard extends OutpostResident implements RangedAttackM
                 envoy -> envoy.faction() == faction() && insideOutpost(envoy.blockPosition()));
         LivingEntity nearest = null;
         double bestDistance = Double.POSITIVE_INFINITY;
+        boolean opposesCult = Targeting.opposesCult(host);
         for (var player : level().players()) {
             if (!(player instanceof ServerPlayer visitor) || !visitor.isAlive() || visitor.isCreative()
                     || visitor.isSpectator() || !insideOutpost(visitor.blockPosition())) {
                 continue;
             }
             double distance = distanceToSqr(visitor);
-            boolean cultVested = host.enemies().contains(OutpostFaction.VOID_CULT.factionId())
-                    && GearSetBonuses.active(visitor, FactionArmor.VOID_VESTMENTS);
-            if (distance > detectionRangeSquared(cultVested)) {
+            boolean cultVested = opposesCult && GearSetBonuses.active(visitor, FactionArmor.VOID_VESTMENTS);
+            if (!Targeting.detects(distance, cultVested) || distance >= bestDistance) {
                 continue;
             }
-            if (distance < bestDistance && (FactionAccess.evaluate(server, visitor.getUUID(), host).refusesService()
-                    || attacked(this, visitor) || envoys.stream().anyMatch(envoy -> attacked(envoy, visitor)))) {
+            boolean defending = attacked(this, visitor) || envoys.stream().anyMatch(envoy -> attacked(envoy, visitor));
+            if (Targeting.shouldTarget(FactionAccess.evaluate(server, visitor.getUUID(), host), defending)) {
                 nearest = visitor;
                 bestDistance = distance;
             }
@@ -98,8 +98,31 @@ public final class FactionGuard extends OutpostResident implements RangedAttackM
         }
     }
 
-    static double detectionRangeSquared(boolean cultVested) {
-        return cultVested ? 20 * 20 : 12 * 12;
+    /** Pure targeting rules; a nested class so tests can load it without the entity class hierarchy. */
+    static final class Targeting {
+        private static final int DETECTION_RANGE = 12;
+        private static final int CULT_DETECTION_RANGE = 20;
+
+        private Targeting() {
+        }
+
+        /** Factions at odds with the Void Cult spot its vestments from further away. */
+        static boolean opposesCult(za.co.neroland.nerofactions.content.FactionDefinition host) {
+            return host.enemies().contains(OutpostFaction.VOID_CULT.factionId());
+        }
+
+        static boolean detects(double distanceSquared, boolean cultVested) {
+            int range = cultVested ? CULT_DETECTION_RANGE : DETECTION_RANGE;
+            return distanceSquared <= (double) range * range;
+        }
+
+        /**
+         * Neutral to everyone the host still serves; hostile to the HOSTILE standing band and to enemy-faction
+         * members at TRUSTED+ (both refuse service), and to anyone who recently hurt this guard or its Envoy.
+         */
+        static boolean shouldTarget(FactionAccess access, boolean defending) {
+            return access.refusesService() || defending;
+        }
     }
 
     private static boolean attacked(OutpostResident resident, ServerPlayer player) {

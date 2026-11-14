@@ -125,7 +125,8 @@ surfaces. Each pulse costs 120 NE and the radius grows with successful uses.
 Colonist Field Gear is the lightest armour set. Trusted members wearing all
 four pieces recover health while standing still and gain two extra hunger
 points when they eat. The **Settler's Multitool** uses an axe, hoe or shovel head
-according to the target. Sneak-use to till soil. The **Community Workbench** gives
+according to the target. Sneak-use to till soil. Its axe and hoe actions need
+Member standing with the Free Colonists; anyone else gets shovel behaviour. The **Community Workbench** gives
 its owner and invited Colonists access to a crafting grid and 27 shared slots.
 
 ## Salvagers
@@ -134,5 +135,6 @@ The Salvage Scanner reports a compass direction and rough distance to a tagged
 landmark in nearby loaded terrain. It checks shipwrecks, ruined portals and
 optional NeroRuins sites. NeroEvents landmarks await structure tags from that mod.
 The **Deconstructor** recovers a share of ingredients from eligible equipment. Salvager Patchwork saves some tool durability and
-improves loot luck when opening a generated container for the first time.
+rolls a generated container's loot table once more, into empty slots only, the
+first time a Trusted wearer opens it.
 The set's armour wears 25% faster on average.

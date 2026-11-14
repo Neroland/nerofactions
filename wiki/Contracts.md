@@ -11,13 +11,16 @@ then use the Board to view three daily contracts for each of your factions. A Re
 Contracts support four objectives:
 
 - **Deliver:** the Board removes matching items from your main inventory. You can deliver in parts.
+  Only plain items count: renamed, damaged or otherwise modified stacks (for example items with
+  custom data) are skipped.
 - **Defeat:** kills are credited to the responsible player, including their projectiles and pets.
 - **Craft:** take the required items from a crafting result slot; previewing a recipe does not count.
 - **Visit:** enter a qualifying village, ruined portal or shipwreck. No coordinates are recorded.
 
 Use **Claim reward** once the objective is complete. Reputation uses the QUEST source's configured
-weight and daily cap, shared with quest rewards. Item rewards are delivered to your inventory,
-with overflow dropped at your feet. Credits are paid only when a persistent currency provider is
+weight and daily cap, shared with quest rewards. Item rewards, when a contract defines one, are
+delivered to your inventory, with overflow dropped at your feet. The shipped contracts do not use
+item rewards; the field is there for datapacks. Credits are paid only when a persistent currency provider is
 installed; the Board displays zero credits otherwise. A refused or failed payment is reported
 on the Board. A claim is reserved before reward effects, so repeating a request cannot pay twice.
 

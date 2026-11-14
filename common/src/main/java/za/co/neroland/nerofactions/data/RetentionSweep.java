@@ -15,8 +15,8 @@ import za.co.neroland.nerolandcore.data.PlayerActivity;
 
 /**
  * NeroFactions' own inactivity <b>retention sweep</b> (POPIA/GDPR data minimisation): once per
- * real-time day — and on the first tick pass after a world loads — every player present in either
- * NeroFactions store whose last login (per Core's shared {@link PlayerActivity} record) is older
+ * real-time day — and on the first tick pass after a world loads — every player present in any
+ * {@link FactionsStores} store whose last login (per Core's shared {@link PlayerActivity} record) is older
  * than {@code retentionDays} is purged through {@link NeroFactionsData#eraseLocal}, the same code
  * path an explicit erasure request takes (stores + recovery backups + transient session).
  *
@@ -87,41 +87,60 @@ public final class RetentionSweep {
 
     /** Runs one sweep now against the live server and config. @return how many players were purged. */
     public static int sweep(MinecraftServer server) {
-        Set<UUID> known = new LinkedHashSet<>(FactionReputationState.get(server).knownPlayers());
-        known.addAll(FactionMembershipState.get(server).knownPlayers());
-        known.addAll(ContractState.get(server).knownPlayers());
-        known.addAll(OutpostVisits.get(server).knownPlayers());
-        known.addAll(WorkbenchAccess.get(server).knownPlayers());
-        known.addAll(CorporateLedger.get(server).knownPlayers());
-        known.addAll(za.co.neroland.nerofactions.content.faction.minerunion.QuotaState.get(server).knownPlayers());
-        int purged = sweep(NeroFactionsConfig.RETENTION_DAYS.get(), known,
+        FactionsStores.Snapshot stores = FactionsStores.live(server);
+        Set<UUID> known = new LinkedHashSet<>();
+        int unreadable = 0;
+        for (FactionsStores.Persistent<?> store : FactionsStores.PERSISTENT) {
+            try {
+                known.addAll(store.knownIn(stores));
+            } catch (Throwable t) {
+                unreadable++;
+            }
+        }
+        Outcome outcome = sweep(NeroFactionsConfig.RETENTION_DAYS.get(), known,
                 days -> PlayerActivity.get(server).stalerThan(days),
                 player -> NeroFactionsData.eraseLocal(server, player));
-        if (purged > 0) {
+        if (outcome.purged() > 0) {
             NeroFactionsCommon.LOGGER.info(
-                    "[NeroFactions] Retention sweep purged {} inactive players' faction data.", purged);
+                    "[NeroFactions] Retention sweep purged {} inactive players' faction data.", outcome.purged());
         }
-        return purged;
+        if (outcome.failed() > 0 || unreadable > 0) {
+            // Counts only — never a UUID or the exception (POPIA/GDPR erasure-logging rule).
+            NeroFactionsCommon.LOGGER.warn(
+                    "[NeroFactions] Retention sweep incomplete: {} players' erasure failed, {} stores unreadable; retried next sweep.",
+                    outcome.failed(), unreadable);
+        }
+        return outcome.purged();
+    }
+
+    /** One sweep's result: players fully erased, and players whose erasure threw. */
+    record Outcome(int purged, int failed) {
     }
 
     /**
      * The decision core, parameterised for the plain-JVM tests: purge the intersection of "players
      * this mod stores data for" and "players inactive longer than {@code retentionDays}".
      * {@code retentionDays <= 0} disables the sweep entirely (the activity record is not even
-     * consulted).
+     * consulted). A player whose erasure throws is counted as failed and the sweep moves on to the
+     * next player — one bad row never stops the rest of the day's purge.
      */
-    static int sweep(int retentionDays, Set<UUID> known, IntFunction<List<UUID>> staleForDays,
+    static Outcome sweep(int retentionDays, Set<UUID> known, IntFunction<List<UUID>> staleForDays,
             Consumer<UUID> erase) {
         if (retentionDays <= 0 || known.isEmpty()) {
-            return 0;
+            return new Outcome(0, 0);
         }
         int purged = 0;
+        int failed = 0;
         for (UUID stale : staleForDays.apply(retentionDays)) {
             if (known.contains(stale)) {
-                erase.accept(stale);
-                purged++;
+                try {
+                    erase.accept(stale);
+                    purged++;
+                } catch (Throwable t) {
+                    failed++;
+                }
             }
         }
-        return purged;
+        return new Outcome(purged, failed);
     }
 }

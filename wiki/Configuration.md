@@ -36,8 +36,8 @@ never force it on or off.
 ## Miner Union Quota Board
 
 - `quotaBoardEnabled` defaults to `true`. Disable it to turn off the board.
-- `quotaBaseTonnes` defaults to 64. The player's tier multiplies this base by 1
-  at Outsider through 5 at Inner Circle.
+- `quotaBaseTonnes` defaults to 64, with an allowed range of 1–819. The player's tier
+  multiplies this base by 1 at Outsider through 5 at Inner Circle.
 
 ## Outposts
 
@@ -66,7 +66,7 @@ never force it on or off.
 ## Salvagers Deconstructor
 
 - `deconstructorEnabled` enables the machine by default.
-- `deconstructorYieldPercent` defaults to 50, with an upper limit of 75.
+- `deconstructorYieldPercent` defaults to 50, with an allowed range of 1–75.
   Recovery is rounded down per ingredient. The allowed and denied item tags are
   `nerofactions:deconstructible` and `nerofactions:no_deconstruct`.
 

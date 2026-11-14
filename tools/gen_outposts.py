@@ -200,6 +200,14 @@ def outputs():
     })
 
 
+def same_content(path, content):
+    """Compares gzip payloads for .nbt files: compressed bytes differ between zlib builds."""
+    stored = path.read_bytes()
+    if path.suffix == ".nbt":
+        return gzip.decompress(stored) == gzip.decompress(content)
+    return stored == content
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate NeroFactions outpost assets")
     parser.add_argument("--check", action="store_true", help="Verify checked-in assets")
@@ -208,7 +216,7 @@ def main():
     for name, content in outputs():
         path = DATA / name
         if check:
-            if not path.exists() or path.read_bytes() != content:
+            if not path.exists() or not same_content(path, content):
                 stale.append(name)
         else:
             path.parent.mkdir(parents=True, exist_ok=True)

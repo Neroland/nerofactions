@@ -1,6 +1,7 @@
 package za.co.neroland.nerofactions.content.faction;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -31,13 +32,13 @@ public final class GearSetBonuses {
     private static final Identifier GUILD_TOUGHNESS_ID = Identifier.parse("nerofactions:guild_flight_toughness");
     private static final Identifier CORPORATE_ATTACK_ID = Identifier.parse("nerofactions:corporate_attack");
     private static final Identifier AUTHORITY_ATTACK_ID = Identifier.parse("nerofactions:authority_attack");
-    private static final AttributeModifier GUILD_SPEED = new AttributeModifier(GUILD_SPEED_ID, 0.1,
+    static final AttributeModifier GUILD_SPEED = new AttributeModifier(GUILD_SPEED_ID, 0.1,
             AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-    private static final AttributeModifier GUILD_TOUGHNESS = new AttributeModifier(GUILD_TOUGHNESS_ID, -2,
+    static final AttributeModifier GUILD_TOUGHNESS = new AttributeModifier(GUILD_TOUGHNESS_ID, -2,
             AttributeModifier.Operation.ADD_VALUE);
-    private static final AttributeModifier CORPORATE_ATTACK = new AttributeModifier(CORPORATE_ATTACK_ID, 2,
+    static final AttributeModifier CORPORATE_ATTACK = new AttributeModifier(CORPORATE_ATTACK_ID, 2,
             AttributeModifier.Operation.ADD_VALUE);
-    private static final AttributeModifier AUTHORITY_ATTACK = new AttributeModifier(AUTHORITY_ATTACK_ID, -1,
+    static final AttributeModifier AUTHORITY_ATTACK = new AttributeModifier(AUTHORITY_ATTACK_ID, -1,
             AttributeModifier.Operation.ADD_VALUE);
     private static final int PIECES = 4;
     private static final int EFFECT_DURATION = 12;
@@ -59,6 +60,51 @@ public final class GearSetBonuses {
         NEUTRAL
     }
 
+    /** Mirror of {@link FactionArmor} that tests can use without bootstrapping the armour registries. */
+    enum GearSet {
+        UNION_EXOSUIT,
+        GUILD_FLIGHT_SUIT,
+        VOID_VESTMENTS,
+        CORPORATE_POWER_SUIT,
+        AUTHORITY_ENVIRONMENT_SUIT,
+        COLONIST_FIELD_GEAR,
+        SALVAGER_PATCHWORK
+    }
+
+    /** Effects and modifiers the per-tick pass keeps applied. */
+    enum Bonus {
+        GUILD_SPEED,
+        GUILD_TOUGHNESS_PENALTY,
+        CORPORATE_ATTACK,
+        AUTHORITY_ATTACK_PENALTY,
+        SLOW_FALLING,
+        RESISTANCE,
+        WATER_BREATHING,
+        CURE_POISON,
+        THAW,
+        REGENERATION,
+        HASTE,
+        SLOWNESS
+    }
+
+    /** What the player is doing this pass; {@code union} only matters while the exosuit is active. */
+    record BonusEnv(boolean airborneSneak, boolean fullHealth, boolean standingStill, UnionEnvironment union) {
+    }
+
+    enum DamageKind {
+        FREEZING,
+        /** Magic damage taken while the Poison effect is on — what the Poison effect deals. */
+        POISON,
+        FALL,
+        EXPLOSION,
+        MELEE,
+        OTHER
+    }
+
+    /** {@code daylightExposed}: sky-lit dimension, daytime, open sky above. */
+    record DamageEnv(boolean daylightExposed, boolean beaconProtected, UnionEnvironment union) {
+    }
+
     private GearSetBonuses() {
     }
 
@@ -69,11 +115,11 @@ public final class GearSetBonuses {
         var activeSets = EnumSet.noneOf(OutpostFaction.class);
         int tick = server.getTickCount();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            var worn = EnumSet.noneOf(FactionArmor.class);
+            var worn = EnumSet.noneOf(GearSet.class);
             for (FactionArmor set : FactionArmor.values()) {
                 if (active(player, set)) {
                     activeSets.add(set.faction());
-                    worn.add(set);
+                    worn.add(gearSet(set));
                 }
             }
             applyBonuses(player, worn, tick);
@@ -81,34 +127,75 @@ public final class GearSetBonuses {
         FactionMilestones.fullSets(activeSets);
     }
 
-    private static void applyBonuses(ServerPlayer player, EnumSet<FactionArmor> worn, int tick) {
-        boolean flight = worn.contains(FactionArmor.GUILD_FLIGHT_SUIT);
-        boolean corporate = worn.contains(FactionArmor.CORPORATE_POWER_SUIT);
-        boolean authority = worn.contains(FactionArmor.AUTHORITY_ENVIRONMENT_SUIT);
-        modifier(player.getAttribute(Attributes.MOVEMENT_SPEED), GUILD_SPEED, flight);
-        modifier(player.getAttribute(Attributes.ARMOR_TOUGHNESS), GUILD_TOUGHNESS, flight);
-        modifier(player.getAttribute(Attributes.ATTACK_DAMAGE), CORPORATE_ATTACK, corporate);
-        modifier(player.getAttribute(Attributes.ATTACK_DAMAGE), AUTHORITY_ATTACK, authority);
-        if (flight && player.isShiftKeyDown() && !player.onGround() && !player.isInWater() && !player.getAbilities().flying) {
-            effect(player, MobEffects.SLOW_FALLING, EFFECT_DURATION);
+    static GearSet gearSet(FactionArmor armor) {
+        return switch (armor) {
+            case UNION_EXOSUIT -> GearSet.UNION_EXOSUIT;
+            case GUILD_FLIGHT_SUIT -> GearSet.GUILD_FLIGHT_SUIT;
+            case VOID_VESTMENTS -> GearSet.VOID_VESTMENTS;
+            case CORPORATE_POWER_SUIT -> GearSet.CORPORATE_POWER_SUIT;
+            case AUTHORITY_ENVIRONMENT_SUIT -> GearSet.AUTHORITY_ENVIRONMENT_SUIT;
+            case COLONIST_FIELD_GEAR -> GearSet.COLONIST_FIELD_GEAR;
+            case SALVAGER_PATCHWORK -> GearSet.SALVAGER_PATCHWORK;
+        };
+    }
+
+    private static EnumSet<GearSet> worn(ServerPlayer player) {
+        var worn = EnumSet.noneOf(GearSet.class);
+        for (FactionArmor set : FactionArmor.values()) {
+            if (active(player, set)) worn.add(gearSet(set));
         }
-        if (corporate && player.getHealth() >= player.getMaxHealth()) effect(player, resistance(), EFFECT_DURATION);
-        if (authority) {
-            effect(player, MobEffects.WATER_BREATHING, EFFECT_DURATION);
-            player.removeEffect(MobEffects.POISON);
-            player.setTicksFrozen(0);
+        return worn;
+    }
+
+    private static void applyBonuses(ServerPlayer player, Set<GearSet> worn, int tick) {
+        var env = new BonusEnv(
+                player.isShiftKeyDown() && !player.onGround() && !player.isInWater() && !player.getAbilities().flying,
+                player.getHealth() >= player.getMaxHealth(),
+                tick % 50 == 0 && player.onGround() && player.getDeltaMovement().horizontalDistanceSqr() < 0.0001,
+                worn.contains(GearSet.UNION_EXOSUIT) ? environment(player) : UnionEnvironment.NEUTRAL);
+        var bonuses = bonuses(worn, env);
+        modifier(player.getAttribute(Attributes.MOVEMENT_SPEED), GUILD_SPEED, bonuses.contains(Bonus.GUILD_SPEED));
+        modifier(player.getAttribute(Attributes.ARMOR_TOUGHNESS), GUILD_TOUGHNESS,
+                bonuses.contains(Bonus.GUILD_TOUGHNESS_PENALTY));
+        modifier(player.getAttribute(Attributes.ATTACK_DAMAGE), CORPORATE_ATTACK, bonuses.contains(Bonus.CORPORATE_ATTACK));
+        modifier(player.getAttribute(Attributes.ATTACK_DAMAGE), AUTHORITY_ATTACK,
+                bonuses.contains(Bonus.AUTHORITY_ATTACK_PENALTY));
+        if (bonuses.contains(Bonus.SLOW_FALLING)) effect(player, MobEffects.SLOW_FALLING, EFFECT_DURATION);
+        if (bonuses.contains(Bonus.RESISTANCE)) effect(player, resistance(), EFFECT_DURATION);
+        if (bonuses.contains(Bonus.WATER_BREATHING)) effect(player, MobEffects.WATER_BREATHING, EFFECT_DURATION);
+        if (bonuses.contains(Bonus.CURE_POISON)) player.removeEffect(MobEffects.POISON);
+        if (bonuses.contains(Bonus.THAW)) player.setTicksFrozen(0);
+        if (bonuses.contains(Bonus.REGENERATION)) effect(player, regeneration(), 50);
+        if (bonuses.contains(Bonus.HASTE)) effect(player, haste(), EFFECT_DURATION);
+        if (bonuses.contains(Bonus.SLOWNESS)) effect(player, slowness(), EFFECT_DURATION);
+    }
+
+    static EnumSet<Bonus> bonuses(Set<GearSet> worn, BonusEnv env) {
+        var bonuses = EnumSet.noneOf(Bonus.class);
+        if (worn.contains(GearSet.GUILD_FLIGHT_SUIT)) {
+            bonuses.add(Bonus.GUILD_SPEED);
+            bonuses.add(Bonus.GUILD_TOUGHNESS_PENALTY);
+            if (env.airborneSneak()) bonuses.add(Bonus.SLOW_FALLING);
         }
-        if (worn.contains(FactionArmor.COLONIST_FIELD_GEAR) && tick % 50 == 0 && player.onGround()
-                && player.getDeltaMovement().horizontalDistanceSqr() < 0.0001) {
-            effect(player, regeneration(), 50);
+        if (worn.contains(GearSet.CORPORATE_POWER_SUIT)) {
+            bonuses.add(Bonus.CORPORATE_ATTACK);
+            if (env.fullHealth()) bonuses.add(Bonus.RESISTANCE);
         }
-        if (worn.contains(FactionArmor.UNION_EXOSUIT)) {
-            switch (environment(player)) {
-                case UNDERGROUND -> effect(player, haste(), EFFECT_DURATION);
-                case DAYLIGHT -> effect(player, slowness(), EFFECT_DURATION);
+        if (worn.contains(GearSet.AUTHORITY_ENVIRONMENT_SUIT)) {
+            bonuses.add(Bonus.AUTHORITY_ATTACK_PENALTY);
+            bonuses.add(Bonus.WATER_BREATHING);
+            bonuses.add(Bonus.CURE_POISON);
+            bonuses.add(Bonus.THAW);
+        }
+        if (worn.contains(GearSet.COLONIST_FIELD_GEAR) && env.standingStill()) bonuses.add(Bonus.REGENERATION);
+        if (worn.contains(GearSet.UNION_EXOSUIT)) {
+            switch (env.union()) {
+                case UNDERGROUND -> bonuses.add(Bonus.HASTE);
+                case DAYLIGHT -> bonuses.add(Bonus.SLOWNESS);
                 case NEUTRAL -> { }
             }
         }
+        return bonuses;
     }
 
     private static void modifier(net.minecraft.world.entity.ai.attributes.AttributeInstance attribute,
@@ -126,27 +213,47 @@ public final class GearSetBonuses {
 
     public static float incomingDamage(ServerPlayer player, DamageSource source, float amount) {
         if (source.is(DamageTypes.WITHER) && VoidAltarBlock.hasBoon(player)) return 0;
-        if (source.is(DamageTypeTags.IS_FREEZING) && active(player, FactionArmor.AUTHORITY_ENVIRONMENT_SUIT)) return 0;
-        if (active(player, FactionArmor.VOID_VESTMENTS) && player.level().dimensionType().hasSkyLight()
-                && player.level().getSkyDarken() < 4 && player.level().canSeeSky(player.blockPosition())) {
-            amount *= 1.2F;
+        DamageKind kind = damageKind(player, source);
+        var worn = worn(player);
+        boolean beacon = kind == DamageKind.FALL && NavigationBeaconBlock.protects(player);
+        if (worn.isEmpty() && !beacon) return amount;
+        var level = player.level();
+        boolean daylight = worn.contains(GearSet.VOID_VESTMENTS) && level.dimensionType().hasSkyLight()
+                && level.getSkyDarken() < 4 && level.canSeeSky(player.blockPosition());
+        var union = worn.contains(GearSet.UNION_EXOSUIT) ? environment(player) : UnionEnvironment.NEUTRAL;
+        return incomingDamage(worn, kind, new DamageEnv(daylight, beacon, union), amount);
+    }
+
+    private static DamageKind damageKind(ServerPlayer player, DamageSource source) {
+        if (source.is(DamageTypeTags.IS_FREEZING)) return DamageKind.FREEZING;
+        if (source.is(DamageTypeTags.IS_FALL)) return DamageKind.FALL;
+        if (source.is(DamageTypeTags.IS_EXPLOSION)) return DamageKind.EXPLOSION;
+        if (source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
+                || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO)) return DamageKind.MELEE;
+        if (source.is(DamageTypes.MAGIC) && player.hasEffect(MobEffects.POISON)) return DamageKind.POISON;
+        return DamageKind.OTHER;
+    }
+
+    static float incomingDamage(Set<GearSet> worn, DamageKind kind, DamageEnv env, float amount) {
+        boolean authority = worn.contains(GearSet.AUTHORITY_ENVIRONMENT_SUIT);
+        if (authority && (kind == DamageKind.FREEZING || kind == DamageKind.POISON)) return 0;
+        if (worn.contains(GearSet.VOID_VESTMENTS) && env.daylightExposed()) amount *= 1.2F;
+        if (kind == DamageKind.FALL && (env.beaconProtected() || worn.contains(GearSet.GUILD_FLIGHT_SUIT))) return 0;
+        if (kind == DamageKind.MELEE && worn.contains(GearSet.GUILD_FLIGHT_SUIT)) return amount * 1.15F;
+        if ((kind == DamageKind.FALL || kind == DamageKind.EXPLOSION) && worn.contains(GearSet.UNION_EXOSUIT)
+                && env.union() == UnionEnvironment.UNDERGROUND) {
+            return amount * 0.65F;
         }
-        boolean fall = source.is(DamageTypeTags.IS_FALL);
-        if (fall && (NavigationBeaconBlock.protects(player) || active(player, FactionArmor.GUILD_FLIGHT_SUIT))) {
-            return 0;
-        }
-        if ((source.is(DamageTypes.PLAYER_ATTACK) || source.is(DamageTypes.MOB_ATTACK)
-                || source.is(DamageTypes.MOB_ATTACK_NO_AGGRO)) && active(player, FactionArmor.GUILD_FLIGHT_SUIT)) {
-            return amount * 1.15F;
-        }
-        if ((!source.is(DamageTypeTags.IS_EXPLOSION) && !fall) || !active(player, FactionArmor.UNION_EXOSUIT)) {
-            return amount;
-        }
-        return environment(player) == UnionEnvironment.UNDERGROUND ? amount * 0.65F : amount;
+        return amount;
     }
 
     public static float exhaustion(ServerPlayer player, float amount) {
-        return active(player, FactionArmor.CORPORATE_POWER_SUIT) ? amount * 1.5F : amount;
+        return exhaustion(active(player, FactionArmor.CORPORATE_POWER_SUIT)
+                ? EnumSet.of(GearSet.CORPORATE_POWER_SUIT) : EnumSet.noneOf(GearSet.class), amount);
+    }
+
+    static float exhaustion(Set<GearSet> worn, float amount) {
+        return worn.contains(GearSet.CORPORATE_POWER_SUIT) ? amount * 1.5F : amount;
     }
 
     public static int salvageWear(LivingEntity user, ItemStack stack, int amount) {

@@ -10,7 +10,9 @@ refuse visitors whose standing is below the server's hostility threshold or whos
 allegiance and Trusted standing place them with a rival. Rival Members below Trusted
 pay a surcharge.
 
-Guards defend their Envoy and patrol only within the outpost. Space Guild, Nero
+Guards defend their Envoy and patrol only within the outpost. Guards and Envoys
+are dismounted from boats, minecarts and other vehicles, so they cannot be carried
+away from their outpost. Space Guild, Nero
 Corporation and Salvagers Guards shoot arrows. The other factions fight in melee.
 Killing a Guard costs Combat standing with its faction and awards capped Combat
 standing with its enemies.

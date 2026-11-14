@@ -1,5 +1,6 @@
 package za.co.neroland.nerofactions.link;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -136,5 +137,61 @@ class FactionsLinkEventsTest {
         }
 
         assertTrue(seen.isEmpty());
+    }
+
+    // --- contract_completed -------------------------------------------------------
+
+    private static List<LinkEvent> collectContractEvents(Identifier contract, Runnable action) {
+        List<LinkEvent> seen = new CopyOnWriteArrayList<>();
+        Consumer<LinkEvent> collector = event -> {
+            if (FactionsLinkModule.TOPIC_CONTRACT_COMPLETED.equals(event.topic())
+                    && event.payload().has("contract")
+                    && contract.toString().equals(event.payload().getAsJsonPrimitive("contract").getAsString())) {
+                seen.add(event);
+            }
+        };
+        NeroLinkRegistry.eventBus().subscribe(collector);
+        try {
+            action.run();
+        } finally {
+            NeroLinkRegistry.eventBus().unsubscribe(collector);
+        }
+        return seen;
+    }
+
+    @Test
+    void contractCompletedGoesOnlyToTheOwningPlayerAndCarriesNoUuid() {
+        UUID player = UUID.randomUUID();
+        Identifier faction = Identifier.fromNamespaceAndPath("nerofactions", "miner_union");
+        Identifier contract = Identifier.fromNamespaceAndPath("nerofactions", uniquePath("miner_union/done"));
+
+        List<LinkEvent> seen = collectContractEvents(contract,
+                () -> FactionsLinkEvents.onContractCompleted(player, faction, contract));
+
+        assertEquals(1, seen.size());
+        LinkEvent event = seen.get(0);
+        assertEquals("nerofactions", event.moduleId());
+        assertEquals(player, event.playerId(), "routed to the owning player");
+        assertFalse(event.isBroadcast(), "a completed contract is never broadcast");
+        assertEquals(java.util.Set.of("schema_version", "faction", "contract"), event.payload().keySet());
+        assertFalse(event.payload().toString().contains(player.toString()),
+                "the payload itself must carry no player identifier");
+        assertFalse(event.payload().toString().matches(
+                "(?is).*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}.*"),
+                "no UUID of any kind in the payload");
+    }
+
+    @Test
+    void contractCompletedWithANullArgumentPublishesNothingAndDoesNotThrow() {
+        Identifier faction = Identifier.fromNamespaceAndPath("nerofactions", "miner_union");
+        Identifier contract = Identifier.fromNamespaceAndPath("nerofactions", uniquePath("miner_union/null"));
+
+        List<LinkEvent> seen = collectContractEvents(contract, () -> assertDoesNotThrow(() -> {
+            FactionsLinkEvents.onContractCompleted(UUID.randomUUID(), null, contract);
+            FactionsLinkEvents.onContractCompleted(null, faction, contract);
+        }));
+
+        assertTrue(seen.isEmpty());
+        assertDoesNotThrow(() -> FactionsLinkEvents.onContractCompleted(UUID.randomUUID(), faction, null));
     }
 }

@@ -35,7 +35,7 @@ jobs:
       - name: Guard against private references in wiki/
         run: |
           set -euo pipefail
-          PATTERN='neroland-mc-ecosystem|BUILD-PROMPT|PLAN-0\.7\.0|PROGRESS([.-]|$)|AUDIT|SMOKE-TEST'
+          PATTERN='neroland-mc-ecosystem|BUILD-PROMPT|PLAN-0\.[0-9]+\.[0-9]+|PROGRESS-[0-9]|AUDIT-|SMOKE-TEST|CLAUDE-REVIEW|nerolink-app|umbrella'
           if grep -rniE "$PATTERN" wiki/; then
             echo "::error::wiki/ contains private planning references."
             exit 1

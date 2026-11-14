@@ -31,13 +31,42 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 public enum FactionArmor {
-    UNION_EXOSUIT(OutpostFaction.MINER_UNION, "union_exosuit", 18, 2, 6, 5, 2, 1.0F),
-    GUILD_FLIGHT_SUIT(OutpostFaction.SPACE_GUILD, "guild_flight_suit", 15, 2, 5, 4, 2, 0.5F),
-    VOID_VESTMENTS(OutpostFaction.VOID_CULT, "void_vestments", 16, 2, 5, 4, 2, 0.25F),
-    CORPORATE_POWER_SUIT(OutpostFaction.NERO_CORPORATION, "corporate_power_suit", 22, 3, 7, 5, 3, 1.0F),
-    AUTHORITY_ENVIRONMENT_SUIT(OutpostFaction.TERRAFORMING_AUTHORITY, "authority_environment_suit", 17, 2, 5, 4, 2, 0.5F),
-    COLONIST_FIELD_GEAR(OutpostFaction.FREE_COLONISTS, "colonist_field_gear", 12, 1, 3, 2, 1, 0.0F),
-    SALVAGER_PATCHWORK(OutpostFaction.SALVAGERS, "salvager_patchwork", 20, 2, 6, 5, 2, 0.75F);
+    UNION_EXOSUIT(OutpostFaction.MINER_UNION, "union_exosuit", Stats.UNION_EXOSUIT),
+    GUILD_FLIGHT_SUIT(OutpostFaction.SPACE_GUILD, "guild_flight_suit", Stats.GUILD_FLIGHT_SUIT),
+    VOID_VESTMENTS(OutpostFaction.VOID_CULT, "void_vestments", Stats.VOID_VESTMENTS),
+    CORPORATE_POWER_SUIT(OutpostFaction.NERO_CORPORATION, "corporate_power_suit", Stats.CORPORATE_POWER_SUIT),
+    AUTHORITY_ENVIRONMENT_SUIT(OutpostFaction.TERRAFORMING_AUTHORITY, "authority_environment_suit",
+            Stats.AUTHORITY_ENVIRONMENT_SUIT),
+    COLONIST_FIELD_GEAR(OutpostFaction.FREE_COLONISTS, "colonist_field_gear", Stats.COLONIST_FIELD_GEAR),
+    SALVAGER_PATCHWORK(OutpostFaction.SALVAGERS, "salvager_patchwork", Stats.SALVAGER_PATCHWORK);
+
+    /**
+     * Per-set armour numbers, kept as plain data so the balance table can be tested without bootstrapping the game.
+     * Toughness is per piece. The balance rule: no set may match-or-beat every other set on armour, toughness and
+     * durability at once.
+     */
+    record Stats(int durability, int helmet, int chestplate, int leggings, int boots, float toughness) {
+        static final Stats UNION_EXOSUIT = new Stats(18, 2, 6, 5, 2, 1.0F);
+        static final Stats GUILD_FLIGHT_SUIT = new Stats(15, 2, 5, 4, 2, 0.5F);
+        static final Stats VOID_VESTMENTS = new Stats(16, 2, 5, 4, 2, 0.25F);
+        static final Stats CORPORATE_POWER_SUIT = new Stats(22, 2, 6, 5, 2, 0.5F);
+        static final Stats AUTHORITY_ENVIRONMENT_SUIT = new Stats(17, 2, 5, 4, 2, 0.5F);
+        static final Stats COLONIST_FIELD_GEAR = new Stats(12, 1, 3, 2, 1, 0.0F);
+        static final Stats SALVAGER_PATCHWORK = new Stats(20, 2, 6, 5, 2, 0.75F);
+        static final Map<String, Stats> ALL = Map.of(
+                "union_exosuit", UNION_EXOSUIT, "guild_flight_suit", GUILD_FLIGHT_SUIT,
+                "void_vestments", VOID_VESTMENTS, "corporate_power_suit", CORPORATE_POWER_SUIT,
+                "authority_environment_suit", AUTHORITY_ENVIRONMENT_SUIT,
+                "colonist_field_gear", COLONIST_FIELD_GEAR, "salvager_patchwork", SALVAGER_PATCHWORK);
+
+        int armorTotal() {
+            return helmet + chestplate + leggings + boots;
+        }
+
+        float toughnessTotal() {
+            return toughness * 4;
+        }
+    }
 
     //? if >=1.21.2 {
     private final ArmorMaterial material;
@@ -48,8 +77,13 @@ public enum FactionArmor {
     private final String name;
     private final OutpostFaction faction;
 
-    FactionArmor(OutpostFaction faction, String name, int durability, int helmet, int chestplate,
-            int leggings, int boots, float toughness) {
+    FactionArmor(OutpostFaction faction, String name, Stats stats) {
+        int durability = stats.durability();
+        int helmet = stats.helmet();
+        int chestplate = stats.chestplate();
+        int leggings = stats.leggings();
+        int boots = stats.boots();
+        float toughness = stats.toughness();
         this.faction = faction;
         this.name = name;
         var id = Identifier.fromNamespaceAndPath("nerofactions", name);

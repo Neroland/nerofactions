@@ -33,6 +33,10 @@ public final class ForgeFactionsEvents {
     private static void logout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
             za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(player);
+            // The terminal selection and last-used terminal position are session data: drop them
+            // when the session ends (POPIA/GDPR minimisation). Shared by every register() variant.
+            TerminalSessions.clear(player.getUUID());
+            za.co.neroland.nerofactions.content.faction.salvagers.DeconstructorBlock.forget(player.getUUID());
         }
     }
 

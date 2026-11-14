@@ -4,30 +4,32 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import net.minecraft.server.MinecraftServer;
 
-import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
-import za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock;
 import za.co.neroland.nerofactions.platform.Services;
 
 /**
  * The DSAR (data-subject access request) export: <b>everything</b> NeroFactions stores for one
  * player, serialised to a stable JSON object for {@code /nerofactions data export} (GDPR Art. 15 /
- * Art. 20; POPIA s23). Pure serialisation — reads the two stores through their package-private
- * snapshot seams, writes nothing, logs nothing.
+ * Art. 20; POPIA s23). One section per {@link FactionsStores} entry with an export key — the same
+ * list erasure and the retention sweep walk — so a store cannot be erased but left out of the
+ * export. Pure serialisation: writes nothing, logs nothing.
  *
- * <p><b>Shape</b> (keys sorted within every section, so two exports of the same data are
+ * <p><b>Shape</b> (keys sorted within every map section, so two exports of the same data are
  * byte-identical apart from {@code generated_at}):
  *
  * <pre>{@code
  * {
  *   "mod": "nerofactions",
- *   "mod_version": "0.0.1-alpha.1",
+ *   "mod_version": "0.7.0-beta.1",
  *   "generated_at": "2026-08-08T12:00:00Z",
  *   "reputation": { "standings": { "<faction id>": <int standing>, ... } },
  *   "membership": {
@@ -36,14 +38,20 @@ import za.co.neroland.nerofactions.platform.Services;
  *     "left":              { "<faction id>": <left-at epoch ms, decay pending>, ... },
  *     "accrual":           { "<faction id>": { "<source>": { "day": <day stamp>, "accrued": <int> } } },
  *     "reward_watermarks": { "<faction id>": <highest tier ordinal ever granted>, ... }
- *   }
+ *   },
+ *   "contracts":         { ... ContractState.export ... },
+ *   "miner_quota":       { ... QuotaState.export ... },
+ *   "outposts_visited":  [ ... OutpostVisits.export ... ],
+ *   "workbench_access":  { ... WorkbenchAccess.export ... },
+ *   "corporate_daily":   { ... CorporateLedger.export ... },
+ *   "void_boon_ticks_remaining": <int, 0 = none>
  * }
  * }</pre>
  *
  * <p>A player the mod holds nothing for gets the same envelope with every section empty (and
- * cooldown 0) — an honest "we store nothing about you". The subject's UUID is deliberately
- * <b>not</b> embedded: the export travels through chat components, and the requester already knows
- * whose data they asked for (data minimisation).
+ * zeros) — an honest "we store nothing about you". The subject's UUID is deliberately <b>not</b>
+ * embedded: the export travels through chat components, and the requester already knows whose
+ * data they asked for (data minimisation).
  */
 public final class PlayerDataExport {
 
@@ -54,43 +62,53 @@ public final class PlayerDataExport {
 
     /** The export for {@code player} from the live server's stores, stamped with the real clock. */
     public static String forPlayer(MinecraftServer server, UUID player) {
-        JsonObject root = export(FactionReputationState.get(server), FactionMembershipState.get(server),
-                ContractState.get(server), QuotaState.get(server), OutpostVisits.get(server), player,
+        return toJson(FactionsStores.live(server), (state, uuid) -> state.export().apply(server, uuid), player,
                 Services.PLATFORM.getModVersion(), System.currentTimeMillis());
-        root.add("corporate_daily", CorporateLedger.get(server).export(player));
-        root.add("workbench_access", WorkbenchAccess.get(server).export(player));
-        root.addProperty("void_boon_ticks_remaining", VoidAltarBlock.remaining(server, player));
-        return GSON.toJson(root);
     }
 
-    /** The pure core, parameterised for the plain-JVM tests. */
-    static String toJson(FactionReputationState reputation, FactionMembershipState membership,
-            ContractState contracts, QuotaState quota, OutpostVisits visits, UUID player, String modVersion, long generatedAtMs) {
-        return GSON.toJson(export(reputation, membership, contracts, quota, visits, player, modVersion, generatedAtMs));
-    }
-
-    private static JsonObject export(FactionReputationState reputation, FactionMembershipState membership,
-            ContractState contracts, QuotaState quota, OutpostVisits visits, UUID player, String modVersion, long generatedAtMs) {
+    /**
+     * The pure core, parameterised for the plain-JVM tests: {@code transients} reads each exported
+     * in-memory state (live: the state's own exporter against the server).
+     */
+    static String toJson(FactionsStores.Snapshot stores,
+            BiFunction<FactionsStores.Transient, UUID, ? extends JsonElement> transients, UUID player,
+            String modVersion, long generatedAtMs) {
         JsonObject root = new JsonObject();
         root.addProperty("mod", "nerofactions");
         root.addProperty("mod_version", modVersion);
         root.addProperty("generated_at", Instant.ofEpochMilli(generatedAtMs).toString());
+        for (FactionsStores.Persistent<?> store : FactionsStores.PERSISTENT) {
+            root.add(store.exportKey(), store.exportIn(stores, player));
+        }
+        for (FactionsStores.Transient state : FactionsStores.TRANSIENT) {
+            if (state.exportKey() != null) {
+                JsonElement value = transients.apply(state, player);
+                root.add(state.exportKey(), value == null ? JsonNull.INSTANCE : value);
+            }
+        }
+        return GSON.toJson(root);
+    }
 
-        JsonObject reputationSection = new JsonObject();
+    /** The {@code reputation} section. */
+    static JsonObject reputationSection(FactionReputationState reputation, UUID player) {
+        JsonObject section = new JsonObject();
         JsonObject standings = new JsonObject();
         sorted(reputation.standingsOf(player)).forEach(standings::addProperty);
-        reputationSection.add("standings", standings);
-        root.add("reputation", reputationSection);
+        section.add("standings", standings);
+        return section;
+    }
 
+    /** The {@code membership} section. */
+    static JsonObject membershipSection(FactionMembershipState membership, UUID player) {
         FactionMembershipState.ExportView view = membership.exportOf(player);
-        JsonObject membershipSection = new JsonObject();
+        JsonObject section = new JsonObject();
         JsonObject memberships = new JsonObject();
         sorted(view.memberships()).forEach(memberships::addProperty);
-        membershipSection.add("memberships", memberships);
-        membershipSection.addProperty("cooldown_until_ms", view.cooldownUntil());
+        section.add("memberships", memberships);
+        section.addProperty("cooldown_until_ms", view.cooldownUntil());
         JsonObject left = new JsonObject();
         sorted(view.left()).forEach(left::addProperty);
-        membershipSection.add("left", left);
+        section.add("left", left);
         JsonObject accrual = new JsonObject();
         sorted(view.accrual()).forEach((faction, bySource) -> {
             JsonObject sources = new JsonObject();
@@ -102,16 +120,11 @@ public final class PlayerDataExport {
             });
             accrual.add(faction, sources);
         });
-        membershipSection.add("accrual", accrual);
+        section.add("accrual", accrual);
         JsonObject watermarks = new JsonObject();
         sorted(view.rewarded()).forEach(watermarks::addProperty);
-        membershipSection.add("reward_watermarks", watermarks);
-        root.add("membership", membershipSection);
-        root.add("contracts", contracts.export(player));
-        root.add("miner_quota", quota.export(player));
-        root.add("outposts_visited", visits.export(player));
-
-        return root;
+        section.add("reward_watermarks", watermarks);
+        return section;
     }
 
     private static <V> Map<String, V> sorted(Map<String, V> map) {

@@ -50,11 +50,11 @@ public final class VoidAltarBlock extends BaseEntityBlock {
     }
 
     //? if <26.3 {
-    /*@Override
+    @Override
     protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
         return net.minecraft.world.level.block.RenderShape.MODEL;
     }
-    *///?}
+    //?}
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -156,7 +156,7 @@ public final class VoidAltarBlock extends BaseEntityBlock {
     public static void forget(MinecraftServer server, UUID player) {
         Boon boon = BOONS.remove(player);
         if (boon != null) {
-            clearVision(server.getPlayerList().getPlayer(player), boon);
+            clearVision(server == null ? null : server.getPlayerList().getPlayer(player), boon);
         }
     }
 

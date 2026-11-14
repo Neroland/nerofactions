@@ -17,8 +17,10 @@ import za.co.neroland.nerofactions.content.faction.OutpostFaction;
  *
  * <p><b>POPIA/GDPR:</b> the map holds player UUID → faction id for the current process only. It
  * is wiped wholesale when the server stops ({@link #clearAll}, called from every loader's
- * server-stopped hook beside {@code FactionDefinitions.forgetServer}), and an entry self-corrects
- * the moment it no longer names one of the player's member factions.
+ * server-stopped hook beside {@code FactionDefinitions.forgetServer}), one player's rows (selection
+ * and last-used terminal position) are dropped on logout ({@link #clear}, from every loader's
+ * logout hook), and an entry self-corrects the moment it no longer names one of the player's
+ * member factions.
  */
 public final class TerminalSessions {
 
@@ -67,7 +69,8 @@ public final class TerminalSessions {
     }
 
     /**
-     * Drops one player's selection (nothing else references it). Also the erasure path:
+     * Drops one player's selection and last-used terminal (nothing else references them). Called
+     * from every loader's logout hook, and also the erasure path:
      * {@code NeroFactionsData.eraseLocal} calls this so an erasure request clears even this
      * transient in-memory row in the same request — erasure means <em>everything</em>, not just
      * what is on disk.

@@ -47,8 +47,8 @@ public final class QuestsIntegration {
                             + "gate on tier crossings (nerofactions:reputation_tier).");
         } else {
             NeroFactionsCommon.LOGGER.info(
-                    "[NeroFactions] NeroQuests absent - standing is earned through the internal "
-                            + "combat trigger (and trade, once the trade terminal ships).");
+                    "[NeroFactions] NeroQuests absent - standing is earned through combat, trade "
+                            + "and contracts.");
         }
     }
 }

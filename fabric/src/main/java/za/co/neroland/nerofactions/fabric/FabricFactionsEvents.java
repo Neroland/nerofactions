@@ -52,8 +52,13 @@ public final class FabricFactionsEvents {
             QuestHooks.onJoin(handler.player);
             za.co.neroland.nerofactions.network.StandingSync.send(handler.player);
         });
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
-                za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.onLogout(handler.player);
+            // The terminal selection and last-used terminal position are session data: drop them
+            // when the session ends (POPIA/GDPR minimisation).
+            TerminalSessions.clear(handler.player.getUUID());
+            za.co.neroland.nerofactions.content.faction.salvagers.DeconstructorBlock.forget(handler.player.getUUID());
+        });
 
         // Combat reputation. AFTER_DEATH is server-side only and hands over exactly the pair the
         // trigger wants: the victim plus the damage source the credit is resolved from; the

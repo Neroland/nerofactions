@@ -10,6 +10,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Standalone Contract Board with 42 data contracts, per-player daily selection, delivery/craft/kill/visit objectives, capped standing rewards and a daily reroll token.
+  Delivery contracts accept plain items only: renamed, damaged or otherwise modified stacks are refused.
 - Contract state is covered by export, erasure, recovery backups and inactivity retention.
 - Seven custom loom patterns with faction-coloured item art, available as Inner Circle rewards.
 - Seven faction armour trims. The Inner Circle rewards include enough matching templates and inlays
@@ -28,26 +29,42 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Void Altar rites and the Void Vestments armour set.
 - Corporate Power Suit, Authority Environment Suit, Colonist Field Gear and
   Salvager Patchwork, each with a Trusted full-set bonus and a trade-off.
+  The Corporate Power Suit gives 2/6/5/2 armour (15 total) and 0.5 toughness per piece.
+  The Authority Environment Suit stops poison damage for an eligible wearer. The Salvager
+  Patchwork bonus rolls a loot container's own loot table once more the first time the
+  wearer opens it, placing the extra items into empty slots only.
 - Salvage Scanner, a Salvagers Member recipe for finding nearby tagged landmarks.
 - Salvagers Deconstructor, which recovers a capped share of ingredients from eligible,
-  unmodified items with an unambiguous shaped recipe.
+  unmodified items with an unambiguous shaped recipe. Each player has a short
+  half-second cooldown between uses.
 - Terraforming Authority Survey Spade. Sneak-use to read the biome and temperature,
   with atmosphere and oxygen readings on compatible Nerospace worlds.
 - Settler's Multitool with automatically selected axe, hoe and shovel mining behaviour.
+  Its axe and hoe right-click actions need Free Colonists membership at Member standing;
+  anyone else gets shovel behaviour on use.
 - Free Colonists Community Workbench with a crafting grid, 27-slot shared storage,
   owner-managed access and player-data export and erasure.
 - Terraforming Authority Atmosphere Processor. Authority members can use Core energy
   and reagents to convert one eligible surface per pulse within a bounded radius.
+  Only natural ground converts (dirt to podzol or grass, sand and gravel to moss, saplings
+  on grass or podzol); stone and building blocks are never touched. Every target is first
+  checked through the loader's own block-break event, so protection and claim mods that
+  listen to it can refuse the change. A refused target costs no energy or reagent.
 - Corporate Contract Terminal with one rotating premium delivery per day, and an
   Executive Stamp that converts gold into transferable credit writs. NeroEconomy
-  prices one rotating metal commodity using the configured weekly cap.
+  prices one rotating metal commodity using the configured weekly cap. Without a
+  currency provider such as NeroEconomy the Stamp refuses and keeps the gold.
 - Seven full-set and seven signature machine milestones in the optional Standing chapter.
 - Seven naturally generated faction outposts, each with an Envoy, two Guards, a Registry,
-  a Contract Board, a Trade Terminal and a patterned banner.
+  a Contract Board, a Trade Terminal and a patterned banner. Guards and Envoys are
+  dismounted from boats and minecarts so they cannot be carried away from their outpost.
 - Operator gallery command for previewing faction blocks, armour, banners and residents.
 - Seven outpost discovery milestones for the optional Standing quest chapter.
 - Outpost visit records retain only faction and dimension for export and NeroLink.
 - NeroLink schema 2 contract and gear views, contract completion events and a daily reroll action.
+  The reroll action is rate-limited before any game state is read. After a server restart, a
+  retried request can be refused because the day's reroll was already spent; the `contracts`
+  section shows the result.
 - Owner-only in-game standing snapshots, including membership, cooldown and hostile-band status.
 - `hostileBelowStanding` setting; the hostile band remains separate from the five reputation tiers.
 
@@ -61,13 +78,33 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The new faction payloads require NeroFactions 0.7.0 on both client and server for the full in-game experience.
 - Client standing caches clear on disconnect and refresh after online erasure.
 - Wiki publishing checks for private planning references; unusable asset tasks were removed.
+- Joining and leaving now happen at the Faction Registry; the commands remain for operators and accessibility.
+- Erasure handles each of the seven persistent stores (reputation, membership, contracts,
+  Miner Union quota, outpost visits, Community Workbench access and the Corporate ledger)
+  independently, so one failing store no longer stops the others. It also clears the
+  in-memory last-used terminal, the NeroLink request cache, Void Altar boons and
+  Deconstructor cooldowns. The last-used terminal is also forgotten on logout.
+- The data export now covers every store from the same list, including the Corporate
+  daily ledger (`corporate_daily`), Community Workbench access (`workbench_access`) and
+  the remaining Void Altar boon time (`void_boon_ticks_remaining`).
 
 ### Deferred
 
-- Automatic, unattended atmosphere conversion is deferred.
-- Space Guild launch fuel discounts await a Nerospace fuel modifier hook.
-- The Salvage Scanner supports optional NeroRuins landmarks. NeroEvents landmarks
-  await structure tags from NeroEvents.
+- Automatic, unattended atmosphere conversion is deferred; the Atmosphere Processor only
+  runs on player-triggered pulses.
+- Space Guild launch fuel discounts await a Nerospace fuel modifier hook; the discount
+  seam is currently a no-op.
+- The Salvage Scanner supports optional NeroRuins landmarks. It has no NeroEvents targets
+  yet; those await structure tags from NeroEvents.
+- Faction territory is not built.
+- There is no claims API integration. The Atmosphere Processor relies on the loader's
+  block-break events rather than a Neroland Core or NeroColonies claim API.
+- NeroCompanion build-permission checks are not built.
+- The Void Altar offers only the boon rite; the blink rite is not built.
+- The Corporate Contract Terminal is a fixed rotation of three deliveries, not data-driven contracts.
+- The contract format supports item rewards, but no shipped contract uses one.
+- Known limitation: the Settler's Multitool's automatic mining-speed switch is not
+  membership-gated; only its right-click actions are.
 
 ## [0.6.1-beta.1] - 2026-10-31
 
