@@ -11,6 +11,7 @@ import za.co.neroland.nerofactions.content.faction.GearSetBonuses;
 abstract class FactionGearExhaustionMixin {
     @ModifyVariable(method = "causeFoodExhaustion", at = @At("HEAD"), argsOnly = true)
     private float nerofactions$corporateExhaustion(float amount) {
-        return (Object) this instanceof ServerPlayer player ? GearSetBonuses.exhaustion(player, amount) : amount;
+        return ServerPlayer.class.isInstance(this)
+                ? GearSetBonuses.exhaustion(ServerPlayer.class.cast(this), amount) : amount;
     }
 }

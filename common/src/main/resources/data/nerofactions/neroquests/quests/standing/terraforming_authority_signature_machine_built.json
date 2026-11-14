@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.terraforming_authority_signature_machine_built.title",
+  "description": "quest.nerofactions.standing.terraforming_authority_signature_machine_built.desc",
+  "icon": "nerofactions:atmosphere_processor",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:signature_machine_built",
+      "event_scope": "nerofactions:terraforming_authority",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

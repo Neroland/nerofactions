@@ -5,7 +5,7 @@ All notable changes to **NeroFactions** are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0-beta.1] - 2026-11-13
 
 ### Added
 
@@ -28,8 +28,23 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Void Altar rites and the Void Vestments armour set.
 - Corporate Power Suit, Authority Environment Suit, Colonist Field Gear and
   Salvager Patchwork, each with a Trusted full-set bonus and a trade-off.
+- Salvage Scanner, a Salvagers Member recipe for finding nearby tagged landmarks.
+- Salvagers Deconstructor, which recovers a capped share of ingredients from eligible,
+  unmodified items with an unambiguous shaped recipe.
+- Terraforming Authority Survey Spade. Sneak-use to read the biome and temperature,
+  with atmosphere and oxygen readings on compatible Nerospace worlds.
+- Settler's Multitool with automatically selected axe, hoe and shovel mining behaviour.
+- Free Colonists Community Workbench with a crafting grid, 27-slot shared storage,
+  owner-managed access and player-data export and erasure.
+- Terraforming Authority Atmosphere Processor. Authority members can use Core energy
+  and reagents to convert one eligible surface per pulse within a bounded radius.
+- Corporate Contract Terminal with one rotating premium delivery per day, and an
+  Executive Stamp that converts gold into transferable credit writs. NeroEconomy
+  prices one rotating metal commodity using the configured weekly cap.
+- Seven full-set and seven signature machine milestones in the optional Standing chapter.
 - Seven naturally generated faction outposts, each with an Envoy, two Guards, a Registry,
   a Contract Board, a Trade Terminal and a patterned banner.
+- Operator gallery command for previewing faction blocks, armour, banners and residents.
 - Seven outpost discovery milestones for the optional Standing quest chapter.
 - Outpost visit records retain only faction and dimension for export and NeroLink.
 - NeroLink schema 2 contract and gear views, contract completion events and a daily reroll action.
@@ -39,9 +54,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Requires Neroland Core 1.17.5 or later across all supported Minecraft versions.
-- New standing payloads require matching client and server builds for in-game faction displays.
+- Standing can become negative. Guards defend their Envoy and attack visitors below
+  the configured hostile threshold or with Trusted standing in an enemy faction they joined.
+- Killing an outpost guard costs standing with its faction and can grant capped combat
+  standing with that faction's enemies.
+- The new faction payloads require NeroFactions 0.7.0 on both client and server for the full in-game experience.
 - Client standing caches clear on disconnect and refresh after online erasure.
 - Wiki publishing checks for private planning references; unusable asset tasks were removed.
+
+### Deferred
+
+- Automatic, unattended atmosphere conversion is deferred.
+- Space Guild launch fuel discounts await a Nerospace fuel modifier hook.
+- The Salvage Scanner supports optional NeroRuins landmarks. NeroEvents landmarks
+  await structure tags from NeroEvents.
 
 ## [0.6.1-beta.1] - 2026-10-31
 

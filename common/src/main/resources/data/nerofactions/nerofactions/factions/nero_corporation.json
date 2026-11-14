@@ -20,6 +20,9 @@
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {"type": "item", "id": "nerofactions:executive_stamp", "count": 1}
+    ],
     "trusted": [
       {
         "type": "item",
@@ -28,7 +31,7 @@
       },
       {
         "type": "item",
-        "id": "minecraft:name_tag",
+        "id": "nerofactions:corporate_power_suit_helmet",
         "count": 1
       }
     ],

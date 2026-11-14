@@ -1,0 +1,12 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:salvagers",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [" C ", "IRI", " C "],
+    "key": {"C": "minecraft:copper_ingot", "I": "minecraft:iron_ingot", "R": "minecraft:compass"},
+    "result": {"id": "nerofactions:salvage_scanner", "count": 1}
+  }
+}

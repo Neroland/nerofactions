@@ -1,0 +1,12 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:free_colonists",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [" L ", "TCT", "PPP"],
+    "key": {"L": "minecraft:lantern", "T": "minecraft:stick", "C": "minecraft:crafting_table", "P": "#minecraft:planks"},
+    "result": {"id": "nerofactions:community_workbench", "count": 1}
+  }
+}

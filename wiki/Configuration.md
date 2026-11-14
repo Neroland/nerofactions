@@ -63,6 +63,25 @@ never force it on or off.
 | `voidRiteSeconds` | `90` | 15–180 | Duration of a successful rite in seconds. |
 | `voidBacklashPercent` | `15` | 0–100 | Percentage chance of a backlash instead of a boon. |
 
+## Salvagers Deconstructor
+
+- `deconstructorEnabled` enables the machine by default.
+- `deconstructorYieldPercent` defaults to 50, with an upper limit of 75.
+  Recovery is rounded down per ingredient. The allowed and denied item tags are
+  `nerofactions:deconstructible` and `nerofactions:no_deconstruct`.
+
+## Free Colonists Community Workbench
+
+`communityWorkbenchEnabled` defaults to `true`. Disable it to close the crafting
+and storage menus and pause access management. Existing contents stay in the block.
+
+## Terraforming Authority Atmosphere Processor
+
+| Key | Default | Range | Meaning |
+| --- | --- | --- | --- |
+| `atmosphereProcessorEnabled` | `true` | — | Enable conversion pulses. |
+| `atmosphereProcessorRadius` | `6` | 1–8 | Maximum horizontal radius in blocks. |
+
 ## Reputation sources — weights and daily caps
 
 Weights multiply the base award; caps are per player, per faction, per source, per
@@ -72,7 +91,7 @@ real-time day. Admin grants have neither.
 | --- | --- | --- | --- | --- |
 | `questSourceWeight` | double | `1.0` | 0.0–10.0 | Multiplier applied to reputation awarded from quests. |
 | `questDailyCap` | int | `300` | 0–1000000 | Max reputation a player can earn per faction per day from quests. |
-| `eventSourceWeight` | double | `1.0` | 0.0–10.0 | Multiplier applied to reputation awarded from server events (reserved — nothing fires this source yet). |
+| `eventSourceWeight` | double | `1.0` | 0.0–10.0 | Multiplier applied to reputation awarded from server events through the public faction API. |
 | `eventDailyCap` | int | `300` | 0–1000000 | Max reputation a player can earn per faction per day from server events. |
 | `combatSourceWeight` | double | `0.6` | 0.0–10.0 | Multiplier applied to reputation awarded from combat. |
 | `combatDailyCap` | int | `150` | 0–1000000 | Max reputation a player can earn per faction per day from combat. |
@@ -102,6 +121,8 @@ bounds faction pricing everywhere.
 | --- | --- | --- | --- | --- |
 | `discountCapPercent` | int | `15` | 0–50 | The largest total market discount (percent) faction standing can ever grant a buyer, regardless of datapack trade multipliers. |
 | `surchargeCapPercent` | int | `25` | 0–100 | The total market surcharge (percent) applied when a listing's aligned faction lists one of the buyer's factions as an enemy — this single knob is both the surcharge and its cap. |
+| `marketNudgeCapPercent` | int | `5` | 0–15 | Weekly price increase for one rotating metal commodity. Zero disables the nudge. |
+| `corporateCounterEnabled` | boolean | `true` | — | Enable Corporate premium deliveries, stamping, redemption and weekly pricing. |
 
 ## Data retention
 

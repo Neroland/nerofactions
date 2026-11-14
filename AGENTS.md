@@ -7,9 +7,9 @@
 ## The mod
 
 - **NeroFactions** is the reputation and allegiance mod built on Neroland Core. The source is
-  **0.6.1-beta.1**, with seven data-driven factions, membership and capped reputation, tier rewards,
-  gated recipes, a trade terminal and a requester-scoped read-only link module. Runtime verification
-  and new content work remain separate from this status.
+  **0.7.0-beta.1**, with seven factions, a Registry, a daily Contract Board, outposts,
+  equipment sets, seven signature machines and a requester-scoped schema 2 link module.
+  The changelog lists the deferred signature features.
 - Mod id: **`nerofactions`**. Package root: `za.co.neroland.nerofactions`.
 - Core pin: **1.17.5**. Targets Minecraft **1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10,
   1.21.11, 26.1.2, 26.2 and 26.3**, across Fabric, Forge and NeoForge (27 cells). The development

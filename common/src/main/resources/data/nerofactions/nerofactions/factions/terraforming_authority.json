@@ -20,11 +20,18 @@
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {
+        "type": "item",
+        "id": "nerofactions:survey_spade",
+        "count": 1
+      }
+    ],
     "trusted": [
       {
         "type": "item",
-        "id": "minecraft:glow_berries",
-        "count": 8
+        "id": "nerofactions:authority_environment_suit_helmet",
+        "count": 1
       },
       {
         "type": "item",

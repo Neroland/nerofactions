@@ -94,6 +94,10 @@ final class FactionGallery {
                 case MINER_UNION -> NeroFactionsBlocks.QUOTA_BOARD.get();
                 case SPACE_GUILD -> NeroFactionsBlocks.NAVIGATION_BEACON.get();
                 case VOID_CULT -> NeroFactionsBlocks.VOID_ALTAR.get();
+                case SALVAGERS -> NeroFactionsBlocks.DECONSTRUCTOR.get();
+                case FREE_COLONISTS -> NeroFactionsBlocks.COMMUNITY_WORKBENCH.get();
+                case TERRAFORMING_AUTHORITY -> NeroFactionsBlocks.ATMOSPHERE_PROCESSOR.get();
+                case NERO_CORPORATION -> NeroFactionsBlocks.CORPORATE_TERMINAL.get();
                 default -> null;
             };
             if (machine != null) level.setBlockAndUpdate(booth.offset(4, 0, 3), machine.defaultBlockState());
@@ -153,7 +157,11 @@ final class FactionGallery {
                         || state.is(NeroFactionsBlocks.TRADE_TERMINAL.get())
                         || state.is(NeroFactionsBlocks.QUOTA_BOARD.get())
                         || state.is(NeroFactionsBlocks.NAVIGATION_BEACON.get())
-                        || state.is(NeroFactionsBlocks.VOID_ALTAR.get())))) {
+                        || state.is(NeroFactionsBlocks.VOID_ALTAR.get())
+                        || state.is(NeroFactionsBlocks.DECONSTRUCTOR.get())
+                        || state.is(NeroFactionsBlocks.COMMUNITY_WORKBENCH.get())
+                        || state.is(NeroFactionsBlocks.ATMOSPHERE_PROCESSOR.get())
+                        || state.is(NeroFactionsBlocks.CORPORATE_TERMINAL.get())))) {
                 level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
             }
         }

@@ -330,10 +330,23 @@ def textures():
     yield "block/quota_board_top", quota_board_texture(True)
     yield "item/rift_blade", rift_blade()
     yield "item/guild_grapple", guild_grapple()
+    yield "item/salvage_scanner", salvage_scanner()
+    yield "item/survey_spade", survey_spade()
+    yield "item/settler_multitool", settler_multitool()
     yield "block/navigation_beacon_side", navigation_beacon(False)
     yield "block/navigation_beacon_top", navigation_beacon(True)
     yield "block/void_altar_side", void_altar(False)
     yield "block/void_altar_top", void_altar(True)
+    yield "block/deconstructor_side", deconstructor(False)
+    yield "block/deconstructor_top", deconstructor(True)
+    yield "block/community_workbench_side", community_workbench(False)
+    yield "block/community_workbench_top", community_workbench(True)
+    yield "block/atmosphere_processor_side", atmosphere_processor(False)
+    yield "block/atmosphere_processor_top", atmosphere_processor(True)
+    yield "block/corporate_terminal_side", corporate_terminal(False)
+    yield "block/corporate_terminal_top", corporate_terminal(True)
+    yield "item/executive_stamp", corporate_item(False)
+    yield "item/corporate_writ", corporate_item(True)
     yield "block/faction_registry_side", registry_texture()
     yield "block/faction_registry_top", registry_texture(top=True)
     for faction, (accent, rows) in FACTION_MARKS.items():
@@ -375,6 +388,43 @@ def navigation_beacon(top):
     return image
 
 
+def salvage_scanner():
+    image = Image.new("RGBA", (16, 16))
+    draw = ImageDraw.Draw(image)
+    draw.polygon([(4, 1), (12, 1), (14, 3), (14, 10), (11, 13), (9, 15), (5, 15),
+                  (5, 12), (2, 9), (2, 4)], fill="#573e36", outline="#292327")
+    draw.rectangle((4, 3, 12, 8), fill="#263237", outline="#d3885c")
+    draw.arc((5, 3, 11, 9), 195, 345, fill="#acc790")
+    draw.line((8, 7, 10, 4), fill="#e2f6af")
+    draw.point((6, 10), fill="#ee9963")
+    draw.point((9, 10), fill="#a77761")
+    return image
+
+
+def survey_spade():
+    image = Image.new("RGBA", (16, 16))
+    draw = ImageDraw.Draw(image)
+    draw.line((2, 14, 9, 7), fill="#21352e", width=4)
+    draw.line((2, 14, 9, 7), fill="#97a690", width=2)
+    draw.polygon([(7, 5), (10, 2), (14, 1), (15, 2), (14, 7), (11, 10)],
+                 fill="#65a795", outline="#274a43")
+    draw.line((10, 4, 13, 2, 14, 2), fill="#d0f5cf")
+    draw.point((8, 9), fill="#b9ecab")
+    return image
+
+
+def settler_multitool():
+    image = Image.new("RGBA", (16, 16))
+    draw = ImageDraw.Draw(image)
+    draw.line((2, 14, 10, 6), fill="#382a20", width=4)
+    draw.line((2, 14, 10, 6), fill="#aa7c49", width=2)
+    draw.polygon([(6, 4), (10, 1), (14, 2), (15, 5), (13, 8), (10, 8), (8, 11)],
+                 fill="#91b491", outline="#303c34")
+    draw.line((7, 4, 10, 2, 13, 3), fill="#d8e6ba")
+    draw.point((10, 6), fill="#d0ad69")
+    return image
+
+
 def guild_flight_suit_textures():
     for name, source in union_exosuit_textures():
         image = Image.new("RGBA", source.size)
@@ -411,6 +461,88 @@ def void_altar(top):
         draw.line((3, 10, 7, 6, 11, 10), fill="#996aca")
         draw.line((5, 12, 10, 12), fill="#694186")
         draw.point((7, 8), fill="#e0bcff")
+    return image
+
+
+def corporate_terminal(top):
+    image = Image.new("RGBA", (16, 16), "#313038")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((0, 0, 15, 15), outline="#1b1920")
+    draw.rectangle((2, 2, 13, 13), fill="#25242a", outline="#b29649")
+    if top:
+        draw.rectangle((4, 4, 11, 11), fill="#453b2a", outline="#d5b666")
+        draw.polygon([(7, 5), (10, 8), (7, 10), (5, 8)], fill="#ddbf6e")
+    else:
+        draw.rectangle((4, 5, 11, 8), fill="#655438", outline="#dab364")
+        draw.line((5, 11, 10, 11), fill="#b68e43")
+    return image
+
+
+def corporate_item(writ):
+    image = Image.new("RGBA", (16, 16))
+    draw = ImageDraw.Draw(image)
+    if writ:
+        draw.polygon([(3, 2), (12, 2), (13, 4), (12, 13), (3, 13), (2, 11)], fill="#e2c796", outline="#604739")
+        draw.line((4, 5, 10, 5), fill="#947553")
+        draw.line((4, 7, 9, 7), fill="#947553")
+        draw.ellipse((8, 8, 12, 12), fill="#9d4e48", outline="#5c302b")
+    else:
+        draw.rounded_rectangle((5, 1, 10, 9), radius=2, fill="#836337", outline="#3e2e21")
+        draw.rectangle((3, 9, 12, 13), fill="#c6a65c", outline="#513d27")
+        draw.line((4, 10, 11, 10), fill="#f1d887")
+    return image
+
+
+def atmosphere_processor(top):
+    image = Image.new("RGBA", (16, 16), "#657e73")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((0, 0, 15, 15), outline="#223c35")
+    draw.rectangle((2, 2, 13, 13), fill="#c2cfc0", outline="#39564d")
+    if top:
+        draw.ellipse((4, 4, 11, 11), fill="#447264", outline="#254e41")
+        draw.arc((5, 5, 10, 10), 10, 230, fill="#b6ebad")
+        draw.point((8, 7), fill="#ddf6cc")
+    else:
+        draw.rectangle((4, 4, 11, 11), fill="#324c42", outline="#78987c")
+        for x in (5, 7, 9):
+            draw.line((x, 5, x, 9), fill="#a8d291")
+        draw.line((3, 12, 12, 12), fill="#e1eadc")
+    return image
+
+
+def community_workbench(top):
+    image = Image.new("RGBA", (16, 16), "#6c5034")
+    draw = ImageDraw.Draw(image)
+    for y in range(2, 16, 4):
+        draw.line((0, y, 15, y), fill="#392d23")
+        draw.line((0, y + 1, 15, y + 1), fill="#956c46")
+    draw.rectangle((0, 0, 15, 15), outline="#2e2620")
+    if top:
+        draw.rectangle((2, 2, 13, 13), fill="#576e54", outline="#c3b17e")
+        for y in (5, 9):
+            draw.line((3, y, 12, y), fill="#293d33")
+        for x in (5, 9):
+            draw.line((x, 3, x, 12), fill="#293d33")
+    else:
+        draw.rectangle((2, 3, 13, 12), fill="#37473b", outline="#b89967")
+        draw.line((4, 7, 11, 7), fill="#212b24")
+        draw.rectangle((6, 8, 9, 9), fill="#d9b983")
+    return image
+
+
+def deconstructor(top):
+    image = Image.new("RGB", (16, 16), "#363840")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((1, 1, 14, 14), outline="#9c7964")
+    draw.rectangle((3, 3, 12, 12), fill="#211f24", outline="#624537")
+    if top:
+        draw.rectangle((4, 5, 11, 10), fill="#15161c")
+        for x in range(4, 12, 2):
+            draw.line((x, 5, x, 10), fill="#b9815d")
+    else:
+        draw.line((5, 6, 10, 6), fill="#b65545")
+        draw.line((5, 8, 10, 8), fill="#d69263")
+        draw.point((7, 11), fill="#e3ad63")
     return image
 
 

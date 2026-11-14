@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "nerofactions:block/atmosphere_processor"
+  }
+}

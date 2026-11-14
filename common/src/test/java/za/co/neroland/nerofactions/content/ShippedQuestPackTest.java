@@ -48,6 +48,11 @@ class ShippedQuestPackTest {
         assertFactionMilestones("_outpost_found", "nerofactions:outpost_found");
     }
 
+    @Test
+    void fullSetQuestsCoverEveryFaction() throws Exception {
+        assertFactionMilestones("_full_set_worn", "nerofactions:full_set_worn");
+    }
+
     private static void assertFactionMilestones(String suffix, String channel) throws Exception {
         Path directory = shippedDir(Path.of("data", NAMESPACE, "neroquests", "quests", CHAPTER));
         for (OutpostFaction faction : OutpostFaction.values()) {

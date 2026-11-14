@@ -208,7 +208,9 @@ public final class EconomyIntegration {
             MarketListingView listing = context.listing();
             return FactionPricing.multiplier(listing.itemId(), listing.tags(), buyerTiers, factions,
                     NeroFactionsConfig.DISCOUNT_CAP_PERCENT.get(),
-                    NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get());
+                    NeroFactionsConfig.SURCHARGE_CAP_PERCENT.get())
+                    * za.co.neroland.nerofactions.content.faction.corporation.CorporateMarketNudge.multiplier(
+                            listing.itemId(), context.quotedAt());
         } catch (RuntimeException e) {
             NeroFactionsCommon.LOGGER.debug(
                     "[NeroFactions] Faction price modifier failed; charging list price.", e);

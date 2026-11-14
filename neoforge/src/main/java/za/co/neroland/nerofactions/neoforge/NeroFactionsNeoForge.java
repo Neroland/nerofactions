@@ -20,6 +20,10 @@ public final class NeroFactionsNeoForge {
         RegistrationProvider.attach(modEventBus);
         NeoForgeFactionsNetwork.register(modEventBus);
         NeoForgeFactionsEvents.register();
+        modEventBus.addListener((net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent event) ->
+                event.registerBlockEntity(za.co.neroland.nerolandcore.platform.NeoForgeEnergyLookup.ENERGY,
+                        za.co.neroland.nerofactions.registry.NeroFactionsBlocks.ATMOSPHERE_PROCESSOR_ENTITY.get(),
+                        (processor, side) -> processor.sideConfig().energyView(side)));
         if (za.co.neroland.nerofactions.platform.Services.PLATFORM.isClient()) {
             NeoForgeFactionsClient.init(modEventBus);
         }

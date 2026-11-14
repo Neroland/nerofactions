@@ -116,6 +116,17 @@ subprojects {
                 content { includeGroup 'za.co.neroland.neroeconomy' }
             }
         }
+        if (neroEconomyGprUser != null && neroEconomyGprKey != null) {
+            maven {
+                name = 'NerospaceGitHubPackages'
+                url = 'https://maven.pkg.github.com/Neroland/nerospace'
+                credentials {
+                    username = neroEconomyGprUser
+                    password = neroEconomyGprKey
+                }
+                content { includeGroup 'za.co.neroland.nerospace' }
+            }
+        }
         mavenCentral()
         maven { url 'https://maven.fabricmc.net/' }
         maven { url 'https://maven.neoforged.net/releases/' }

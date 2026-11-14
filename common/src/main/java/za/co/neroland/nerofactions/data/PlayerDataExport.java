@@ -57,6 +57,8 @@ public final class PlayerDataExport {
         JsonObject root = export(FactionReputationState.get(server), FactionMembershipState.get(server),
                 ContractState.get(server), QuotaState.get(server), OutpostVisits.get(server), player,
                 Services.PLATFORM.getModVersion(), System.currentTimeMillis());
+        root.add("corporate_daily", CorporateLedger.get(server).export(player));
+        root.add("workbench_access", WorkbenchAccess.get(server).export(player));
         root.addProperty("void_boon_ticks_remaining", VoidAltarBlock.remaining(server, player));
         return GSON.toJson(root);
     }

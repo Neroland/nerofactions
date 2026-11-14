@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:nero_corporation",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "equipment",
+    "pattern": [
+      " G ",
+      " S ",
+      " I "
+    ],
+    "key": {
+      "G": "minecraft:gold_ingot",
+      "I": "minecraft:iron_ingot",
+      "S": "minecraft:stick"
+    },
+    "result": {
+      "id": "nerofactions:executive_stamp",
+      "count": 1
+    }
+  }
+}

@@ -25,6 +25,14 @@ public final class FactionMilestones {
             fire(MACHINE, OutpostFaction.SPACE_GUILD.factionId());
         } else if (stack.is(NeroFactionsItems.VOID_ALTAR.get())) {
             fire(MACHINE, OutpostFaction.VOID_CULT.factionId());
+        } else if (stack.is(NeroFactionsItems.DECONSTRUCTOR.get())) {
+            fire(MACHINE, OutpostFaction.SALVAGERS.factionId());
+        } else if (stack.is(NeroFactionsItems.COMMUNITY_WORKBENCH.get())) {
+            fire(MACHINE, OutpostFaction.FREE_COLONISTS.factionId());
+        } else if (stack.is(NeroFactionsItems.ATMOSPHERE_PROCESSOR.get())) {
+            fire(MACHINE, OutpostFaction.TERRAFORMING_AUTHORITY.factionId());
+        } else if (stack.is(NeroFactionsItems.CORPORATE_TERMINAL.get())) {
+            fire(MACHINE, OutpostFaction.NERO_CORPORATION.factionId());
         }
     }
 

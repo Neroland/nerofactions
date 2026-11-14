@@ -14,6 +14,9 @@ operator subcommands require **gamemaster** permission (permission level 2, the 
 /nerofactions reload-check                              gamemaster
 /nerofactions gallery <x> <y> <z>                       gamemaster
 /nerofactions gallery clear <x> <y> <z>                 gamemaster
+/nerofactions workbench grant <x> <y> <z> <player>      workbench owner
+/nerofactions workbench revoke <x> <y> <z> <player>     workbench owner
+/nerofactions workbench recover <x> <y> <z> <player>   gamemaster
 /nerofactions admin grant <player> <faction> <amount>   gamemaster
 /nerofactions admin revoke <player> <faction> <amount>  gamemaster
 /nerofactions admin reset <player> [<faction>]          gamemaster

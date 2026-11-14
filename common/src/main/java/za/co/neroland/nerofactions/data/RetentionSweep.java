@@ -82,6 +82,7 @@ public final class RetentionSweep {
         lastRunDay = Long.MIN_VALUE;
         za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock.clear();
         za.co.neroland.nerofactions.progression.FactionMilestones.clear();
+        za.co.neroland.nerofactions.content.faction.corporation.CorporateMarketNudge.clear();
     }
 
     /** Runs one sweep now against the live server and config. @return how many players were purged. */
@@ -90,6 +91,8 @@ public final class RetentionSweep {
         known.addAll(FactionMembershipState.get(server).knownPlayers());
         known.addAll(ContractState.get(server).knownPlayers());
         known.addAll(OutpostVisits.get(server).knownPlayers());
+        known.addAll(WorkbenchAccess.get(server).knownPlayers());
+        known.addAll(CorporateLedger.get(server).knownPlayers());
         known.addAll(za.co.neroland.nerofactions.content.faction.minerunion.QuotaState.get(server).knownPlayers());
         int purged = sweep(NeroFactionsConfig.RETENTION_DAYS.get(), known,
                 days -> PlayerActivity.get(server).stalerThan(days),

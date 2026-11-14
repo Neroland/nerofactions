@@ -197,6 +197,46 @@
       "quest": "nerofactions:standing/void_cult_full_set_worn",
       "x": 12,
       "y": 12
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_signature_machine_built",
+      "x": 10,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/salvagers_full_set_worn",
+      "x": 12,
+      "y": 10
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_full_set_worn",
+      "x": 12,
+      "y": 4
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_full_set_worn",
+      "x": 12,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_full_set_worn",
+      "x": 12,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/free_colonists_signature_machine_built",
+      "x": 10,
+      "y": 0
+    },
+    {
+      "quest": "nerofactions:standing/terraforming_authority_signature_machine_built",
+      "x": 10,
+      "y": 6
+    },
+    {
+      "quest": "nerofactions:standing/nero_corporation_signature_machine_built",
+      "x": 10,
+      "y": 4
     }
   ]
 }

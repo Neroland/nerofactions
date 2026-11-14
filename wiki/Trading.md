@@ -21,6 +21,13 @@ S S S        S = smooth stone
 
 Trading at a crafted terminal requires faction membership.
 
+## Corporate Writs
+
+Hold an Executive Stamp in one hand and eight gold ingots in the other, then
+use the stamp in the air as a Corporate Member in Survival. You can stamp three
+writs per world day. Anyone can redeem a writ at a Trade Terminal for 20 credits
+when a credit provider is active. The terminal consumes one writ on payment.
+
 ## Using it
 
 - **Right-click** — opens your faction's shop (the vanilla trading screen). If you belong

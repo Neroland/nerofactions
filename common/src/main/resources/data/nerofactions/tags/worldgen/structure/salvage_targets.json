@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:shipwreck",
+    "#minecraft:ruined_portal",
+    {"id": "#neroruins:family/crash_site", "required": false},
+    {"id": "#neroruins:family/survey_lab", "required": false}
+  ]
+}

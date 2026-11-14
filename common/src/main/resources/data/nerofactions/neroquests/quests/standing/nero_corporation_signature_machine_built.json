@@ -1,0 +1,22 @@
+{
+  "title": "quest.nerofactions.standing.nero_corporation_signature_machine_built.title",
+  "description": "quest.nerofactions.standing.nero_corporation_signature_machine_built.desc",
+  "icon": "nerofactions:corporate_terminal",
+  "prerequisites": [],
+  "objectives": [
+    {
+      "type": "neroquests:custom_event",
+      "channel": "nerofactions:signature_machine_built",
+      "event_scope": "nerofactions:nero_corporation",
+      "direction": "rising",
+      "audience": "world"
+    }
+  ],
+  "rewards": [
+    {
+      "type": "neroquests:xp",
+      "amount": 20
+    }
+  ],
+  "scope": "server"
+}

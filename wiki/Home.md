@@ -29,7 +29,7 @@ and the faction's own Trade Terminal.
 - [Outposts and Guards](Outposts-and-Guards) — discovering outposts and trading with Envoys.
 - [Contracts](Contracts) — the standalone Contract Board, daily objectives and rewards.
 - [Faction gear](Faction-Gear) — armour sets, active bonuses and trade-offs.
-- [Machines](Machines) — the Quota Board, Navigation Beacon and Void Altar.
+- [Machines](Machines) — faction machines, including the Community Workbench.
 - [Gated recipes](Gated-Recipes) — the seven shipped faction perk recipes, the
   `nerofactions:gated` recipe format for pack authors, and the
   `nerofactions:reputation_tier` event channel for quest authors.
@@ -48,8 +48,8 @@ and the faction's own Trade Terminal.
 
 ## Quick start
 
-1. `/nerofactions factions` — list the seven factions.
-2. `/nerofactions join <faction>` — pledge to one (e.g. `/nerofactions join space_guild`).
+1. Craft or find a **Faction Registry** to browse the seven factions and pledge.
+2. Visit a **Contract Board** for daily assignments.
 3. Craft a **Faction Trade Terminal** (iron + emerald + smooth stone — ungated, anyone can
    place one) and sell your faction its speciality goods; kill hostile monsters while a
    member.

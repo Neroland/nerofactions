@@ -15,5 +15,8 @@ public final class NeroFactionsFabric implements ModInitializer {
         NeroFactionsCommon.init();
         FabricFactionsNetwork.registerCommon();
         FabricFactionsEvents.register();
+        za.co.neroland.nerolandcore.platform.FabricEnergyLookup.ENERGY.registerForBlockEntity(
+                (processor, side) -> processor.sideConfig().energyView(side),
+                za.co.neroland.nerofactions.registry.NeroFactionsBlocks.ATMOSPHERE_PROCESSOR_ENTITY.get());
     }
 }

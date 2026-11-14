@@ -2,8 +2,7 @@
 
 > Part of the Neroland sci-fi Minecraft mod ecosystem, built on **Neroland Core**.
 
-**Status:** `0.1.0-beta.1` prepared — feature-complete for 0.1.0; runtime verification on a
-real client/server is still pending.
+**Source version** `0.7.0-beta.1`.
 
 NeroFactions is the **reputation and allegiance** mod of the Neroland lineup — and the
 ecosystem's reputation provider: it binds a persistent per-player standing store to Neroland
@@ -21,8 +20,8 @@ operates on real numbers.
   (0 / 100 / 400 / 1000 / 2500 in the shipped factions), earned through weighted,
   daily-capped sources (quests, combat, trading), bled to enemy factions, and decaying after
   you leave.
-- **Membership** — `/nerofactions join`, single allegiance by default, a join cooldown and a
-  switch penalty; membership is what lets you trade, standing is what unlocks content.
+- **Membership** — join and leave at a Faction Registry, with one allegiance by default,
+  a join cooldown and a switch penalty. The commands remain available.
 - **Unlock gating** — the server-authoritative `nerofactions:gated` recipe wrapper (seven
   shipped faction perk recipes), tier-crossing events on Core's shared threshold bus, and
   seven Inner Circle progression gates composing with Core's Earth→space arc.
@@ -32,25 +31,29 @@ operates on real numbers.
 - **Tier rewards** — item and banner rewards granted once, ever, per tier via a persisted
   watermark.
 - **Optional integrations** — NeroQuests (a shipped quest chapter, `nerofactions:standing`
-  "Standing Among the Stars", 26 quests, appears in the quest book when NeroQuests is installed and
+  "Standing Among the Stars", 47 quests, appears in the quest book when NeroQuests is installed and
   is inert data otherwise; quest rewards pay reputation; quests can gate on tier crossings and on
   NeroFactions' record gates) and NeroEconomy (faction speciality discounts / enemy surcharges on market
   prices, capped by config; faction treasuries with dues and Inner Circle payouts; trade reputation
   from market sales of your faction's specialities; a credit counter on the trade terminal). Both
   are detected at startup and entirely optional.
-- **A read-only NeroLink module** — a paired companion app can read *its own player's*
-  standings and memberships and receive tier-change events; no actions, ever.
+- **NeroLink schema 2** — a paired companion app can read its own standings, memberships,
+  contracts, gear unlocks and outpost visits. It can spend the same daily reroll token as the board.
 - **POPIA/GDPR compliance built in** — one erasure path through Core's shared hook
   (conformance-tested), a daily retention sweep, a self-service JSON export command, and no
   action logging anywhere. Anonymous crash reporting is **on by default** and **opt-out**:
   set `telemetryEnabled=false` in `config/nerofactions.properties`. See [PRIVACY.md](PRIVACY.md).
 
-The current source includes an original-textured Faction Registry and a custom membership screen.
-The Contract Board offers daily faction contracts. All seven factions have outposts
-with traders, guards and their own patterned banners. Miner Union, Space Guild and
-Void Cult have signature tools and machines. All seven factions have four-piece
-armour sets, loom patterns and matching armour trims
-at Inner Circle.
+The **Contract Board** offers daily assignments from a pool of 42 contracts.
+All seven factions have outposts with Envoys, Guards and patterned banners,
+plus four-piece armour sets, loom patterns and matching trims. Negative standing
+and Trusted rival membership affect access to faction counters.
+
+Seven signature machines include the Quota Board, Navigation Beacon, Void Altar,
+Deconstructor, Atmosphere Processor, Community Workbench and Corporate Contract
+Terminal. The seven signature tools include the Union Breaker, Guild Grapple,
+Rift Blade, Salvage Scanner, Survey Spade, Settler's Multitool and Executive Stamp.
+See the [changelog](CHANGELOG.md) for deferred content.
 
 ## Requirements
 
@@ -63,8 +66,8 @@ at Inner Circle.
 ## Quick start
 
 1. Install Neroland Core and NeroFactions.
-2. `/nerofactions factions` — see the seven factions; `/nerofactions join space_guild`
-   (or any other) to pledge.
+2. Craft or find a **Faction Registry**. Choose a faction and confirm your pledge.
+   Find a **Contract Board** to take daily assignments.
 3. Craft and place a **Faction Trade Terminal** (iron + emerald + smooth stone, ungated) and
    sell your faction its speciality goods; fight hostile monsters in your colours.
 4. `/nerofactions standing` shows your standing and tier. Tiers unlock the faction's gated

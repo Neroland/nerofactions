@@ -76,9 +76,24 @@ and faction membership. This is not an optional or opt-in feature — reputation
   with one row per faction and dimension. Export, erasure and inactivity retention
   cover the store and its recovery backup. The server can disable future recording
   with `outpostVisitsEnabled=false`.
+- **What is stored — Community Workbench access:** the bench's random ID, owner UUID
+  and up to 16 invited player UUIDs in the world save and its recovery backup.
+  No block position is recorded in the access store. Export lists the subject's
+  own bench IDs and roles. Core erasure and inactivity retention remove a subject's
+  invitations and make their benches ownerless. Stored items remain in the block.
+- **What is stored — Corporate limits:** player UUID, day, whether the premium
+  delivery was completed, and the number of writs stamped that day. A newer day
+  expires older counters. Export, erasure and inactivity retention cover this
+  store and its recovery backup. Writs carry no player identity.
 - **What is stored — Void Altar boons:** active boon expiry and the attached
   Night Vision effect reference live in server memory while the player is
   online. Logout and erasure clear the record. The export reports remaining ticks.
+- **What is stored — short-lived gameplay state:** the trade terminal remembers
+  the selected faction for the session. NeroLink keeps successful contract reroll
+  request IDs in a bounded server-memory cache, together with the response and
+  current contract day. Erasure clears both records. Guards use Minecraft's
+  in-memory last-attacker reference during defence and do not persist an attacker
+  roster.
 - **What is announced in-game:** when your standing crosses a tier boundary, NeroFactions
   announces it to other installed Neroland mods on Neroland Core's shared in-process event bus —
   and that announcement deliberately carries only the faction id, the tier reached or lost, its

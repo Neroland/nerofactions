@@ -68,7 +68,8 @@ continue to protect as armour below Trusted.
 ## Space Guild equipment
 
 - The **Navigation Beacon** binds a compass to a waypoint for Guild members.
-  Members within 24 blocks of an enabled beacon are protected from falls.
+  Members within 24 blocks of an enabled beacon are protected from falls. Launch fuel
+  discounts await a Nerospace fuel modifier hook.
 - The **Guild Grapple** pulls active Guild members with Member standing toward
   solid terrain between 2 and 12 blocks away. A successful pull starts a
   three-second cooldown.
@@ -101,3 +102,37 @@ Existing packs may omit them. The Registry lists factions, their enemies, signed
 progress to the next tier and the reward entries defined for that tier. Colours, mottos and icons
 can be changed through datapacks. Registry textures are original and reproducible with
 `tools/gen_textures.py` in the source repository.
+
+## Nero Corporation
+
+The Corporate Power Suit adds two attack damage and grants Resistance I at
+full health. Its wearer accumulates 50% more hunger exhaustion. The Corporate
+Contract Terminal offers a premium delivery each day. The Executive Stamp turns
+gold into tradeable writs redeemable for credits at a Trade Terminal.
+
+## Terraforming Authority
+
+The Authority Environment Suit grants water breathing and protection from
+poison and freezing. Its active bonus subtracts one attack damage.
+
+Sneak-use the **Survey Spade** to read the biome and temperature. On a compatible
+Nerospace world, the same survey reports atmosphere and oxygen. Use an
+**Atmosphere Processor** with wheat seeds or bone meal to convert nearby eligible
+surfaces. Each pulse costs 120 NE and the radius grows with successful uses.
+
+## Free Colonists
+
+Colonist Field Gear is the lightest armour set. Trusted members wearing all
+four pieces recover health while standing still and gain two extra hunger
+points when they eat. The **Settler's Multitool** uses an axe, hoe or shovel head
+according to the target. Sneak-use to till soil. The **Community Workbench** gives
+its owner and invited Colonists access to a crafting grid and 27 shared slots.
+
+## Salvagers
+
+The Salvage Scanner reports a compass direction and rough distance to a tagged
+landmark in nearby loaded terrain. It checks shipwrecks, ruined portals and
+optional NeroRuins sites. NeroEvents landmarks await structure tags from that mod.
+The **Deconstructor** recovers a share of ingredients from eligible equipment. Salvager Patchwork saves some tool durability and
+improves loot luck when opening a generated container for the first time.
+The set's armour wears 25% faster on average.

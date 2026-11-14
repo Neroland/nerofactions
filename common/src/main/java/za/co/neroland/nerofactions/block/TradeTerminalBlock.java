@@ -86,6 +86,32 @@ public class TradeTerminalBlock extends Block {
         builder.add(FACTION);
     }
 
+    //? if >=1.21.2 {
+    @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(za.co.neroland.nerofactions.registry.NeroFactionsItems.CORPORATE_WRIT.get())) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        }
+        if (player instanceof ServerPlayer online) {
+            za.co.neroland.nerofactions.content.faction.corporation.CorporateCounter.redeem(online, stack);
+        }
+        return InteractionResult.SUCCESS;
+    }
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(za.co.neroland.nerofactions.registry.NeroFactionsItems.CORPORATE_WRIT.get())) {
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        }
+        if (player instanceof ServerPlayer online) {
+            za.co.neroland.nerofactions.content.faction.corporation.CorporateCounter.redeem(online, stack);
+        }
+        return net.minecraft.world.ItemInteractionResult.SUCCESS;
+    }
+    *///?}
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {

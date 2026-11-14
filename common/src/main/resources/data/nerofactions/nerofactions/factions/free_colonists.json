@@ -20,7 +20,12 @@
         "cosmetic": "banner_pattern"
       }
     ],
+    "member": [
+      {"type": "item", "id": "nerofactions:settler_multitool", "count": 1}
+    ],
     "trusted": [
+      {"type": "item", "id": "nerofactions:colonist_field_gear_helmet", "count": 1},
+      {"type": "item", "id": "nerofactions:community_workbench", "count": 1},
       {
         "type": "item",
         "id": "minecraft:cooked_beef",

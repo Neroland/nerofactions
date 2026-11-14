@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "nerofactions:block/community_workbench_side",
+    "top": "nerofactions:block/community_workbench_top",
+    "bottom": "minecraft:block/smooth_stone"
+  }
+}

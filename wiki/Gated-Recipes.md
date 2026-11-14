@@ -5,7 +5,7 @@ format for datapack authors, and the `nerofactions:reputation_tier` event channe
 authors can build on.
 
 Signature tools unlock at Member and faction armour recipes unlock at Trusted.
-The tools and armour check membership again when their special effects are used.
+Faction-specific effects such as area mining, grappling and surveying check eligibility again on use.
 See [Faction gear](Faction-Gear).
 
 The Standing chapter also listens for `nerofactions:contract_completed`,

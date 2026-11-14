@@ -67,6 +67,7 @@ public final class GearSetBonuses {
             return;
         }
         var activeSets = EnumSet.noneOf(OutpostFaction.class);
+        int tick = server.getTickCount();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             var worn = EnumSet.noneOf(FactionArmor.class);
             for (FactionArmor set : FactionArmor.values()) {
@@ -75,12 +76,12 @@ public final class GearSetBonuses {
                     worn.add(set);
                 }
             }
-            applyBonuses(player, worn);
+            applyBonuses(player, worn, tick);
         }
         FactionMilestones.fullSets(activeSets);
     }
 
-    private static void applyBonuses(ServerPlayer player, EnumSet<FactionArmor> worn) {
+    private static void applyBonuses(ServerPlayer player, EnumSet<FactionArmor> worn, int tick) {
         boolean flight = worn.contains(FactionArmor.GUILD_FLIGHT_SUIT);
         boolean corporate = worn.contains(FactionArmor.CORPORATE_POWER_SUIT);
         boolean authority = worn.contains(FactionArmor.AUTHORITY_ENVIRONMENT_SUIT);
@@ -97,10 +98,9 @@ public final class GearSetBonuses {
             player.removeEffect(MobEffects.POISON);
             player.setTicksFrozen(0);
         }
-        if (worn.contains(FactionArmor.COLONIST_FIELD_GEAR) && player.onGround()
+        if (worn.contains(FactionArmor.COLONIST_FIELD_GEAR) && tick % 50 == 0 && player.onGround()
                 && player.getDeltaMovement().horizontalDistanceSqr() < 0.0001) {
-            // Vanilla Regeneration I heals every 50 ticks. Refresh at multiples of 50.
-            if (player.tickCount % 50 < 10) effect(player, regeneration(), 50);
+            effect(player, regeneration(), 50);
         }
         if (worn.contains(FactionArmor.UNION_EXOSUIT)) {
             switch (environment(player)) {

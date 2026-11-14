@@ -161,6 +161,10 @@ public final class ContractService {
     }
 
     public static void tick(MinecraftServer server) {
+        if (server.getTickCount() % 100 == 0) {
+            za.co.neroland.nerofactions.data.CorporateLedger.get(server).expire(worldDay(server));
+            za.co.neroland.nerofactions.content.faction.corporation.CorporateMarketNudge.audit(System.currentTimeMillis());
+        }
         if (server.overworld().getGameTime() % 40 != 0) return;
         long day = worldDay(server);
         ContractState.get(server).expireAll(day);

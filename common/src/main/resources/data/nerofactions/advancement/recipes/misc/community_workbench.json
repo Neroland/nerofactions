@@ -1,0 +1,29 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:lantern",
+              "minecraft:stick",
+              "minecraft:crafting_table"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nerofactions:community_workbench"
+    ]
+  }
+}

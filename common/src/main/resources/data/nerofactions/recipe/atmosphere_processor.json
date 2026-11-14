@@ -1,0 +1,12 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:terraforming_authority",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [" G ", "ICI", "IMI"],
+    "key": {"G": "minecraft:glass", "I": "minecraft:iron_ingot", "C": "minecraft:copper_block", "M": "minecraft:moss_block"},
+    "result": {"id": "nerofactions:atmosphere_processor", "count": 1}
+  }
+}

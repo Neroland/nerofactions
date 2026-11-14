@@ -6,10 +6,14 @@ to that compiled version: it needs 1.11.0's `SavedDataRecovery`, `ErasureConform
 `PlayerActivity`, 1.13.0's cross-loader foundation, and 1.15.0's offline-capable player gate writes and sourced
 threshold crossings, in addition to the older reputation/config/gate/link APIs.
 
-Contract, quota and outpost-visit stores use Core's recovery and player-data
+Contract, quota, outpost-visit and Workbench access stores use Core's recovery and player-data
 erasure hooks. Outpost residents register their attributes through Core's
 `EntityRegistrationSupport`. The faction Link module advertises schema 2
 and routes authenticated rerolls through the shared action registry.
+
+The Survey Spade uses the optional Nerospace 2.0 environment API for its
+atmosphere reading. The compile-time jar resolves from Maven Local or GitHub
+Packages. Runtime surveys retain their biome and temperature readings with Core alone.
 
 ## Reputation — `za.co.neroland.nerolandcore.reputation`
 
@@ -40,13 +44,13 @@ NeroFactions is the ecosystem's **reputation provider**, not just a consumer:
 **Used:** `SavedDataRecovery`, `PlayerDataErasure`, `PlayerActivity`; in tests additionally
 `ErasureConformance` and `PlayerDataEraser`.
 
-- **`SavedDataRecovery`** — both SavedData stores (`data/FactionReputationState`,
-  `data/FactionMembershipState`) load through the recovery guard and refresh their
+- **`SavedDataRecovery`** — reputation, membership, contracts, Miner Union quotas
+  and outpost visits load through the recovery guard and refresh their
   last-known-good backups, so a corrupt `.dat` recovers at world load instead of
   crash-looping (the ecosystem rule: every `SavedData.get()` routes through the guard).
   Erasure refreshes the backups in the same request so erased rows do not survive there.
 - **`PlayerDataErasure`** — `data/NeroFactionsData.init()` registers the single local
-  eraser (`eraseLocal`: reputation + membership + transient terminal session) with the
+  eraser (`eraseLocal`) for the persistent stores and in-memory player state with the
   shared fan-out, before any faction data can exist. One `/neroland data eraseme`,
   `/neroland data erase <uuid>` or Core retention sweep purges this mod along with every
   other Nero mod.

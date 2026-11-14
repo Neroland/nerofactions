@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.EnumMap;
 import java.util.Map;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.ItemLike;
 
 import za.co.neroland.nerolandcore.registry.RegistrationProvider;
@@ -15,10 +18,14 @@ import za.co.neroland.nerolandcore.registry.RegistrationProvider.RegistryEntry;
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
+import za.co.neroland.nerofactions.content.faction.corporation.ExecutiveStamp;
+import za.co.neroland.nerofactions.content.faction.freecolonists.SettlerMultitool;
 import za.co.neroland.nerofactions.content.faction.voidcult.RiftBlade;
 import za.co.neroland.nerofactions.content.faction.minerunion.UnionBreaker;
 import za.co.neroland.nerofactions.content.faction.FactionArmor;
 import za.co.neroland.nerofactions.content.faction.spaceguild.GuildGrapple;
+import za.co.neroland.nerofactions.content.faction.salvagers.SalvageScanner;
+import za.co.neroland.nerofactions.content.faction.terraformingauthority.SurveySpade;
 import za.co.neroland.nerofactions.cosmetics.FactionBanners;
 import za.co.neroland.nerofactions.cosmetics.FactionTrims;
 
@@ -48,7 +55,8 @@ public final class NeroFactionsItems {
 
     public static final RegistryEntry<BlockItem> QUOTA_BOARD = ITEMS.register("quota_board",
             key -> new BlockItem(NeroFactionsBlocks.QUOTA_BOARD.get(),
-                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.quota_board"))))));
 
     public static final RegistryEntry<UnionBreaker> UNION_BREAKER = ITEMS.register("union_breaker",
             key -> new UnionBreaker(new Item.Properties().setId(key)));
@@ -58,14 +66,49 @@ public final class NeroFactionsItems {
 
     public static final RegistryEntry<GuildGrapple> GUILD_GRAPPLE = ITEMS.register("guild_grapple",
             key -> new GuildGrapple(new Item.Properties().setId(key)));
+    public static final RegistryEntry<SalvageScanner> SALVAGE_SCANNER = ITEMS.register("salvage_scanner",
+            key -> new SalvageScanner(new Item.Properties().setId(key)));
+    public static final RegistryEntry<SurveySpade> SURVEY_SPADE = ITEMS.register("survey_spade",
+            key -> new SurveySpade(new Item.Properties().setId(key)));
+
+    public static final RegistryEntry<SettlerMultitool> SETTLER_MULTITOOL = ITEMS.register("settler_multitool",
+            key -> new SettlerMultitool(new Item.Properties().setId(key)));
 
     public static final RegistryEntry<BlockItem> NAVIGATION_BEACON = ITEMS.register("navigation_beacon",
             key -> new BlockItem(NeroFactionsBlocks.NAVIGATION_BEACON.get(),
-                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.navigation_beacon"))))));
 
     public static final RegistryEntry<BlockItem> VOID_ALTAR = ITEMS.register("void_altar",
             key -> new BlockItem(NeroFactionsBlocks.VOID_ALTAR.get(),
-                    new Item.Properties().setId(key).useBlockDescriptionPrefix()));
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.void_altar"))))));
+
+    public static final RegistryEntry<BlockItem> DECONSTRUCTOR = ITEMS.register("deconstructor",
+            key -> new BlockItem(NeroFactionsBlocks.DECONSTRUCTOR.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.deconstructor"))))));
+
+    public static final RegistryEntry<BlockItem> COMMUNITY_WORKBENCH = ITEMS.register("community_workbench",
+            key -> new BlockItem(NeroFactionsBlocks.COMMUNITY_WORKBENCH.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.community_workbench"))))));
+
+    public static final RegistryEntry<BlockItem> ATMOSPHERE_PROCESSOR = ITEMS.register("atmosphere_processor",
+            key -> new BlockItem(NeroFactionsBlocks.ATMOSPHERE_PROCESSOR.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.atmosphere_processor"))))));
+
+    public static final RegistryEntry<BlockItem> CORPORATE_TERMINAL = ITEMS.register("corporate_terminal",
+            key -> new BlockItem(NeroFactionsBlocks.CORPORATE_TERMINAL.get(),
+                    new Item.Properties().setId(key).useBlockDescriptionPrefix().component(DataComponents.LORE,
+                            new ItemLore(List.of(Component.translatable("tooltip.nerofactions.corporate_terminal"))))));
+    public static final RegistryEntry<ExecutiveStamp> EXECUTIVE_STAMP = ITEMS.register("executive_stamp",
+            key -> new ExecutiveStamp(new Item.Properties().setId(key).component(DataComponents.LORE,
+                    new ItemLore(List.of(Component.translatable("tooltip.nerofactions.executive_stamp"))))));
+    public static final RegistryEntry<Item> CORPORATE_WRIT = ITEMS.register("corporate_writ",
+            key -> new Item(new Item.Properties().setId(key).component(DataComponents.LORE,
+                    new ItemLore(List.of(Component.translatable("tooltip.nerofactions.corporate_writ"))))));
 
     private static final Map<FactionArmor, List<RegistryEntry<Item>>> ARMOR = registerArmor();
 
@@ -112,7 +155,9 @@ public final class NeroFactionsItems {
     public static List<ItemLike> creativeContents() {
         List<ItemLike> contents = new ArrayList<>(List.of(TRADE_TERMINAL.get(),
                 FACTION_REGISTRY.get(), CONTRACT_BOARD.get(), QUOTA_BOARD.get(), UNION_BREAKER.get(),
-                VOID_ALTAR.get(), RIFT_BLADE.get(), NAVIGATION_BEACON.get(), GUILD_GRAPPLE.get()));
+                VOID_ALTAR.get(), RIFT_BLADE.get(), NAVIGATION_BEACON.get(), GUILD_GRAPPLE.get(),
+                DECONSTRUCTOR.get(), COMMUNITY_WORKBENCH.get(), ATMOSPHERE_PROCESSOR.get(), CORPORATE_TERMINAL.get(),
+                EXECUTIVE_STAMP.get(), CORPORATE_WRIT.get(), SALVAGE_SCANNER.get(), SURVEY_SPADE.get(), SETTLER_MULTITOOL.get()));
         for (FactionArmor set : FactionArmor.values()) {
             armorPieces(set).forEach(piece -> contents.add(piece.get()));
         }

@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ingredient": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:glass",
+              "minecraft:iron_ingot",
+              "minecraft:copper_block",
+              "minecraft:moss_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_ingredient"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nerofactions:atmosphere_processor"
+    ]
+  }
+}

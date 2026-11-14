@@ -1,0 +1,23 @@
+{
+  "type": "nerofactions:gated",
+  "faction": "nerofactions:nero_corporation",
+  "tier": "member",
+  "recipe": {
+    "type": "minecraft:crafting_shaped",
+    "category": "misc",
+    "pattern": [
+      " G ",
+      "ICI",
+      "III"
+    ],
+    "key": {
+      "G": "minecraft:gold_ingot",
+      "I": "minecraft:iron_ingot",
+      "C": "minecraft:crafting_table"
+    },
+    "result": {
+      "id": "nerofactions:corporate_terminal",
+      "count": 1
+    }
+  }
+}

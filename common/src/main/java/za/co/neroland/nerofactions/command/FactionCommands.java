@@ -99,6 +99,7 @@ public final class FactionCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("nerofactions")
                 .then(FactionGallery.command())
+                .then(za.co.neroland.nerofactions.content.faction.freecolonists.CommunityWorkbenchBlock.command())
                 .then(Commands.literal("standing")
                         .executes(ctx -> runSafely(ctx.getSource(), "standing",
                                 () -> standing(ctx.getSource()))))

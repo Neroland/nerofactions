@@ -21,10 +21,18 @@ no coordinates, no chat:
   lapses.
 - **Outpost visits** — the faction and dimension of an outpost you entered,
   recorded once per pair. Servers can stop recording with `outpostVisitsEnabled=false`.
+- **Community Workbench access** — the bench's random ID, owner UUID and up to 16
+  invited player UUIDs. The record contains no position. Erasing an owner makes
+  the bench ownerless and preserves its stored items. Erasing a guest removes
+  their access. Export includes only your owned and invited bench IDs.
+- **Corporate limits** — current world day, premium delivery completion and
+  stamped writ count. A newer day expires old counters. Export and erasure
+  include the counters. The writ itself holds no player identity.
 - **Void Altar boons** — active boon timers live in server memory and are cleared
   on expiry, logout or erasure. The export reports remaining ticks while a boon is active.
-- **Not stored:** the trade terminal's remembered faction selection lives only in server
-  memory for the session; nothing is ever sent to the developers or any external service.
+- **Session state** — remembered terminal faction and companion reroll request IDs are
+  held in server memory. The game keeps a short-lived last-attacker reference when a Guard
+  defends a resident. These records are separate from crash telemetry.
 
 Neroland Core's crash-recovery system keeps a last-known-good backup of the same stores,
 also inside the world save — and erasure refreshes those backups too.

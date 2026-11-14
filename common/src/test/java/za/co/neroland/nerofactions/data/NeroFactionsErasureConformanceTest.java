@@ -8,7 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import za.co.neroland.nerofactions.content.faction.minerunion.QuotaState;
 import com.mojang.serialization.JsonOps;
 
 import org.junit.jupiter.api.AfterEach;
@@ -90,6 +94,95 @@ class NeroFactionsErasureConformanceTest {
         assertTrue(contracts.completed(player) == 0);
         assertFalse(contracts.rerollAvailable(player));
         assertFalse(contracts.entries(bystander).isEmpty());
+    }
+
+    @Test
+    void weeklyQuotaErasureClearsOnlyTheSubject() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        JsonArray deposits = new JsonArray();
+        for (UUID id : List.of(player, bystander)) {
+            JsonObject deposit = new JsonObject();
+            deposit.add("player", UUIDUtil.CODEC.encodeStart(JsonOps.INSTANCE, id).getOrThrow());
+            deposit.addProperty("week", 20);
+            deposit.addProperty("tonnes", 12);
+            deposits.add(deposit);
+        }
+        JsonObject saved = new JsonObject();
+        saved.add("deposits", deposits);
+        var quota = QuotaState.CODEC.parse(JsonOps.INSTANCE, saved).getOrThrow();
+        var reputation = new FactionReputationState();
+        ReputationApi.setProvider(reputation);
+        register((server, uuid) -> {
+            quota.forget(uuid);
+            reputation.forgetPlayer(uuid);
+        });
+        ErasureConformance.create().probe("nerofactions:miner_quota", uuid -> quota.knownPlayers().contains(uuid))
+                .verify(null, player);
+        assertTrue(quota.export(player).isEmpty());
+        assertFalse(quota.export(bystander).isEmpty());
+    }
+
+    @Test
+    void workbenchErasureClearsTheOwnerAndGuestRolesWithoutAffectingOtherBenches() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        UUID visitor = UUID.randomUUID();
+        UUID first = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+        var original = new WorkbenchAccess();
+        assertTrue(original.claim(first, player));
+        assertTrue(original.claim(second, bystander));
+        assertFalse(original.claim(first, bystander));
+        assertTrue(original.setGuest(first, player, visitor, true));
+        assertTrue(original.setGuest(second, bystander, player, true));
+        assertTrue(original.setGuest(second, bystander, visitor, true));
+        assertFalse(original.setGuest(second, player, visitor, false));
+        var encoded = WorkbenchAccess.CODEC.encodeStart(JsonOps.INSTANCE, original).getOrThrow();
+        var access = WorkbenchAccess.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
+        assertTrue(access.permits(first, player));
+        assertTrue(access.permits(second, player));
+        assertFalse(access.export(player).toString().contains(bystander.toString()));
+        var reputation = new FactionReputationState();
+        ReputationApi.setProvider(reputation);
+        register((server, uuid) -> {
+            access.forget(uuid);
+            reputation.forgetPlayer(uuid);
+        });
+        ErasureConformance.create().probe("nerofactions:workbench_access", uuid -> access.knownPlayers().contains(uuid))
+                .verify(null, player);
+        assertFalse(access.permits(first, visitor));
+        assertFalse(access.permits(second, player));
+        assertTrue(access.permits(second, visitor));
+        assertTrue(access.claim(first, bystander));
+    }
+
+    @Test
+    void corporateDailyCapsSurviveReloadAndEraseOnlyTheSubject() {
+        UUID player = UUID.randomUUID();
+        UUID bystander = UUID.randomUUID();
+        var initial = new CorporateLedger();
+        assertTrue(initial.reserveDelivery(player, 15));
+        assertFalse(initial.reserveDelivery(player, 14));
+        for (int stamp = 0; stamp < 3; stamp++) assertTrue(initial.reserveStamp(player, 15));
+        assertFalse(initial.reserveStamp(player, 15));
+        assertTrue(initial.reserveDelivery(bystander, 15));
+        var encoded = CorporateLedger.CODEC.encodeStart(JsonOps.INSTANCE, initial).getOrThrow();
+        var ledger = CorporateLedger.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow();
+        assertFalse(ledger.reserveStamp(player, 14));
+        var reputation = new FactionReputationState();
+        ReputationApi.setProvider(reputation);
+        register((server, uuid) -> {
+            ledger.forget(uuid);
+            reputation.forgetPlayer(uuid);
+        });
+        ErasureConformance.create().probe("nerofactions:corporate_ledger", uuid -> ledger.knownPlayers().contains(uuid))
+                .verify(null, player);
+        assertTrue(ledger.export(player).isEmpty());
+        assertTrue(ledger.delivered(bystander, 15));
+        ledger.expire(16);
+        assertTrue(ledger.reserveDelivery(bystander, 15));
+        assertTrue(ledger.delivered(bystander, 16));
     }
 
     private static final Identifier GUILD = Identifier.parse("nerofactions:test_guild");

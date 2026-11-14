@@ -46,12 +46,19 @@ class ShippedGatedRecipeTest {
 
     /** The plain (deliberately UNGATED) recipes that also ship. */
     private static final Set<String> UNGATED = Set.of("trade_terminal.json", "faction_registry.json",
-            "contract_board.json", "quota_board.json", "navigation_beacon.json", "void_altar.json");
+            "contract_board.json", "quota_board.json", "navigation_beacon.json", "void_altar.json", "deconstructor.json");
 
     private static final Map<String, String> SIGNATURE_TOOLS = Map.of(
             "rift_blade.json", "nerofactions:void_cult",
             "union_breaker.json", "nerofactions:miner_union",
-            "guild_grapple.json", "nerofactions:space_guild");
+            "guild_grapple.json", "nerofactions:space_guild",
+            "salvage_scanner.json", "nerofactions:salvagers",
+            "survey_spade.json", "nerofactions:terraforming_authority",
+            "settler_multitool.json", "nerofactions:free_colonists",
+            "community_workbench.json", "nerofactions:free_colonists",
+            "atmosphere_processor.json", "nerofactions:terraforming_authority",
+            "corporate_terminal.json", "nerofactions:nero_corporation",
+            "executive_stamp.json", "nerofactions:nero_corporation");
 
     private static final Set<String> UNION_GEAR = Set.of(
             "union_exosuit_helmet.json", "union_exosuit_chestplate.json",

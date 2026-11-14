@@ -34,6 +34,7 @@ public final class Integrations {
     private static volatile boolean economyPricingRegistered;
     private static volatile boolean economySiblingApiReady;
     private static volatile boolean detected;
+    private static volatile boolean spacePresent;
 
     private Integrations() {
     }
@@ -45,6 +46,7 @@ public final class Integrations {
         }
         detected = true;
 
+        spacePresent = Services.PLATFORM != null && Services.PLATFORM.isModLoaded("nerospace");
         questsPresent = questsDetected(Services.PLATFORM);
         QuestsIntegration.init(questsPresent);
 
@@ -97,6 +99,18 @@ public final class Integrations {
     }
 
     // --- cached answers (read-only after init) --------------------------------------------------
+
+    public static java.util.Optional<net.minecraft.network.chat.Component> atmosphere(
+            net.minecraft.server.level.ServerLevel level, net.minecraft.core.BlockPos position) {
+        if (!spacePresent) return java.util.Optional.empty();
+        try {
+            return za.co.neroland.nerofactions.integration.space.SpaceIntegration.atmosphere(level, position);
+        } catch (LinkageError error) {
+            spacePresent = false;
+            NeroFactionsCommon.LOGGER.warn("[NeroFactions] Nerospace environment API unavailable; atmosphere survey disabled.");
+            return java.util.Optional.empty();
+        }
+    }
 
     public static boolean questsPresent() {
         return questsPresent;

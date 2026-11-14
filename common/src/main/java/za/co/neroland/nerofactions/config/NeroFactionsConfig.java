@@ -99,6 +99,24 @@ public final class NeroFactionsConfig {
     public static final ConfigValue<Integer> VOID_BACKLASH_PERCENT = SCHEMA.intRange(
             "voidBacklashPercent", 15, 0, 100, true, "Percent chance that a Void Cult rite backfires.");
 
+    public static final ConfigValue<Boolean> CORPORATE_COUNTER_ENABLED = SCHEMA.bool(
+            "corporateCounterEnabled", true, true, "Allow Corporate premium deliveries, stamping and writ redemption.");
+    public static final ConfigValue<Integer> MARKET_NUDGE_CAP = SCHEMA.intRange(
+            "marketNudgeCapPercent", 5, 0, 15, true, "Weekly Corporate price increase for one metal commodity. Zero disables it.");
+
+    public static final ConfigValue<Boolean> ATMOSPHERE_PROCESSOR_ENABLED = SCHEMA.bool(
+            "atmosphereProcessorEnabled", true, true, "Allow Authority members to run Atmosphere Processor pulses.");
+    public static final ConfigValue<Integer> ATMOSPHERE_RADIUS = SCHEMA.intRange(
+            "atmosphereProcessorRadius", 6, 1, 8, true, "Maximum horizontal conversion radius in blocks.");
+
+    public static final ConfigValue<Boolean> COMMUNITY_WORKBENCH_ENABLED = SCHEMA.bool(
+            "communityWorkbenchEnabled", true, true, "Allow Colonists to use Community Workbench crafting and shared storage.");
+
+    public static final ConfigValue<Boolean> DECONSTRUCTOR_ENABLED = SCHEMA.bool(
+            "deconstructorEnabled", true, true, "Enable Salvagers to recover materials from eligible crafted items.");
+    public static final ConfigValue<Integer> DECONSTRUCTOR_YIELD = SCHEMA.intRange(
+            "deconstructorYieldPercent", 50, 1, 75, true, "Maximum percentage of each ingredient recovered per batch.");
+
     public static final ConfigValue<Boolean> ALLOW_MULTIPLE_FACTIONS = SCHEMA.bool(
             "allowMultipleFactions", false, true,
             "Whether a player may belong to more than one faction at once. Off (the default) is the "

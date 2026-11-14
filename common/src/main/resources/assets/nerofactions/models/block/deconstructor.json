@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "nerofactions:block/deconstructor_side",
+    "top": "nerofactions:block/deconstructor_top",
+    "bottom": "minecraft:block/smooth_stone"
+  }
+}

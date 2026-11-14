@@ -61,7 +61,12 @@ class ShippedFactionContentTest {
     private static final Set<String> SHIPPED_SIGNATURE_REWARDS = Set.of(
             "nerofactions:quota_board", "nerofactions:union_breaker", "nerofactions:union_exosuit_helmet",
             "nerofactions:guild_grapple", "nerofactions:guild_flight_suit_boots", "nerofactions:navigation_beacon",
-            "nerofactions:rift_blade", "nerofactions:void_altar", "nerofactions:void_vestments_helmet");
+            "nerofactions:rift_blade", "nerofactions:void_altar", "nerofactions:void_vestments_helmet",
+            "nerofactions:salvage_scanner", "nerofactions:deconstructor", "nerofactions:salvager_patchwork_helmet",
+            "nerofactions:survey_spade", "nerofactions:authority_environment_suit_helmet",
+            "nerofactions:settler_multitool", "nerofactions:colonist_field_gear_helmet",
+            "nerofactions:corporate_power_suit_helmet", "nerofactions:community_workbench",
+            "nerofactions:executive_stamp");
 
     private static final Predicate<Identifier> ITEM_EXISTS = id ->
             KNOWN_VANILLA_ITEMS.contains(id.toString()) || SHIPPED_COSMETIC_ITEMS.contains(id.toString())

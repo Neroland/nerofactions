@@ -15,6 +15,10 @@ import za.co.neroland.nerofactions.block.TradeTerminalBlock;
 import za.co.neroland.nerofactions.content.faction.minerunion.QuotaBoardBlock;
 import za.co.neroland.nerofactions.content.faction.spaceguild.NavigationBeaconBlock;
 import za.co.neroland.nerofactions.content.faction.voidcult.VoidAltarBlock;
+import za.co.neroland.nerofactions.content.faction.salvagers.DeconstructorBlock;
+import za.co.neroland.nerofactions.content.faction.freecolonists.CommunityWorkbenchBlock;
+import za.co.neroland.nerofactions.content.faction.corporation.CorporateTerminalBlock;
+import za.co.neroland.nerofactions.content.faction.terraformingauthority.AtmosphereProcessorBlock;
 import za.co.neroland.nerolandcore.registry.BlockEntityTypeCompat;
 
 /**
@@ -69,6 +73,22 @@ public final class NeroFactionsBlocks {
             key -> new VoidAltarBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_PURPLE)
                     .strength(4.0F, 8.0F).sound(SoundType.AMETHYST).lightLevel(state -> 6)));
 
+    public static final RegistryEntry<Block> DECONSTRUCTOR = BLOCKS.register("deconstructor",
+            key -> new DeconstructorBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_GRAY)
+                    .strength(4.0F, 6.0F).sound(SoundType.METAL)));
+
+    public static final RegistryEntry<Block> COMMUNITY_WORKBENCH = BLOCKS.register("community_workbench",
+            key -> new CommunityWorkbenchBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.WOOD)
+                    .strength(2.5F, 6.0F).sound(SoundType.WOOD)));
+
+    public static final RegistryEntry<Block> ATMOSPHERE_PROCESSOR = BLOCKS.register("atmosphere_processor",
+            key -> new AtmosphereProcessorBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_GREEN)
+                    .strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
+    public static final RegistryEntry<Block> CORPORATE_TERMINAL = BLOCKS.register("corporate_terminal",
+            key -> new CorporateTerminalBlock(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.COLOR_BLACK)
+                    .strength(3.0F, 6.0F).sound(SoundType.METAL)));
+
     private static final RegistrationProvider<BlockEntityType<?>> BLOCK_ENTITIES =
             RegistrationProvider.get(Registries.BLOCK_ENTITY_TYPE, NeroFactionsCommon.MOD_ID);
 
@@ -83,6 +103,22 @@ public final class NeroFactionsBlocks {
     public static final RegistryEntry<BlockEntityType<VoidAltarBlock.AltarEntity>> VOID_ALTAR_ENTITY =
             BLOCK_ENTITIES.register("void_altar",
                     key -> BlockEntityTypeCompat.create(VoidAltarBlock.AltarEntity::new, VOID_ALTAR.get()));
+
+    public static final RegistryEntry<BlockEntityType<DeconstructorBlock.MachineEntity>> DECONSTRUCTOR_ENTITY =
+            BLOCK_ENTITIES.register("deconstructor",
+                    key -> BlockEntityTypeCompat.create(DeconstructorBlock.MachineEntity::new, DECONSTRUCTOR.get()));
+
+    public static final RegistryEntry<BlockEntityType<CommunityWorkbenchBlock.Bench>> COMMUNITY_WORKBENCH_ENTITY =
+            BLOCK_ENTITIES.register("community_workbench",
+                    key -> BlockEntityTypeCompat.create(CommunityWorkbenchBlock.Bench::new, COMMUNITY_WORKBENCH.get()));
+
+    public static final RegistryEntry<BlockEntityType<AtmosphereProcessorBlock.Processor>> ATMOSPHERE_PROCESSOR_ENTITY =
+            BLOCK_ENTITIES.register("atmosphere_processor",
+                    key -> BlockEntityTypeCompat.create(AtmosphereProcessorBlock.Processor::new, ATMOSPHERE_PROCESSOR.get()));
+
+    public static final RegistryEntry<BlockEntityType<CorporateTerminalBlock.Terminal>> CORPORATE_TERMINAL_ENTITY =
+            BLOCK_ENTITIES.register("corporate_terminal",
+                    key -> BlockEntityTypeCompat.create(CorporateTerminalBlock.Terminal::new, CORPORATE_TERMINAL.get()));
 
     private NeroFactionsBlocks() {
     }
