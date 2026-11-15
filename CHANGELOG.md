@@ -479,7 +479,6 @@ accident — and so store pages and the wiki stay honest:
 - Barebones multiloader skeleton: the six-cell Gradle build (NeoForge / Forge / Fabric ×
   Minecraft 26.1.2 / 26.2), CI workflows, and empty mod entry points. No gameplay content.
 
-[Unreleased]: https://github.com/Neroland/nerofactions/compare/v0.3.0-beta.1...HEAD
 [0.3.0-beta.1]: https://github.com/Neroland/nerofactions/compare/v0.2.0-beta.1...v0.3.0-beta.1
 [0.2.0-beta.1]: https://github.com/Neroland/nerofactions/releases/tag/v0.2.0-beta.1
 [0.1.0-beta.1]: https://github.com/Neroland/nerofactions/compare/v0.0.1-alpha.1...v0.1.0-beta.1
