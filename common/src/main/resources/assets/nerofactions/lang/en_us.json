@@ -524,5 +524,16 @@
   "quest.nerofactions.standing.terraforming_authority_full_set_worn.title": "Fit for Fieldwork",
   "quest.nerofactions.standing.terraforming_authority_full_set_worn.desc": "Wear the full Authority Environment Suit while eligible for its bonus.",
   "quest.nerofactions.standing.free_colonists_full_set_worn.title": "Ready to Settle",
-  "quest.nerofactions.standing.free_colonists_full_set_worn.desc": "Wear the full Colonist Field Gear set while eligible for its bonus."
+  "quest.nerofactions.standing.free_colonists_full_set_worn.desc": "Wear the full Colonist Field Gear set while eligible for its bonus.",
+  "map.layer.nerofactions.outposts": "Faction outposts (nearby)",
+  "map.nerofactions.standing.hostile": "Hostile to you",
+  "map.nerofactions.standing.neutral": "Neutral",
+  "map.nerofactions.standing.friendly": "Friendly",
+  "map.nerofactions.outpost.free_colonists": "Free Colonists outpost",
+  "map.nerofactions.outpost.miner_union": "Miner Union outpost",
+  "map.nerofactions.outpost.nero_corporation": "Nero Corporation outpost",
+  "map.nerofactions.outpost.salvagers": "Salvagers outpost",
+  "map.nerofactions.outpost.space_guild": "Space Guild outpost",
+  "map.nerofactions.outpost.terraforming_authority": "Terraforming Authority outpost",
+  "map.nerofactions.outpost.void_cult": "Void Cult outpost"
 }

@@ -20,3 +20,5 @@ standing with its enemies.
 A discovery records the faction and dimension for your export and paired
 companion app. See [Configuration](Configuration) for generation and recording
 switches and [Privacy](Privacy) for export and erasure.
+
+**On maps.** With a map mod that reads Neroland Core's map registry, an outpost shows on your map only while you are within 48 blocks of it, with your standing (hostile, neutral or friendly); the map never points you at outposts you have not reached.

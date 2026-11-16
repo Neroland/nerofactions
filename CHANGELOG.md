@@ -7,9 +7,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.1-beta.1] - 2026-11-16
+
+### Added
+
+- Map layer through Neroland Core's map API: faction outposts appear on a map only while you are within 48 blocks of one (about what you can see), each marked with your own standing (hostile, neutral or friendly) as a label a map can draw as a badge, and as a colour. An outpost whose centre is out of reach is marked at the edge of it nearest you, so standing is never shown by colour alone. Shown by a map mod that reads Core's map registry; nothing changes without one.
+
 ### Dependencies
 
-- Updated Neroland Core from 1.17.5 to 1.17.6.
+- Updated Neroland Core from 1.17.5 to 1.19.0 (1.19.0 adds the map API).
 - Updated NeroEconomy from 0.5.0-beta.1 to 0.5.1-beta.1.
 - Updated Nerospace from 2.0.0-beta.1 to 2.2.0.
 - Updated Fabric Loader from 0.19.5 to 0.20.1.

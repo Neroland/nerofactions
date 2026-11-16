@@ -8,6 +8,7 @@ import za.co.neroland.nerofactions.data.NeroFactionsData;
 import za.co.neroland.nerofactions.integration.Integrations;
 import za.co.neroland.nerofactions.integration.quests.QuestHooks;
 import za.co.neroland.nerofactions.link.FactionsLinkModule;
+import za.co.neroland.nerofactions.map.FactionsMapLayers;
 import za.co.neroland.nerofactions.network.FactionsNetwork;
 import za.co.neroland.nerofactions.platform.Services;
 import za.co.neroland.nerofactions.registry.NeroFactionsBlocks;
@@ -111,6 +112,8 @@ public final class NeroFactionsCommon {
         //    take the faction layer down. After the data layer and tier crossings — the price
         //    modifier reads the bound provider and faction definitions the moment the market asks.
         Integrations.init();
+
+        FactionsMapLayers.register(); // 7b. Map layer through Core's map registry; no map mod is named.
 
         // 8. The NeroLink module goes LAST, so a companion client is never told about something
         //    before the mod itself has finished reacting to it (its tier-change events are also
