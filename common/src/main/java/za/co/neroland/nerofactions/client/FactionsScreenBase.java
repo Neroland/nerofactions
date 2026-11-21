@@ -1,5 +1,7 @@
 package za.co.neroland.nerofactions.client;
 
+import java.util.List;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,19 @@ public abstract class FactionsScreenBase<T extends AbstractContainerMenu> extend
 
     protected abstract void drawBody(GuiGraphicsExtractor g);
 
+    /** Gauge tooltip lines for the mouse at screen position {@code (mouseX, mouseY)}, or empty. */
+    protected List<Component> gaugeTooltip(int mouseX, int mouseY) {
+        return List.of();
+    }
+
+    /** Emit the gauge tooltip under the mouse, if any (after the panel and widgets). */
+    private void emitGaugeTooltip(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+        List<Component> lines = gaugeTooltip(mouseX, mouseY);
+        if (!lines.isEmpty()) {
+            GaugeTooltips.show(g, font, GaugeTooltips.wrap(font, lines, GaugeTooltips.wrapWidth(width)), mouseX, mouseY);
+        }
+    }
+
     private void drawPanel(GuiGraphicsExtractor g) {
         g.fill(leftPos, topPos, leftPos + panelWidth, topPos + panelHeight, 0xFF79928E);
         g.fill(leftPos + 1, topPos + 1, leftPos + panelWidth - 1, topPos + panelHeight - 1, 0xFF18272D);
@@ -44,6 +59,7 @@ public abstract class FactionsScreenBase<T extends AbstractContainerMenu> extend
     public void extractContents(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         drawPanel(g);
         super.extractContents(g, mouseX, mouseY, partialTick);
+        emitGaugeTooltip(g, mouseX, mouseY);
     }
 
     @Override
@@ -51,6 +67,12 @@ public abstract class FactionsScreenBase<T extends AbstractContainerMenu> extend
     }
     //?} else {
     /*@Override
+    public void render(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
+        super.render(g, mouseX, mouseY, partialTick);
+        emitGaugeTooltip(g, mouseX, mouseY);
+    }
+
+    @Override
     protected void renderBg(GuiGraphicsExtractor g, float partialTick, int mouseX, int mouseY) {
         drawPanel(g);
     }

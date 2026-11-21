@@ -1,5 +1,8 @@
 package za.co.neroland.nerofactions.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -12,6 +15,11 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
     private boolean confirming;
     private Button action;
     private final Button[] factionButtons = new Button[7];
+    private static final String[] TIERS = {"outsider", "associate", "member", "trusted", "inner_circle"};
+    /** The tier bar's last drawn bounds (screen coordinates); width 0 while nothing is drawn. */
+    private int barX;
+    private int barY;
+    private int barW;
 
     public RegistryScreen(RegistryMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -80,6 +88,7 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
             }
         }
         action.active = row != null;
+        barW = 0;
         if (row == null) {
             g.text(font, Component.translatable("gui.nerofactions.loading"), leftPos + 8, topPos + 67, 0xFFF1E7CF, false);
             return;
@@ -104,13 +113,16 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
         wrapped(g, Component.translatable("gui.nerofactions.enemies", row.enemies().isEmpty() ? "—" : row.enemies()), x, topPos + 97, w, 2);
         g.text(font, Component.translatable("gui.nerofactions.standing", row.standing()), x, topPos + 119, 0xFFCCDBD5, false);
         Component tier = Component.translatable(row.hostile() ? "gui.nerofactions.hostile"
-                : "tier.nerofactions." + new String[]{"outsider", "associate", "member", "trusted", "inner_circle"}[row.tier()]);
+                : "tier.nerofactions." + TIERS[row.tier()]);
         g.text(font, Component.translatable("gui.nerofactions.tier_progress", tier, row.standing(), row.nextThreshold()),
                 x, topPos + 131, row.hostile() ? 0xFFFFB6A0 : color, false);
         double progress = row.tier() == 4 ? 1.0 : Math.max(0.0, Math.min(1.0,
                 ((double) row.standing() - row.threshold()) / Math.max(1.0, (double) row.nextThreshold() - row.threshold())));
         g.fill(x, topPos + 143, x + w, topPos + 147, 0xFF30454C);
         g.fill(x, topPos + 143, x + (int) (w * progress), topPos + 147, color);
+        barX = x;
+        barY = topPos + 143;
+        barW = w;
         wrapped(g, Component.translatable("gui.nerofactions.next_rewards", row.unlocks().isEmpty() ? "—" : row.unlocks()), x, topPos + 151, w, 2);
         var snapshot = FactionsClientState.standing();
         g.text(font, Component.translatable("gui.nerofactions.leave_cost", snapshot.switchPenaltyPoints(),
@@ -129,6 +141,25 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
             String result = Component.translatable(menu.feedbackKey(), name).getString();
             g.text(font, font.plainSubstrByWidth(result, panelWidth - 16), leftPos + 8, topPos + panelHeight - 33, 0xFFF1E7CF, false);
         }
+    }
+
+    @Override
+    protected List<Component> gaugeTooltip(int mouseX, int mouseY) {
+        var row = row();
+        // The bar is 4 px tall; the hover band adds a pixel above and below so it is easy to hit.
+        if (row == null || barW <= 0 || mouseX < barX || mouseX >= barX + barW || mouseY < barY - 1
+                || mouseY >= barY + 5) {
+            return List.of();
+        }
+        int tier = Math.max(0, Math.min(TIERS.length - 1, row.tier()));
+        boolean top = tier == TIERS.length - 1;
+        Component current = Component.translatable(row.hostile() ? "gui.nerofactions.hostile"
+                : "tier.nerofactions." + TIERS[tier]);
+        Component next = Component.translatable("tier.nerofactions." + TIERS[Math.min(TIERS.length - 1, tier + 1)]);
+        List<Component> lines = new ArrayList<>();
+        GaugeTooltips.standing(lines, row.displayName(), current, row.standing(), row.threshold(),
+                row.nextThreshold(), next, top, row.hostile());
+        return lines;
     }
 
     private void wrapped(GuiGraphicsExtractor g, Component text, int x, int y, int width, int maxLines) {

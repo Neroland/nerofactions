@@ -535,5 +535,11 @@
   "map.nerofactions.outpost.salvagers": "Salvagers outpost",
   "map.nerofactions.outpost.space_guild": "Space Guild outpost",
   "map.nerofactions.outpost.terraforming_authority": "Terraforming Authority outpost",
-  "map.nerofactions.outpost.void_cult": "Void Cult outpost"
+  "map.nerofactions.outpost.void_cult": "Void Cult outpost",
+  "nerofactions.gui.gauge.standing": "Standing with %s",
+  "nerofactions.gui.gauge.standing.tier": "Tier: %s",
+  "nerofactions.gui.gauge.standing.amount": "%s / %s standing (%s%% of this tier)",
+  "nerofactions.gui.gauge.standing.next": "%s more to reach %s",
+  "nerofactions.gui.gauge.standing.top": "Top tier reached: %s standing",
+  "nerofactions.gui.gauge.standing.hostile": "Hostile: its traders refuse you until your standing recovers"
 }
