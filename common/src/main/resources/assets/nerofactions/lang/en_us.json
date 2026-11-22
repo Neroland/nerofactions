@@ -526,6 +526,7 @@
   "quest.nerofactions.standing.free_colonists_full_set_worn.title": "Ready to Settle",
   "quest.nerofactions.standing.free_colonists_full_set_worn.desc": "Wear the full Colonist Field Gear set while eligible for its bonus.",
   "map.layer.nerofactions.outposts": "Faction outposts (nearby)",
+  "map.layer.nerofactions.outposts_discovered": "Faction outposts (discovered)",
   "map.nerofactions.standing.hostile": "Hostile to you",
   "map.nerofactions.standing.neutral": "Neutral",
   "map.nerofactions.standing.friendly": "Friendly",

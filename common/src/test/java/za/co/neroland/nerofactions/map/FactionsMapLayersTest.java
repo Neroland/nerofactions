@@ -92,7 +92,82 @@ class FactionsMapLayersTest {
                 .farBounds(MapBounds.around(20_000, 20_000, 256))
                 .forbiddenIds(THIRD)
                 .expectEntitledSees(FactionsMapLayers.OUTPOSTS, 2)
+                .expectEmpty(FactionsMapLayers.OUTPOSTS_DISCOVERED)
                 .verify();
+    }
+
+    /** The viewer has discovered outpost 1 (also in reach) and a far one at 300..340; nobody else has any. */
+    static final class Discovering implements OutpostMapSource {
+        final Fake base = new Fake();
+
+        @Override
+        public List<Seen> near(ResourceKey<Level> dimension, BlockPos around, int radius) {
+            return base.near(dimension, around, radius);
+        }
+
+        @Override
+        public OutpostStanding standing(UUID viewer, OutpostFaction faction) {
+            return base.standing(viewer, faction);
+        }
+
+        @Override
+        public List<Seen> discovered(UUID viewer, ResourceKey<Level> dimension) {
+            if (!VIEWER.equals(viewer) || !HOME.equals(dimension)) {
+                return List.of();
+            }
+            return List.of(base.seen.get(0), Fake.seen(9, OutpostFaction.MINER_UNION, 300, 300, 340, 340));
+        }
+    }
+
+    static FactionsMapLayers discovering() {
+        Discovering source = new Discovering();
+        return new FactionsMapLayers(server -> source);
+    }
+
+    @Test
+    void discoveredLayerConformance() {
+        MapLayerConformance.create(discovering())
+                .viewers(at(VIEWER, 0, 0), at(STRANGER, 5, 0))
+                .dimensions(HOME, MOON)
+                .bounds(MapBounds.around(0, 0, 512))
+                .farBounds(MapBounds.around(20_000, 20_000, 256))
+                .forbiddenIds(THIRD)
+                .expectEntitledSees(FactionsMapLayers.OUTPOSTS, 1)
+                .expectEntitledSees(FactionsMapLayers.OUTPOSTS_DISCOVERED, 2)
+                .verify();
+        assertEquals(MapScope.DISCOVERED, discovering().layers().get(1).scope());
+    }
+
+    private static List<String> ids(MapViewer viewer, MapBounds bounds) {
+        MapLayerRegistry.register(discovering());
+        MapQueryResult r = MapLayerRegistry.query("nerofactions", viewer, HOME, bounds);
+        assertFalse(r.failed());
+        List<String> ids = new ArrayList<>();
+        r.markers().forEach(m -> ids.add(m.id()));
+        r.areas().forEach(a -> ids.add(a.id()));
+        return ids;
+    }
+
+    @Test
+    void discoveredOutpostsStayOnTheMapOffline() {
+        List<String> offline = ids(MapViewer.forTest(VIEWER, null, null, null), MapBounds.around(0, 0, 512));
+        assertTrue(offline.contains("discovered/1"));
+        assertTrue(offline.contains("discovered/9"));
+        assertTrue(offline.contains("discovered_area/9"));
+        assertFalse(offline.stream().anyMatch(i -> i.startsWith("outpost")), "offline: no proximity items");
+
+        List<String> online = ids(at(VIEWER, 0, 0), MapBounds.around(0, 0, 512));
+        assertTrue(online.contains("discovered/1"));
+        assertTrue(online.contains("outpost/1"), "proximity stays the same for everyone in range");
+        assertTrue(online.contains("outpost/2"), "an undiscovered outpost in reach shows");
+        assertFalse(online.contains("discovered/2"));
+    }
+
+    @Test
+    void discoveredOutpostsRespectTheRequestedBoundsAndTheViewer() {
+        assertTrue(ids(at(VIEWER, 0, 0), MapBounds.around(5_000, 5_000, 100)).stream()
+                .noneMatch(i -> i.startsWith("discovered")));
+        assertTrue(ids(MapViewer.forTest(STRANGER, null, null, null), MapBounds.around(0, 0, 512)).isEmpty());
     }
 
     @Test

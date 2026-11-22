@@ -94,7 +94,8 @@ class ShippedGateContentTest {
 
     /**
      * The record gates a quest pack observes — {@code sworn_in}, {@code first_terminal_trade}, one
-     * {@code <faction>_member} per shipped faction and the {@code hook/banner_pattern} quest hook —
+     * {@code <faction>_member} and {@code full_set_<faction>} per shipped faction, {@code outpost_found},
+     * {@code contract_completed_10} and the {@code hook/banner_pattern} quest hook —
      * must be player-scoped, carry <em>no</em> {@code requires} (they are records, never locks) and
      * a display title. Exactly that set ships: an unexpected gate file is a mistake.
      */
@@ -103,8 +104,9 @@ class ShippedGateContentTest {
         Path gatesDir = shippedDir(Path.of("data", "nerofactions", "neroland_gates"));
 
         List<String> expected = new ArrayList<>(List.of("sworn_in", "first_terminal_trade",
-                "hook/banner_pattern"));
+                "hook/banner_pattern", "outpost_found", "contract_completed_10"));
         REQUIRED_CORE_GATE.keySet().forEach(faction -> expected.add(faction + "_member"));
+        REQUIRED_CORE_GATE.keySet().forEach(faction -> expected.add("full_set_" + faction));
 
         Map<String, Gate.Data> parsed = new LinkedHashMap<>();
         List<String> complaints = new ArrayList<>();

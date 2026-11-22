@@ -120,6 +120,7 @@ public final class GearSetBonuses {
                 if (active(player, set)) {
                     activeSets.add(set.faction());
                     worn.add(gearSet(set));
+                    za.co.neroland.nerofactions.progression.RecordGates.onFullSetWorn(player, set.faction().factionId());
                 }
             }
             applyBonuses(player, worn, tick);

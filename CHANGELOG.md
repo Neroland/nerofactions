@@ -7,6 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-26
+
+### Added
+
+- Discovered outposts on the map: every faction outpost you have stood inside stays on your world map after you leave, marked with your standing. Only your own discoveries are shown, never anyone else's. Outposts you have not entered yet still appear only while you are within 48 blocks. Shown by a map mod that reads Core's map registry.
+- Record gates for trophy and quest packs: `nerofactions:outpost_found` (you have found an outpost), `nerofactions:contract_completed_10` (ten contracts completed) and `nerofactions:full_set_<faction>` for each of the seven faction armour sets.
+
+### Privacy
+
+- The outpost visit record now also keeps each outpost you entered (dimension, faction and the outpost's footprint), at most 256 per player. It is included in the data export, removed by data erasure and swept with inactive players like the rest of your faction data. Turning off outpost visit tracking in the config turns this off too.
+
 ## [0.7.1] - 2026-11-21
 
 ### Changed

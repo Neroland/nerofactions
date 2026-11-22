@@ -194,6 +194,8 @@ public final class ContractService {
         @Override
         public void completed(Identifier faction, Identifier contract) {
             ThresholdEvents.fire(NeroFactionsCommon.MOD_ID, completionEvent(faction));
+            za.co.neroland.nerofactions.progression.RecordGates.onContractCompleted(server, player.getUUID(),
+                    ContractState.get(server).completed(player.getUUID()));
             za.co.neroland.nerofactions.link.FactionsLinkEvents.onContractCompleted(player.getUUID(), faction, contract);
         }
     }

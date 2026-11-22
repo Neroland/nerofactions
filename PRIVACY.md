@@ -79,8 +79,13 @@ names, IP addresses, chat or player coordinates.
   accepted that week. It is shared across all boards and holds no item history or board
   coordinates.
 - **Outpost visits:** one row per faction and dimension you have visited (faction ID and
-  dimension ID only, no coordinates). A server can stop new recording with
-  `outpostVisitsEnabled=false`.
+  dimension ID only), plus each outpost you have stood inside, so it stays on your own map: its
+  dimension, faction and footprint (the outpost structure's box, never your own position), at
+  most 256 per player, oldest dropped first. Only you see your discovered outposts; the
+  NeroLink section keeps reporting the faction and dimension rows only. A server can stop new
+  recording with `outpostVisitsEnabled=false`.
+- **Record gates:** whether you have found an outpost, completed ten contracts and worn each
+  faction's full armour set, kept in Neroland Core's progression store (yes/no only).
 - **Community Workbench access:** each bench's random ID, its owner's UUID and up to 16 invited
   player UUIDs. No block position is stored. Stored items live in the block, not in this store.
 - **Corporate ledger:** the day, whether that day's premium delivery was completed, and the

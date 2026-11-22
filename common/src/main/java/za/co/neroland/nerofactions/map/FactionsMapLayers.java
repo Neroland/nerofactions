@@ -24,6 +24,7 @@ import za.co.neroland.nerolandcore.map.MapLayerProvider;
 import za.co.neroland.nerolandcore.map.MapLayerRegistry;
 import za.co.neroland.nerolandcore.map.MapLayerSink;
 import za.co.neroland.nerolandcore.map.MapMarker;
+import za.co.neroland.nerolandcore.map.MapScope;
 import za.co.neroland.nerolandcore.map.MapViewer;
 
 /**
@@ -34,8 +35,12 @@ import za.co.neroland.nerolandcore.map.MapViewer;
  * in the same dimension, stands within {@value #RADIUS} blocks of its footprint. That is roughly "has it in sight",
  * so the map never works as a structure locator. The footprint is drawn as an area with a marker at its centre, or
  * at the footprint's nearest point when the centre is out of range. Both carry the viewer's own standing as a detail key (hostile / neutral /
- * friendly) and a matching colour. A map consumer keeps proximity markers transient. A persistent "discovered
- * outposts" layer needs a position on the visit record and is not part of this provider.
+ * friendly) and a matching colour. A map consumer keeps proximity markers transient.
+ *
+ * <p>{@code outposts_discovered} is a {@link MapScope#DISCOVERED} layer: the outposts this viewer has stood inside,
+ * read from their own visit record (online or offline, any distance), drawn the same way. Nobody else's visits are
+ * ever read. The proximity layer stays identical for everyone in range (Core's proximity contract), so a
+ * discovered outpost in reach appears on both layers; a map can hide either.
  */
 public final class FactionsMapLayers implements MapLayerProvider {
 
@@ -45,10 +50,14 @@ public final class FactionsMapLayers implements MapLayerProvider {
     public static final int RADIUS = 48;
 
     public static final Identifier OUTPOSTS = Identifier.fromNamespaceAndPath(NeroFactionsCommon.MOD_ID, "outposts");
+    public static final Identifier OUTPOSTS_DISCOVERED =
+            Identifier.fromNamespaceAndPath(NeroFactionsCommon.MOD_ID, "outposts_discovered");
     static final Identifier ICON = Identifier.fromNamespaceAndPath(NeroFactionsCommon.MOD_ID, "outpost");
 
     private static final List<MapLayerInfo> LAYERS = List.of(
-            MapLayerInfo.proximityBuilt(OUTPOSTS, "map.layer.nerofactions.outposts", ICON).withProximityRadius(RADIUS));
+            MapLayerInfo.proximityBuilt(OUTPOSTS, "map.layer.nerofactions.outposts", ICON).withProximityRadius(RADIUS),
+            MapLayerInfo.of(OUTPOSTS_DISCOVERED, "map.layer.nerofactions.outposts_discovered", ICON,
+                    MapScope.DISCOVERED));
 
     private final Function<MinecraftServer, OutpostMapSource> sources;
 
@@ -77,14 +86,50 @@ public final class FactionsMapLayers implements MapLayerProvider {
 
     @Override
     public void query(MapViewer viewer, ResourceKey<Level> dimension, MapBounds bounds, MapLayerSink sink) {
-        if (viewer == null || dimension == null || sink == null || !viewer.online()
-                || !dimension.equals(viewer.dimension().orElse(null))) {
+        if (viewer == null || dimension == null || sink == null) {
             return;
         }
         OutpostMapSource source = sources.apply(viewer.server());
         if (source == null) {
             return;
         }
+        List<OutpostMapSource.Seen> discovered = viewer.id() == null ? List.of()
+                : source.discovered(viewer.id(), dimension);
+        if (bounds != null) {
+            queryDiscovered(viewer, dimension, bounds, sink, source, discovered);
+        }
+        if (viewer.online() && dimension.equals(viewer.dimension().orElse(null))) {
+            queryNearby(viewer, dimension, sink, source);
+        }
+    }
+
+    private static void queryDiscovered(MapViewer viewer, ResourceKey<Level> dimension, MapBounds bounds,
+            MapLayerSink sink, OutpostMapSource source, List<OutpostMapSource.Seen> discovered) {
+        List<OutpostMapSource.Seen> inView = new ArrayList<>();
+        for (OutpostMapSource.Seen outpost : discovered) {
+            if (bounds.intersects(new MapBounds(outpost.minX(), outpost.minZ(), outpost.maxX(), outpost.maxZ()))) {
+                inView.add(outpost);
+            }
+        }
+        BlockPos centre = new BlockPos(bounds.centreX(), 0, bounds.centreZ());
+        inView.sort(Comparator.comparingLong(s -> distSqr(s, centre)));
+        for (OutpostMapSource.Seen outpost : inView) {
+            if (sink.isFull(OUTPOSTS_DISCOVERED)) {
+                return;
+            }
+            OutpostStanding standing = source.standing(viewer.id(), outpost.faction());
+            MapLabel name = MapLabel.translatable("map.nerofactions.outpost." + outpost.faction().getSerializedName());
+            String key = Long.toHexString(outpost.startChunk());
+            sink.area(new MapArea.Rect("discovered_area/" + key, OUTPOSTS_DISCOVERED, dimension,
+                    MapAreaStyle.of(standing.argb() & 0x33FFFFFF, standing.argb()).withLabel(name),
+                    outpost.minX(), outpost.minZ(), outpost.maxX(), outpost.maxZ()));
+            sink.marker(MapMarker.builder("discovered/" + key, OUTPOSTS_DISCOVERED, dimension, outpost.centre())
+                    .label(name).argb(standing.argb()).detail(MapLabel.translatable(standing.key())).build());
+        }
+    }
+
+    private static void queryNearby(MapViewer viewer, ResourceKey<Level> dimension, MapLayerSink sink,
+            OutpostMapSource source) {
         BlockPos at = viewer.position().orElseThrow();
         List<OutpostMapSource.Seen> seen = new ArrayList<>(source.near(dimension, at, RADIUS));
         seen.sort(Comparator.comparingLong(s -> distSqr(s, at)));

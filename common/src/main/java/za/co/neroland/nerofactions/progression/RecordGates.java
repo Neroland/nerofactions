@@ -37,7 +37,17 @@ public final class RecordGates {
     /** {@code nerofactions:first_terminal_trade} — the player completed a trade at a terminal. */
     public static final Identifier FIRST_TERMINAL_TRADE = id("first_terminal_trade");
 
+    /** {@code nerofactions:outpost_found} — the player has stood inside a faction outpost. */
+    public static final Identifier OUTPOST_FOUND = id("outpost_found");
+
+    /** {@code nerofactions:contract_completed_10} — the player has completed {@value #CONTRACTS_FOR_GATE} contracts. */
+    public static final Identifier CONTRACTS_COMPLETED_10 = id("contract_completed_10");
+
+    /** Completed contracts (the per-player count {@code ContractState} already keeps) that open the gate. */
+    public static final long CONTRACTS_FOR_GATE = 10;
+
     private static final String MEMBER_SUFFIX = "_member";
+    private static final String FULL_SET_PREFIX = "full_set_";
 
     private RecordGates() {
     }
@@ -49,6 +59,38 @@ public final class RecordGates {
      */
     public static Identifier memberGate(Identifier faction) {
         return id(faction.getPath() + MEMBER_SUFFIX);
+    }
+
+    /** {@code nerofactions:full_set_<faction_path>}: the player has worn that faction's full armour set. */
+    public static Identifier fullSetGate(Identifier faction) {
+        return id(FULL_SET_PREFIX + faction.getPath());
+    }
+
+    /** Records that the player found an outpost. Opening an open gate changes nothing. */
+    public static void onOutpostFound(MinecraftServer server, UUID player) {
+        openOnce(server, player, OUTPOST_FOUND);
+    }
+
+    /** Records the contract milestone once the player's completed count reaches {@link #CONTRACTS_FOR_GATE}. */
+    public static void onContractCompleted(MinecraftServer server, UUID player, long completed) {
+        if (completed >= CONTRACTS_FOR_GATE) {
+            openOnce(server, player, CONTRACTS_COMPLETED_10);
+        }
+    }
+
+    /** Records that an online player is wearing {@code faction}'s full set. */
+    public static void onFullSetWorn(ServerPlayer player, Identifier faction) {
+        if (player == null || faction == null) {
+            return;
+        }
+        Identifier gate = fullSetGate(faction);
+        try {
+            if (!ProgressionGates.isOpen(player, gate)) {
+                ProgressionGates.open(player, gate);
+            }
+        } catch (RuntimeException e) {
+            warn(gate, e);
+        }
     }
 
     /** Records a successful join: {@link #SWORN_IN} plus the faction's member gate. */
@@ -80,6 +122,19 @@ public final class RecordGates {
         }
         try {
             ProgressionGates.open(server, player, gate);
+        } catch (RuntimeException e) {
+            warn(gate, e);
+        }
+    }
+
+    private static void openOnce(MinecraftServer server, UUID player, Identifier gate) {
+        if (server == null || player == null) {
+            return;
+        }
+        try {
+            if (!ProgressionGates.isOpen(server, player, gate)) {
+                ProgressionGates.open(server, player, gate);
+            }
         } catch (RuntimeException e) {
             warn(gate, e);
         }

@@ -145,7 +145,7 @@ public final class FactionsStores {
     public static final Persistent<OutpostVisits> OUTPOST_VISITS = new Persistent<>(
             OutpostVisits.class, "nerofactions:outpost_visits", "outposts_visited",
             OutpostVisits::get, OutpostVisits::new, OutpostVisits::knownPlayers,
-            OutpostVisits::forget, OutpostVisits::export, OutpostVisits::eraseFor);
+            OutpostVisits::forget, OutpostVisits::exportAll, OutpostVisits::eraseFor);
 
     public static final Persistent<WorkbenchAccess> WORKBENCH_ACCESS = new Persistent<>(
             WorkbenchAccess.class, "nerofactions:workbench_access", "workbench_access",

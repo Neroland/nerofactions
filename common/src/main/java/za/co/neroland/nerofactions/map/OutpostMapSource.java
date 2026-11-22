@@ -27,6 +27,7 @@ import za.co.neroland.nerofactions.content.FactionTier;
 import za.co.neroland.nerofactions.content.FactionTiers;
 import za.co.neroland.nerofactions.content.faction.OutpostFaction;
 import za.co.neroland.nerofactions.content.faction.OutpostStructure;
+import za.co.neroland.nerofactions.data.OutpostVisits;
 import za.co.neroland.nerolandcore.reputation.ReputationApi;
 
 /**
@@ -46,6 +47,19 @@ public interface OutpostMapSource {
     /** The viewer's own standing with an outpost's faction. */
     OutpostStanding standing(UUID viewer, OutpostFaction faction);
 
+    /**
+     * Outposts {@code viewer} has stood inside in {@code dimension}, from their own visit record only; never another
+     * player's. None by default.
+     */
+    default List<Seen> discovered(UUID viewer, ResourceKey<Level> dimension) {
+        return List.of();
+    }
+
+    /** A stable key for a footprint seen from a visit record: its minimum corner, packed like a chunk key. */
+    static long footprintKey(int minX, int minZ) {
+        return (minX & 0xFFFFFFFFL) | ((minZ & 0xFFFFFFFFL) << 32);
+    }
+
     /** The live source for {@code server}, or {@code null} without one. */
     static OutpostMapSource of(MinecraftServer server) {
         if (server == null) {
@@ -56,6 +70,20 @@ public interface OutpostMapSource {
             public List<Seen> near(ResourceKey<Level> dimension, BlockPos around, int radius) {
                 ServerLevel level = server.getLevel(dimension);
                 return level == null ? List.of() : scan(level, around, radius);
+            }
+
+            @Override
+            public List<Seen> discovered(UUID viewer, ResourceKey<Level> dimension) {
+                if (viewer == null || dimension == null) {
+                    return List.of();
+                }
+                List<Seen> out = new ArrayList<>();
+                for (OutpostVisits.Discovered row : OutpostVisits.get(server).discovered(viewer,
+                        dimension.identifier())) {
+                    out.add(new Seen(footprintKey(row.minX(), row.minZ()), row.faction(), row.minX(), row.minZ(),
+                            row.maxX(), row.maxZ(), new BlockPos(row.centreX(), row.y(), row.centreZ())));
+                }
+                return out;
             }
 
             @Override

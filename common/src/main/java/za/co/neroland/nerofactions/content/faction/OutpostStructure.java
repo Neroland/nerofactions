@@ -18,6 +18,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.config.NeroFactionsConfig;
 import za.co.neroland.nerofactions.data.OutpostVisits;
+import za.co.neroland.nerofactions.progression.RecordGates;
 import za.co.neroland.nerofactions.registry.NeroFactionsWorldgen;
 import za.co.neroland.nerolandcore.event.ThresholdEvents;
 
@@ -73,10 +74,21 @@ public final class OutpostStructure extends Structure {
                 continue;
             }
             var start = at(level, player.blockPosition());
-            if (start.isValid() && start.getStructure() instanceof OutpostStructure outpost
-                    && OutpostVisits.get(server).record(player.getUUID(), outpost.faction, level.dimension().identifier())) {
+            if (!start.isValid() || !(start.getStructure() instanceof OutpostStructure outpost)) {
+                continue;
+            }
+            var visits = OutpostVisits.get(server);
+            var dimension = level.dimension().identifier();
+            var box = start.getBoundingBox();
+            boolean newOutpost = visits.discover(player.getUUID(), outpost.faction, dimension, box,
+                    box.getCenter().getY());
+            if (visits.record(player.getUUID(), outpost.faction, dimension)) {
                 ThresholdEvents.fire(NeroFactionsCommon.MOD_ID, new ThresholdEvents.ThresholdCrossing(
                         FOUND_CHANNEL, outpost.faction.factionId().toString(), 1, 1, true));
+                newOutpost = true;
+            }
+            if (newOutpost) {
+                RecordGates.onOutpostFound(server, player.getUUID());
             }
         }
     }
