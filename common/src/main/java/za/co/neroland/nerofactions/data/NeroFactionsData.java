@@ -40,6 +40,9 @@ public final class NeroFactionsData {
         // ONE eraser in the shared fan-out, so a single erasure request clears every store in
         // FactionsStores (each with its recovery backup refreshed) and every transient map.
         PlayerDataErasure.register(NeroFactionsData::eraseLocal);
+        // The read-side twin: the same document as /nerofactions data export, in Core's
+        // /neroland data exportme (Core 1.20.1).
+        za.co.neroland.nerolandcore.data.PlayerDataExport.register(NeroFactionsCommon.MOD_ID, PlayerDataExport::forCore);
         // Replaces Core's in-memory default so ReputationApi.hasRealProvider() is true from
         // startup; the provider itself degrades safely until a server binds (see its javadoc).
         ReputationApi.setProvider(NeroFactionsCommon.REPUTATION_PROVIDER);

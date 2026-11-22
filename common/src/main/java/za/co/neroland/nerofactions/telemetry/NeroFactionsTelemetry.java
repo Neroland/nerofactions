@@ -10,11 +10,16 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 
 import io.sentry.Breadcrumb;
+import io.sentry.IScopes;
 import io.sentry.ITransaction;
-import io.sentry.Sentry;
+import io.sentry.Scope;
+import io.sentry.Scopes;
+import io.sentry.SentryClient;
 import io.sentry.SentryEvent;
 import io.sentry.SentryLevel;
+import io.sentry.SentryOptions;
 import io.sentry.SpanStatus;
+import io.sentry.UncaughtExceptionHandlerIntegration;
 import io.sentry.protocol.Message;
 import io.sentry.protocol.SentryException;
 import io.sentry.protocol.SentryStackFrame;
@@ -86,6 +91,10 @@ public final class NeroFactionsTelemetry {
             Pattern.compile("(?i)(?:[A-Z]:)?[/\\\\](?:Users|home)[/\\\\][^/\\\\\\s:;,'\"]+");
 
     private static volatile boolean active;
+    /** NeroFactions' own scopes; {@code null} until {@link #start()} succeeds. Never the global hub. */
+    private static volatile IScopes scopes;
+    /** Process-lifetime uncaught-exception hook bound to {@link #scopes}; kept so it is never collected. */
+    private static UncaughtExceptionHandlerIntegration uncaughtHandler;
     private static final AtomicInteger eventsSent = new AtomicInteger();
     private static final Set<String> seenFingerprints = ConcurrentHashMap.newKeySet();
     private static SentryLogAppender appender;
@@ -145,25 +154,16 @@ public final class NeroFactionsTelemetry {
         }
         String modVersion = Services.PLATFORM.getModVersion();
         boolean dev = Services.PLATFORM.isDevelopmentEnvironment();
-        Sentry.init(options -> {
-            options.setDsn(DSN);
-            options.setRelease("nerofactions@" + modVersion);
-            // Dev/IDE runs report under a dedicated environment so they never mix with real releases.
-            options.setEnvironment(dev ? "development" : environmentOf(modVersion));
-            // POPIA/GDPR: never store the sender's IP address or identity.
-            options.setSendDefaultPii(false);
-            // The machine's hostname is identifying; never attach it.
-            options.setAttachServerName(false);
-            options.setEnableUncaughtExceptionHandler(true);
-            // Release health: session lifecycle managed manually (started below, ended on JVM
-            // shutdown). The session id is random per launch and is NOT linked across sessions.
-            options.setEnableAutoSessionTracking(false);
-            // Performance: sample a small fraction of traced operations. Timing data only — no
-            // personal data in a transaction.
-            options.setTracesSampleRate(0.05D);
-            options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
-        });
-        Sentry.configureScope(scope -> {
+        SentryOptions options = baseOptions(modVersion, dev ? "development" : environmentOf(modVersion));
+        // Performance: sample a small fraction of traced operations. Timing data only — no
+        // personal data in a transaction.
+        options.setTracesSampleRate(0.05D);
+        options.setBeforeSend((event, hint) -> ForeignMixinFailure.matches(event) ? null : filterAndScrub(event));
+        // Own client and scopes, never the global hub: every Nero mod bundles the same Sentry jar, so
+        // a global Sentry.init would replace (and silence) every other mod's client.
+        IScopes own = isolatedScopes(options, "nerofactions");
+        scopes = own;
+        own.configureScope(scope -> {
             scope.setTag("loader", Services.PLATFORM.getPlatformName().toLowerCase(Locale.ROOT));
             scope.setTag("dist", Services.PLATFORM.isClient() ? "client" : "dedicated_server");
             scope.setTag("runtime", dev ? "development" : "production");
@@ -186,11 +186,11 @@ public final class NeroFactionsTelemetry {
             }
         });
         // Manual release-health session for this play session; closed on a clean JVM shutdown.
-        Sentry.startSession();
+        own.startSession();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                Sentry.endSession();
-                Sentry.flush(2000L);
+                own.endSession();
+                own.flush(2000L);
             } catch (RuntimeException ignored) {
                 // best-effort flush on shutdown
             }
@@ -204,6 +204,36 @@ public final class NeroFactionsTelemetry {
         NeroFactionsCommon.LOGGER.info(
                 "[NeroFactions] Telemetry enabled (anonymous error reports, EU servers; opt out via "
                         + "telemetryEnabled=false in config/nerofactions.properties).");
+    }
+
+    /** Options for NeroFactions' own client: same privacy settings as before, never the global hub's. */
+    static SentryOptions baseOptions(String modVersion, String environment) {
+        SentryOptions options = new SentryOptions();
+        options.setDsn(DSN);
+        options.setRelease("nerofactions@" + modVersion);
+        options.setEnvironment(environment);
+        options.setSendDefaultPii(false);          // POPIA/GDPR: never the sender's IP/identity
+        options.setAttachServerName(false);        // hostname is identifying
+        options.setEnableUncaughtExceptionHandler(true);
+        options.setEnableShutdownHook(false);      // flushed by our own hook; never close the global hub
+        options.setEnableAutoSessionTracking(false);
+        return options;
+    }
+
+    /**
+     * Builds isolated scopes bound to a client of our own: what {@code Sentry.init} does, minus the global
+     * hub. The uncaught-exception handler chains to the previous one, so every mod still sees crashes and
+     * keeps only its own through {@code beforeSend}.
+     */
+    static IScopes isolatedScopes(SentryOptions options, String creator) {
+        options.activate();                        // start Sentry's executors, as the global init would
+        Scopes own = new Scopes(new Scope(options), new Scope(options), new Scope(options), creator);
+        own.bindClient(new SentryClient(options));
+        if (options.isEnableUncaughtExceptionHandler()) {
+            uncaughtHandler = new UncaughtExceptionHandlerIntegration();
+            uncaughtHandler.register(own, options);
+        }
+        return own;
     }
 
     /**
@@ -221,7 +251,7 @@ public final class NeroFactionsTelemetry {
         crumb.setCategory(category);
         crumb.setLevel(SentryLevel.INFO);
         crumb.setMessage(scrub(message));
-        Sentry.addBreadcrumb(crumb);
+        scopes.addBreadcrumb(crumb);
     }
 
     /**
@@ -233,7 +263,7 @@ public final class NeroFactionsTelemetry {
         if (!active) {
             return body.get();
         }
-        ITransaction tx = Sentry.startTransaction(name, operation);
+        ITransaction tx = scopes.startTransaction(name, operation);
         try {
             return body.get();
         } catch (RuntimeException | Error e) {
@@ -310,7 +340,7 @@ public final class NeroFactionsTelemetry {
         if (!active || t == null) {
             return;
         }
-        Sentry.captureException(t);
+        scopes.captureException(t);
     }
 
     /** Capture a handled exception if it is still clearly from NeroFactions code. */
@@ -325,11 +355,10 @@ public final class NeroFactionsTelemetry {
         if (!active || t == null || !touchesNeroFactions(t)) {
             return;
         }
-        Sentry.withScope(scope -> {
+        scopes.captureException(t, scope -> {
             scope.setTag("handled", "true");
             scope.setTag("source", source);
             scope.setExtra("operation", operation);
-            Sentry.captureException(t);
         });
     }
 
@@ -347,7 +376,7 @@ public final class NeroFactionsTelemetry {
         Message msg = new Message();
         msg.setFormatted(scrubbed);
         event.setMessage(msg);
-        Sentry.captureEvent(event);
+        scopes.captureEvent(event);
     }
 
     /**

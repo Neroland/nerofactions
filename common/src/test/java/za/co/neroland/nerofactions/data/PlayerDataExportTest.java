@@ -187,4 +187,26 @@ class PlayerDataExportTest {
         assertTrue(first.indexOf(GUILD.toString()) < first.indexOf(UNION.toString()),
                 "keys are sorted regardless of insertion order");
     }
+
+    @Test
+    void coreSectionIsNullForAPlayerTheModHoldsNothingFor() {
+        String json = export(stores(new FactionReputationState(), new FactionMembershipState(), new ContractState(), new QuotaState(), new OutpostVisits()), UUID.randomUUID(), "1.2.3-test");
+        assertEquals(null, PlayerDataExport.coreSection(JsonParser.parseString(json).getAsJsonObject()));
+    }
+
+    @Test
+    void coreSectionIsTheSameDocumentWithoutTheEnvelope() {
+        UUID player = UUID.randomUUID();
+        FactionReputationState reputation = new FactionReputationState();
+        reputation.setReputation(player, UNION, 10);
+        String json = export(stores(reputation, new FactionMembershipState(), new ContractState(), new QuotaState(), new OutpostVisits()), player, "1.2.3-test");
+        JsonElement section = PlayerDataExport.coreSection(JsonParser.parseString(json).getAsJsonObject());
+
+        assertTrue(section != null && section.isJsonObject());
+        JsonObject root = section.getAsJsonObject();
+        assertFalse(root.has("mod"));
+        assertFalse(root.has("generated_at"));
+        assertEquals(10, root.getAsJsonObject("reputation").getAsJsonObject("standings").get(UNION.toString()).getAsInt());
+        assertFalse(section.toString().contains(player.toString()), "the export carries no UUID");
+    }
 }

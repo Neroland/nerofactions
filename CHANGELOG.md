@@ -7,6 +7,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-22
+
+### Added
+
+- Your NeroFactions record is now part of Neroland Core's `/neroland data exportme` (Core 1.20.1): the same document as `/nerofactions data export`, for online or offline players. Nothing is written to disk or logged.
+
+### Fixed
+
+- Crash reports no longer go silent when another mod starts Sentry. NeroFactions now reports through its own isolated Sentry client instead of the shared global one, with the same opt-out, filtering and scrubbing. Tagged handled-exception reports now keep their tags.
+
+### Changed
+
+- Requires Neroland Core 1.20.1 or newer.
+
 ## [0.7.2] - 2026-11-26
 
 ### Added

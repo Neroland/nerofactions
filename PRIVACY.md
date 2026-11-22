@@ -31,6 +31,8 @@ Reports are de-duplicated and hard-capped at 10 events per game session.
 ## What is NOT collected
 
 - **No IP address** is stored (`sendDefaultPii` is disabled; Sentry discards the sender IP).
+- NeroFactions reports through its own Sentry client, never a shared one, so another mod's crash
+  reporter cannot receive or change NeroFactions reports, and the settings above always apply.
 - **No username, player UUID, or machine/host name.**
 - **No world data, chat, coordinates, inventories, faction membership, reputation values, or
   gameplay analytics** of any kind.
@@ -171,7 +173,8 @@ How the data is protected:
   reported only while you are online and still eligible for the boon; otherwise it is 0. Nothing
   is written to disk and nothing is logged. A server operator can run
   `/nerofactions data export <player>` to answer an access request, including from a departed
-  player.
+  player. The same record (without the boon time when you are offline) is also part of Neroland
+  Core's combined export, `/neroland data exportme`, so one request covers every Nero mod.
 - **Automatic retention limit:** NeroFactions runs its own daily inactivity sweep over every
   persistent store. If a player has not logged in for `retentionDays` (server config, default
   **365**, `0` disables), all of their NeroFactions data, recovery backups included, is purged

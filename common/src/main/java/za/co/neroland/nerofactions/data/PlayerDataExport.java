@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import net.minecraft.server.MinecraftServer;
 
@@ -64,6 +65,52 @@ public final class PlayerDataExport {
     public static String forPlayer(MinecraftServer server, UUID player) {
         return toJson(FactionsStores.live(server), (state, uuid) -> state.export().apply(server, uuid), player,
                 Services.PLATFORM.getModVersion(), System.currentTimeMillis());
+    }
+
+    /**
+     * NeroFactions' section of Neroland Core's {@code /neroland data exportme}: the same document as
+     * {@code /nerofactions data export} (so the two can never drift), minus the {@code mod} and
+     * {@code generated_at} envelope fields Core supplies itself, or {@code null} when NeroFactions holds
+     * nothing for the player. Reads the stores only, so it works for offline players. Writes and logs
+     * nothing.
+     */
+    public static JsonElement forCore(MinecraftServer server, UUID player) {
+        return coreSection(JsonParser.parseString(forPlayer(server, player)).getAsJsonObject());
+    }
+
+    /** {@link #forCore} on an already-built document; {@code null} when every section is empty. */
+    static JsonElement coreSection(JsonObject document) {
+        JsonObject section = document.deepCopy();
+        section.remove("mod");
+        section.remove("generated_at");
+        JsonObject data = section.deepCopy();
+        data.remove("mod_version");
+        return isEmpty(data) ? null : section;
+    }
+
+    /** Empty objects and arrays, JSON null, zero numbers and blank strings hold nothing. */
+    static boolean isEmpty(JsonElement element) {
+        if (element == null || element.isJsonNull()) {
+            return true;
+        }
+        if (element.isJsonObject()) {
+            return element.getAsJsonObject().entrySet().stream().allMatch(e -> isEmpty(e.getValue()));
+        }
+        if (element.isJsonArray()) {
+            for (JsonElement item : element.getAsJsonArray()) {
+                if (!isEmpty(item)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (element.getAsJsonPrimitive().isNumber()) {
+            return element.getAsDouble() == 0D;
+        }
+        if (element.getAsJsonPrimitive().isBoolean()) {
+            return !element.getAsBoolean();
+        }
+        return element.getAsString().isBlank();
     }
 
     /**
