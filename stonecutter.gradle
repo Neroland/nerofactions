@@ -29,6 +29,15 @@ ext.legacyRenames = [
     // 1.21.11 renamed ResourceLocation -> Identifier and ResourceKey.location() -> identifier().
     [below: '1.21.11', from: /\bIdentifier\b/, to: 'ResourceLocation'],
     [below: '1.21.11', from: /\.identifier\(\)/, to: '.location()'],
+    [below: '1.21', from: /\b((?:net\.minecraft\.resources\.)?ResourceLocation)\s*\.(?:fromNamespaceAndPath|parse|withDefaultNamespace)\(/, to: 'new $1('],
+    [below: '1.21', from: /\bCraftingInput\.EMPTY\b/, to: 'new net.minecraft.world.inventory.TransientCraftingContainer(null, 0, 0)'],
+    [below: '1.21', from: /import net\.minecraft\.world\.item\.crafting\.CraftingInput;/, to: 'import net.minecraft.world.inventory.CraftingContainer;'],
+    [below: '1.21', from: /\bCraftingInput\b/, to: 'CraftingContainer'],
+    [below: '1.21', from: /import net\.minecraft\.world\.item\.crafting\.RecipeInput;/, to: 'import net.minecraft.world.Container;'],
+    [below: '1.21', from: /net\/minecraft\/world\/item\/crafting\/RecipeInput/, to: 'net/minecraft/world/Container'],
+    [below: '1.21', from: /\bRecipeInput\b/, to: 'Container'],
+    [below: '1.21', from: /new AttributeModifier\(([A-Z_]+_ID),/, to: 'new AttributeModifier(java.util.UUID.nameUUIDFromBytes($1.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)), $1.toString(),'],
+    [below: '1.21', from: /attribute\.hasModifier\(modifier\.id\(\)\)/, to: 'attribute.hasModifier(modifier)'],
     // 26.1 renamed GuiGraphics -> GuiGraphicsExtractor and its drawString(..) -> text(..). The text()
     // rename is keyed on the receiver names this codebase uses for the graphics object (g / graphics).
     [below: '26.1', from: /\bGuiGraphicsExtractor\b/, to: 'GuiGraphics'],
@@ -75,6 +84,23 @@ subprojects {
     // Java 22+ language features). 26.x cells stay on Java 25. A node's project name IS its MC version.
     def javaRelease = project.name.startsWith('1.') ? 21 : 25
     ext.javaRelease = javaRelease
+
+    if (project.name in ['1.20.5', '1.20.6']) {
+        tasks.named('processResources') {
+            eachFile { file ->
+                file.path = file.path.replaceFirst(/^(data\/[^\/]+\/)(advancement|loot_table|recipe)\//, '$1$2s/')
+                        .replaceFirst(/^(data\/[^\/]+\/tags\/)(block|entity_type|fluid|item)\//, '$1$2s/')
+            }
+            includeEmptyDirs = false
+            doLast {
+                def metadata = new File(destinationDir, 'pack.mcmeta')
+                def pack = new groovy.json.JsonSlurper().parse(metadata).pack
+                metadata.setText(groovy.json.JsonOutput.toJson([
+                        pack: [description: pack.description, pack_format: 32, supported_formats: [32, 41]]
+                ]), 'UTF-8')
+            }
+        }
+    }
 
     java {
         toolchain.languageVersion = JavaLanguageVersion.of(javaRelease)

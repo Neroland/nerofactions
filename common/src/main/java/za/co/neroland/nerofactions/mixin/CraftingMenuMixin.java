@@ -9,10 +9,14 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.ResultContainer;
+//? if >=1.21 {
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeInput;
+//?} else {
+/*import net.minecraft.world.Container;
+*///?}
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -39,6 +43,7 @@ import za.co.neroland.nerofactions.crafting.CraftingPlayer;
 @Mixin(CraftingMenu.class)
 abstract class CraftingMenuMixin {
 
+    //? if >=1.21 {
     @Redirect(method = "slotChangedCraftingGrid",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRecipeFor("
@@ -63,4 +68,19 @@ abstract class CraftingMenuMixin {
         return CraftingPlayer.resolveWith(crafter,
                 () -> manager.getRecipeFor(type, (CraftingInput) input, level, hint));
     }
+    //?} else {
+    /*@Redirect(method = "slotChangedCraftingGrid",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRecipeFor("
+                            + "Lnet/minecraft/world/item/crafting/RecipeType;"
+                            + "Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)"
+                            + "Ljava/util/Optional;"))
+    private static Optional<RecipeHolder<CraftingRecipe>> nerofactions$resolveWithCrafter(
+            RecipeManager manager, RecipeType<CraftingRecipe> type, Container input, Level level,
+            AbstractContainerMenu menu, Level craftingLevel, Player player) {
+        ServerPlayer crafter = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;
+        return CraftingPlayer.resolveWith(crafter,
+                () -> manager.getRecipeFor(type, (CraftingContainer) input, level));
+    }
+    *///?}
 }

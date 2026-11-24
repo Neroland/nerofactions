@@ -135,7 +135,11 @@ public final class FactionGuard extends OutpostResident implements RangedAttackM
         if (!insideOutpost(target.blockPosition())) {
             return;
         }
+        //? if >=1.21 {
         var arrow = new Arrow(level(), this, new ItemStack(Items.ARROW), new ItemStack(Items.BOW));
+        //?} else {
+        /*var arrow = new Arrow(level(), this, new ItemStack(Items.ARROW));
+        *///?}
         arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
         double dx = target.getX() - getX();
         double dz = target.getZ() - getZ();

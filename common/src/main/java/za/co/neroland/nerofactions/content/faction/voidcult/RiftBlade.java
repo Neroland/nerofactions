@@ -61,9 +61,24 @@ public final class RiftBlade extends Item {
         *///?}
     }
 
+    //? if >=1.21 {
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         super.postHurtEnemy(stack, target, attacker);
+        applyHitEffect(target, attacker);
+    }
+    //?} else {
+    /*@Override
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        boolean handled = super.hurtEnemy(stack, target, attacker);
+        if (handled) {
+            applyHitEffect(target, attacker);
+        }
+        return handled;
+    }
+    *///?}
+
+    private static void applyHitEffect(LivingEntity target, LivingEntity attacker) {
         if (!(attacker instanceof ServerPlayer player)) {
             return;
         }

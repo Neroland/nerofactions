@@ -38,6 +38,7 @@ import za.co.neroland.nerolandcore.reputation.ReputationApi;
 public final class VoidAltarBlock extends BaseEntityBlock {
     private static final MapCodec<VoidAltarBlock> CODEC = BlockCodecs.simple(VoidAltarBlock::new);
     private static final Identifier REACH_ID = Identifier.parse("nerofactions:void_rite_reach");
+    private static final AttributeModifier REACH = new AttributeModifier(REACH_ID, 0.75, AttributeModifier.Operation.ADD_VALUE);
     private record Boon(int expiresAt, MobEffectInstance vision) {}
     private static final Map<UUID, Boon> BOONS = new HashMap<>();
 
@@ -147,8 +148,8 @@ public final class VoidAltarBlock extends BaseEntityBlock {
             if (BOONS.containsKey(player.getUUID())) {
                 applyBoon(player);
             } else {
-                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).removeModifier(REACH_ID);
-                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).removeModifier(REACH_ID);
+                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).removeModifier(REACH.id());
+                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).removeModifier(REACH.id());
             }
         }
     }
@@ -172,9 +173,8 @@ public final class VoidAltarBlock extends BaseEntityBlock {
     }
 
     private static void applyBoon(ServerPlayer player) {
-        var modifier = new AttributeModifier(REACH_ID, 0.75, AttributeModifier.Operation.ADD_VALUE);
-        player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).addOrUpdateTransientModifier(modifier);
-        player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).addOrUpdateTransientModifier(modifier);
+        player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).addOrUpdateTransientModifier(REACH);
+        player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).addOrUpdateTransientModifier(REACH);
         player.removeEffect(MobEffects.WITHER);
     }
 

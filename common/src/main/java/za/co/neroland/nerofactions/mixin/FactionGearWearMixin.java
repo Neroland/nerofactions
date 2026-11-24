@@ -49,7 +49,7 @@ abstract class FactionGearWearMixin {
             boolean damageItem, Consumer<?> onBreak) {
         return GearSetBonuses.salvageWear(user, (ItemStack) (Object) this, amount);
     }
-    //?} else {
+    //?} else if >=1.21 {
     /*private static final String DAMAGEABLE = "Lnet/minecraft/world/item/ItemStack;isDamageableItem()Z";
 
     @Group(name = "nerofactions$salvageWear", min = 1, max = 1)
@@ -63,6 +63,14 @@ abstract class FactionGearWearMixin {
     @ModifyVariable(method = PLAYER_WEAR, at = @At(value = "INVOKE", target = DAMAGEABLE),
             argsOnly = true, ordinal = 0, require = 0)
     private int nerofactions$salvageWearPlayer(int amount, int originalAmount, ServerLevel level, ServerPlayer user) {
+        return GearSetBonuses.salvageWear(user, (ItemStack) (Object) this, amount);
+    }
+    *///?} else {
+    /*@ModifyVariable(method = "hurtAndBreak(ILnet/minecraft/util/RandomSource;"
+            + "Lnet/minecraft/server/level/ServerPlayer;Ljava/lang/Runnable;)V",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private int nerofactions$salvageWearLegacy(int amount, int originalAmount,
+            net.minecraft.util.RandomSource random, ServerPlayer user) {
         return GearSetBonuses.salvageWear(user, (ItemStack) (Object) this, amount);
     }
     *///?}

@@ -12,6 +12,8 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
+def spaceApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
 def neoVersion = project.findProperty("neo_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
@@ -120,8 +122,8 @@ dependencies {
     // types and is never classloaded when the mod is absent. The loader metadata names it as optional
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${mc}:${rootProject.neroeconomy_version}"
-    compileOnly "za.co.neroland.nerospace:nerospace-neoforge-${mc}:${rootProject.nerospace_version}"
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${economyApiMc}:${rootProject.neroeconomy_version}"
+    compileOnly "za.co.neroland.nerospace:nerospace-neoforge-${spaceApiMc}:${rootProject.nerospace_version}"
 }
 
 // Expand neoforge.mods.toml from src/main/templates into a generated resources dir
