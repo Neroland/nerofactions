@@ -66,7 +66,7 @@ abstract class CraftingMenuMixin {
         // The parameter is RecipeInput so the handler descriptor matches the erased target; the
         // call site only ever passes a CraftingInput.
         return CraftingPlayer.resolveWith(crafter,
-                () -> manager.getRecipeFor(type, (CraftingInput) input, level, hint));
+                () -> manager.getRecipeFor(type, (CraftingInput) input, level, CraftingPlayer.craftingHint(hint)));
     }
     //?} else {
     /*@Redirect(method = "slotChangedCraftingGrid",

@@ -3,6 +3,8 @@ package za.co.neroland.nerofactions.crafting;
 import java.util.function.Supplier;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +28,17 @@ public final class CraftingPlayer {
     private static final ThreadLocal<ServerPlayer> CURRENT = new ThreadLocal<>();
 
     private CraftingPlayer() {
+    }
+
+    // Recipe-book placement can hand the crafting grid a non-crafting recipe through an erased holder.
+    @Nullable
+    public static RecipeHolder<CraftingRecipe> craftingHint(@Nullable RecipeHolder<?> hint) {
+        if (hint == null || !(hint.value() instanceof CraftingRecipe)) {
+            return null;
+        }
+        @SuppressWarnings("unchecked")
+        RecipeHolder<CraftingRecipe> crafting = (RecipeHolder<CraftingRecipe>) hint;
+        return crafting;
     }
 
     /** The player the current thread's recipe lookup is for, or null when unattributed. */
