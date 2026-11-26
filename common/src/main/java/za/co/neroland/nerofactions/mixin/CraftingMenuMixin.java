@@ -16,7 +16,9 @@ import net.minecraft.world.item.crafting.RecipeInput;
 /*import net.minecraft.world.Container;
 *///?}
 import net.minecraft.world.item.crafting.CraftingRecipe;
+//? if >=1.20.2 {
 import net.minecraft.world.item.crafting.RecipeHolder;
+//?}
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -68,7 +70,7 @@ abstract class CraftingMenuMixin {
         return CraftingPlayer.resolveWith(crafter,
                 () -> manager.getRecipeFor(type, (CraftingInput) input, level, CraftingPlayer.craftingHint(hint)));
     }
-    //?} else {
+    //?} else if >=1.20.2 {
     /*@Redirect(method = "slotChangedCraftingGrid",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRecipeFor("
@@ -76,6 +78,20 @@ abstract class CraftingMenuMixin {
                             + "Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)"
                             + "Ljava/util/Optional;"))
     private static Optional<RecipeHolder<CraftingRecipe>> nerofactions$resolveWithCrafter(
+            RecipeManager manager, RecipeType<CraftingRecipe> type, Container input, Level level,
+            AbstractContainerMenu menu, Level craftingLevel, Player player) {
+        ServerPlayer crafter = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;
+        return CraftingPlayer.resolveWith(crafter,
+                () -> manager.getRecipeFor(type, (CraftingContainer) input, level));
+    }
+    *///?} else {
+    /*@Redirect(method = "slotChangedCraftingGrid",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/crafting/RecipeManager;getRecipeFor("
+                            + "Lnet/minecraft/world/item/crafting/RecipeType;"
+                            + "Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)"
+                            + "Ljava/util/Optional;"))
+    private static Optional<CraftingRecipe> nerofactions$resolveWithCrafter(
             RecipeManager manager, RecipeType<CraftingRecipe> type, Container input, Level level,
             AbstractContainerMenu menu, Level craftingLevel, Player player) {
         ServerPlayer crafter = player instanceof ServerPlayer serverPlayer ? serverPlayer : null;

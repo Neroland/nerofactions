@@ -64,4 +64,14 @@ public final class NeoForgePlatformInfo implements PlatformInfo {
     public Path getConfigDir() {
         return FMLPaths.CONFIGDIR.get();
     }
+
+    //? if <1.20.5 {
+    /*@Override
+    public void setLegacyVoidReach(net.minecraft.server.level.ServerPlayer player, int ticks) {
+        za.co.neroland.nerofactions.content.faction.voidcult.LegacyVoidReach.update(
+                player.getAttribute(net.neoforged.neoforge.common.NeoForgeMod.BLOCK_REACH.value()), ticks > 0);
+        za.co.neroland.nerofactions.content.faction.voidcult.LegacyVoidReach.update(
+                player.getAttribute(net.neoforged.neoforge.common.NeoForgeMod.ENTITY_REACH.value()), ticks > 0);
+    }
+    *///?}
 }

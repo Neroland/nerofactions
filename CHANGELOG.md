@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.1]
+
+### Added
+
+- Minecraft 1.20 through 1.20.4 on Fabric and Forge, and 1.20.4 and 1.20.5 on NeoForge.
+- NeoForge 1.20.5 uses loader 20.5.21-beta with Neroland Core 1.24.0 or newer.
+
 ## [0.9.0] - 2026-11-24
 
 ### Added

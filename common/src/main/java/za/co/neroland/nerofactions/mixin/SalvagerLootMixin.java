@@ -2,7 +2,9 @@ package za.co.neroland.nerofactions.mixin;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+//? if >=1.20.3 {
 import net.minecraft.world.RandomizableContainer;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -19,8 +21,13 @@ import za.co.neroland.nerofactions.content.faction.salvagers.SalvagerLoot;
  * more and the extra stacks go into empty slots only. {@code unpackLootTable} only reaches {@code fill} when the
  * container still has a loot table and a server, so this runs server-side, once per container.
  */
+//? if >=1.20.3 {
 @Mixin(RandomizableContainer.class)
 interface SalvagerLootMixin {
+//?} else {
+/*@Mixin(net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity.class)
+abstract class SalvagerLootMixin {
+*///?}
     @Redirect(method = "unpackLootTable", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/storage/loot/LootTable;fill("
                     + "Lnet/minecraft/world/Container;"

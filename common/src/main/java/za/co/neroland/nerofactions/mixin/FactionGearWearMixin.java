@@ -65,9 +65,17 @@ abstract class FactionGearWearMixin {
     private int nerofactions$salvageWearPlayer(int amount, int originalAmount, ServerLevel level, ServerPlayer user) {
         return GearSetBonuses.salvageWear(user, (ItemStack) (Object) this, amount);
     }
-    *///?} else {
+    *///?} else if >=1.20.5 {
     /*@ModifyVariable(method = "hurtAndBreak(ILnet/minecraft/util/RandomSource;"
             + "Lnet/minecraft/server/level/ServerPlayer;Ljava/lang/Runnable;)V",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private int nerofactions$salvageWearLegacy(int amount, int originalAmount,
+            net.minecraft.util.RandomSource random, ServerPlayer user) {
+        return GearSetBonuses.salvageWear(user, (ItemStack) (Object) this, amount);
+    }
+    *///?} else {
+    /*@ModifyVariable(method = "hurt(ILnet/minecraft/util/RandomSource;"
+            + "Lnet/minecraft/server/level/ServerPlayer;)Z",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private int nerofactions$salvageWearLegacy(int amount, int originalAmount,
             net.minecraft.util.RandomSource random, ServerPlayer user) {

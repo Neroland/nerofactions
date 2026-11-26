@@ -9,7 +9,11 @@ import net.minecraft.resources.Identifier;
 
 public record ContractSnapshot(List<Row> entries, long day, boolean rerollAvailable, String feedback) implements CustomPacketPayload {
     public static final int MAX_ENTRIES = 192;
+    //? if >=1.20.5 {
     public static final Type<ContractSnapshot> TYPE = new Type<>(Identifier.parse("nerofactions:contracts"));
+    //?} else {
+    /*public static final Type<ContractSnapshot> TYPE = new Type<>(Identifier.parse("nerofactions:contracts"), ContractSnapshot.class);
+    *///?}
     public static final StreamCodec<FriendlyByteBuf, ContractSnapshot> STREAM_CODEC = StreamCodec.of(
             ContractSnapshot::write, ContractSnapshot::read);
 

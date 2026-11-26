@@ -86,6 +86,10 @@ public final class FactionsNetwork {
             return; // defensive: a second call must not duplicate registrations
         }
         declared = true;
+        //? if <1.20.5 {
+        /*clientbound(LegacyVoidReachPayload.TYPE, LegacyVoidReachPayload.STREAM_CODEC,
+                za.co.neroland.nerofactions.client.FactionsClientState::acceptLegacyVoidReach);
+        *///?}
         clientbound(ContractSnapshot.TYPE, ContractSnapshot.STREAM_CODEC,
                 za.co.neroland.nerofactions.client.FactionsClientState::acceptContracts);
         serverbound(ContractIntent.TYPE, ContractIntent.STREAM_CODEC, ContractIntent::handle);

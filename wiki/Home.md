@@ -3,8 +3,8 @@
 Player- and server-admin documentation for **NeroFactions**, the reputation and allegiance
 mod of the Neroland sci-fi Minecraft mod ecosystem. Built on **Neroland Core**.
 
-NeroFactions requires **Neroland Core 1.23.0 or newer** (below 2.0). Minecraft 1.20.5 runs on
-Fabric, and 1.20.6 runs on Fabric, Forge and NeoForge.
+NeroFactions requires **Neroland Core 1.23.0 or newer** (below 2.0). Minecraft 1.20 through 1.20.6 runs on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,
+and 1.20.4 through 1.20.6 on NeoForge. NeoForge 1.20.5 uses loader 20.5.21-beta and Core 1.24.0.
 
 NeroFactions gives your world **seven factions worth picking a side over**. Every player
 holds a standing value with each faction, climbing a five-tier ladder — Outsider, Associate,

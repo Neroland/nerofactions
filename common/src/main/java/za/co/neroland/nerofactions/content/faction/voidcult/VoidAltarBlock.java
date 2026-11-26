@@ -37,8 +37,10 @@ import za.co.neroland.nerolandcore.reputation.ReputationApi;
 
 public final class VoidAltarBlock extends BaseEntityBlock {
     private static final MapCodec<VoidAltarBlock> CODEC = BlockCodecs.simple(VoidAltarBlock::new);
+    //? if >=1.20.5 {
     private static final Identifier REACH_ID = Identifier.parse("nerofactions:void_rite_reach");
     private static final AttributeModifier REACH = new AttributeModifier(REACH_ID, 0.75, AttributeModifier.Operation.ADD_VALUE);
+    //?}
     private record Boon(int expiresAt, MobEffectInstance vision) {}
     private static final Map<UUID, Boon> BOONS = new HashMap<>();
 
@@ -68,9 +70,25 @@ public final class VoidAltarBlock extends BaseEntityBlock {
         }
     }
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.isEmpty()) {
+            InteractionResult handled = useHeldItem(held, state, level, pos, player, hand, hit);
+            if (handled != InteractionResult.PASS) {
+                return handled;
+            }
+        }
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (player instanceof ServerPlayer member) message(member, "instructions");
         return InteractionResult.SUCCESS;
     }
@@ -82,12 +100,18 @@ public final class VoidAltarBlock extends BaseEntityBlock {
         if (player instanceof ServerPlayer member) perform(member, stack);
         return InteractionResult.SUCCESS;
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player instanceof ServerPlayer member) perform(member, stack);
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    /*private InteractionResult useHeldItem(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player instanceof ServerPlayer member) perform(member, stack);
+        return InteractionResult.SUCCESS;
     }
     *///?}
 
@@ -147,9 +171,11 @@ public final class VoidAltarBlock extends BaseEntityBlock {
         for (var player : server.getPlayerList().getPlayers()) {
             if (BOONS.containsKey(player.getUUID())) {
                 applyBoon(player);
+            //? if >=1.20.5 {
             } else {
                 player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).removeModifier(REACH.id());
                 player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).removeModifier(REACH.id());
+            //?}
             }
         }
     }
@@ -173,12 +199,25 @@ public final class VoidAltarBlock extends BaseEntityBlock {
     }
 
     private static void applyBoon(ServerPlayer player) {
+        //? if >=1.20.5 {
         player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).addOrUpdateTransientModifier(REACH);
         player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).addOrUpdateTransientModifier(REACH);
+        //?} else {
+        /*var server = player.level().getServer();
+        if (server != null) {
+            za.co.neroland.nerofactions.platform.Services.PLATFORM.setLegacyVoidReach(
+                    player, remaining(server, player.getUUID()));
+        }
+        *///?}
         player.removeEffect(MobEffects.WITHER);
     }
 
     private static void clearVision(ServerPlayer player, Boon boon) {
+        //? if <1.20.5 {
+        /*if (player != null) {
+            za.co.neroland.nerofactions.platform.Services.PLATFORM.setLegacyVoidReach(player, 0);
+        }
+        *///?}
         if (player != null && boon.vision() != null && player.getEffect(MobEffects.NIGHT_VISION) == boon.vision()
                 && boon.vision().isAmbient()) {
             player.removeEffect(MobEffects.NIGHT_VISION);

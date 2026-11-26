@@ -106,8 +106,10 @@ public final class SaleReputation {
     private static Set<Identifier> itemTags(Identifier item) {
         //? if >=1.21.2 {
         return BuiltInRegistries.ITEM.get(item)
-        //?} else {
+        //?} else if >=1.20.5 {
         /*return BuiltInRegistries.ITEM.getHolder(item)
+        *///?} else {
+        /*return BuiltInRegistries.ITEM.getHolder(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ITEM, item))
         *///?}
                 .map(holder -> holder.tags().map(TagKey::location).collect(Collectors.toSet()))
                 .orElse(Set.of());

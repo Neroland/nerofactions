@@ -40,9 +40,16 @@ class ShippedBannerPatternsTest {
             String item = "nerofactions:" + name + "_banner_pattern";
             String file = name + ".json";
             assertTrue(loomItems.contains(new JsonPrimitive(item)), item);
+            //? if >=1.20.5 {
             var pattern = BannerPattern.DIRECT_CODEC.parse(JsonOps.INSTANCE,
                     read(data.resolve("banner_pattern").resolve(file)));
             assertTrue(pattern.isSuccess(), pattern.toString());
+            //?} else {
+            /*var pattern = read(data.resolve("banner_pattern").resolve(file));
+            assertEquals(faction.factionId().toString(), pattern.get("asset_id").getAsString());
+            var legacy = new BannerPattern(faction.factionId().toString());
+            assertEquals(faction.factionId().toString(), legacy.getHashname());
+            *///?}
             var loomTag = read(data.resolve("tags/banner_pattern/pattern_item").resolve(file)).getAsJsonArray("values");
             assertEquals(1, loomTag.size());
             assertEquals(faction.factionId().toString(), loomTag.get(0).getAsString());

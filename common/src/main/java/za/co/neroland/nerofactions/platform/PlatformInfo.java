@@ -44,4 +44,8 @@ public interface PlatformInfo {
 
     /** The instance's config directory (where Core writes {@code nerofactions.properties}). */
     Path getConfigDir();
+
+    //? if <1.20.5 {
+    /*void setLegacyVoidReach(net.minecraft.server.level.ServerPlayer player, int ticks);
+    *///?}
 }

@@ -13,8 +13,9 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :fabric:26.1.2), not a global property.
 def mc = stonecutter.current.version
-def spaceApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
-def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def preComponents = stonecutter.eval(mc, '<1.20.5')
+def spaceApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
 // Minecraft before 26.1 ships obfuscated, so those cells need mappings and a remapped jar.
 def obfuscated = mc.startsWith('1.')
 apply plugin: obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
@@ -133,15 +134,15 @@ dependencies {
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
     if (obfuscated) {
-        modCompileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${rootProject.nerospace_version}"
+        modCompileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
     } else {
-        compileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${rootProject.nerospace_version}"
+        compileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
     }
     if (obfuscated) {
         // 1.21.x: NeroEconomy is an intermediary-named mod jar there, so Loom must remap it.
-        modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${rootProject.neroeconomy_version}"
+        modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
     } else {
-        compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${rootProject.neroeconomy_version}"
+        compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
     }
 }
 
@@ -152,6 +153,7 @@ dependencies {
 // Run & Debug works — while values stay dynamic (sourced from gradle.properties).
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def props = [
+        java_version: project.javaRelease,
         mod_id               : rootProject.mod_id,
         mod_version          : rootProject.mod_version,
         mod_name             : rootProject.mod_name,

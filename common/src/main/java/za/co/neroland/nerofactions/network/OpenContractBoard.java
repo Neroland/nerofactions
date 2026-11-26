@@ -8,7 +8,11 @@ import net.minecraft.server.level.ServerPlayer;
 import za.co.neroland.nerofactions.menu.RegistryMenu;
 
 public record OpenContractBoard(int menuId) implements CustomPacketPayload {
+    //? if >=1.20.5 {
     public static final Type<OpenContractBoard> TYPE = new Type<>(Identifier.parse("nerofactions:open_contract_board"));
+    //?} else {
+    /*public static final Type<OpenContractBoard> TYPE = new Type<>(Identifier.parse("nerofactions:open_contract_board"), OpenContractBoard.class);
+    *///?}
     public static final StreamCodec<FriendlyByteBuf, OpenContractBoard> STREAM_CODEC = StreamCodec.of(
             (buf, p) -> buf.writeVarInt(p.menuId), buf -> new OpenContractBoard(buf.readVarInt()));
 

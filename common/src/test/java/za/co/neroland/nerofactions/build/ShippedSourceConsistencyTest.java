@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,7 +26,8 @@ import org.junit.jupiter.api.Test;
  */
 class ShippedSourceConsistencyTest {
 
-    private static final Pattern IF = Pattern.compile("//\\?\\s*(?:}\\s*else\\s+)?if\\s+(<=|>=|<|>|=)?\\s*([0-9.]+)\\s*\\{\\s*$");
+    private static final Pattern IF = Pattern.compile("//\\?\\s*(?:(})\\s*(?:else\\s+if|elif)|if)\\s+(.+?)\\s*\\{\\s*$");
+    private static final Pattern TERM = Pattern.compile("(<=|>=|<|>|=)?\\s*([0-9.]+)");
     private static final Pattern ELSE = Pattern.compile("//\\?\\s*}\\s*else\\s*\\{\\s*$");
     private static final Pattern END = Pattern.compile("//\\?\\s*}\\s*$");
 
@@ -71,6 +73,21 @@ class ShippedSourceConsistencyTest {
     }
 
     @Test
+    void aNestedInactiveParentDoesNotMakeItsInnerSourceLive() {
+        var nested = List.of(
+                "//? if <1.20.5 {",
+                "/*void old() {",
+                "//? if >=1.20.3 && <1.20.5 {",
+                "    adapt();",
+                "//?}",
+                "}",
+                "*///?} elif >=1.20.5 || <1.20 {",
+                "void current() {}",
+                "//?}");
+        assertEquals(List.of(), stateProblems(nested, "26.2"));
+    }
+
+    @Test
     void everyItemHasAClassicModelForTheOldestLine() throws IOException {
         Path assets = repoRoot().resolve("common/src/main/resources/assets/nerofactions");
         assertEquals(List.of(), missingClassicModels(assets));
@@ -113,34 +130,60 @@ class ShippedSourceConsistencyTest {
                 "{\"pools\":[{\"condition\":{\"type\":\"minecraft:survives_explosion\"}}]}")));
     }
 
+    private record Branch(boolean parentActive, boolean selected, boolean taken) {
+        boolean active() {
+            return parentActive && selected;
+        }
+    }
+
     static List<String> stateProblems(List<String> lines, String active) {
         List<String> problems = new ArrayList<>();
-        boolean inChain = false;
-        boolean taken = false;
+        var branches = new ArrayDeque<Branch>();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            Boolean branch = null;
-            Matcher m = IF.matcher(line);
-            if (m.find()) {
-                if (!line.contains("else")) taken = false;
-                boolean holds = !taken && holds(m.group(1), m.group(2), active);
-                taken |= holds;
-                inChain = true;
-                branch = holds;
+            Matcher condition = IF.matcher(line);
+            Branch current;
+            if (condition.find()) {
+                if (condition.group(1) == null) {
+                    boolean parentActive = branches.isEmpty() || branches.peek().active();
+                    boolean selected = evaluates(condition.group(2), active);
+                    current = new Branch(parentActive, selected, selected);
+                } else {
+                    Branch prior = branches.pop();
+                    boolean selected = !prior.taken() && evaluates(condition.group(2), active);
+                    current = new Branch(prior.parentActive(), selected, prior.taken() || selected);
+                }
             } else if (ELSE.matcher(line).find()) {
-                branch = !taken;
-                taken = true;
-            } else if (END.matcher(line).find()) {
-                inChain = false;
+                Branch prior = branches.pop();
+                current = new Branch(prior.parentActive(), !prior.taken(), true);
+            } else {
+                if (END.matcher(line).find() && !branches.isEmpty()) branches.pop();
                 continue;
             }
-            if (branch == null || !inChain || i + 1 >= lines.size()) continue;
-            boolean commented = lines.get(i + 1).trim().startsWith("/*");
-            if (branch == commented) {
-                problems.add((i + 1) + (branch ? " active branch is commented out" : " inactive branch is live"));
+            branches.push(current);
+            if (!current.parentActive() || i + 1 >= lines.size()) continue;
+            String next = lines.get(i + 1).stripLeading();
+            boolean commented = next.startsWith("/*") && !next.startsWith("/**");
+            if (current.selected() == commented) {
+                problems.add((i + 1) + (current.selected() ? " active branch is commented out" : " inactive branch is live"));
             }
         }
         return problems;
+    }
+
+    private static boolean evaluates(String expression, String active) {
+        for (String option : expression.split("\\|\\|")) {
+            boolean matches = true;
+            for (String requirement : option.split("&&")) {
+                Matcher term = TERM.matcher(requirement.trim());
+                if (!term.matches()) {
+                    throw new IllegalArgumentException("Unsupported Stonecutter version expression: " + expression);
+                }
+                matches &= holds(term.group(1), term.group(2), active);
+            }
+            if (matches) return true;
+        }
+        return false;
     }
 
     static boolean holds(String op, String version, String active) {

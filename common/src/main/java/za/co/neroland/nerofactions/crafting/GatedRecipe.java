@@ -11,7 +11,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+//? if >=1.20.5 {
 import net.minecraft.network.codec.ByteBufCodecs;
+//?}
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -82,13 +84,19 @@ public final class GatedRecipe implements CraftingRecipe {
 
     //? if >=26.3 {
     /*private static final Codec<CraftingRecipe> WRAPPED_CODEC = Recipe.DIRECT_CODEC.comapFlatMap(
-    *///?} else {
+    *///?} else if >=1.20.5 {
     private static final Codec<CraftingRecipe> WRAPPED_CODEC = Recipe.CODEC.comapFlatMap(
-    //?}
+    //?} else if >=1.20.2 {
+    /*private static final Codec<CraftingRecipe> WRAPPED_CODEC =
+            net.minecraft.core.registries.BuiltInRegistries.RECIPE_SERIALIZER.byNameCodec()
+                    .<Recipe<?>>dispatch(Recipe::getSerializer, RecipeSerializer::codec).comapFlatMap(
+    *///?}
+    //? if >=1.20.2 {
             recipe -> recipe instanceof CraftingRecipe crafting
                     ? DataResult.success(crafting)
                     : DataResult.error(() -> "nerofactions:gated can only wrap a crafting recipe"),
             recipe -> recipe);
+    //?}
 
     static final Codec<FactionTier> TIER_CODEC = Codec.STRING.comapFlatMap(
             name -> FactionTier.byName(name)
@@ -103,8 +111,16 @@ public final class GatedRecipe implements CraftingRecipe {
     private final FactionTier tier;
     private final Optional<Identifier> coreGate;
 
+    //? if >=1.20.2 {
     GatedRecipe(Supplier<RecipeSerializer<GatedRecipe>> serializer, CraftingRecipe wrapped,
             Identifier faction, FactionTier tier, Optional<Identifier> coreGate) {
+    //?} else {
+    /*private final Identifier id;
+
+    GatedRecipe(Supplier<RecipeSerializer<GatedRecipe>> serializer, CraftingRecipe wrapped,
+            Identifier faction, FactionTier tier, Optional<Identifier> coreGate, Identifier id) {
+        this.id = id;
+    *///?}
         this.serializer = serializer;
         this.wrapped = wrapped;
         this.faction = faction;
@@ -112,6 +128,7 @@ public final class GatedRecipe implements CraftingRecipe {
         this.coreGate = coreGate;
     }
 
+    //? if >=1.20.2 {
     /** The file codec; the serializer supplier breaks the recipe↔serializer registration cycle. */
     public static MapCodec<GatedRecipe> mapCodec(Supplier<RecipeSerializer<GatedRecipe>> serializer) {
         return RecordCodecBuilder.mapCodec(inst -> inst.group(
@@ -122,7 +139,9 @@ public final class GatedRecipe implements CraftingRecipe {
         ).apply(inst, (wrapped, faction, tier, coreGate) ->
                 new GatedRecipe(serializer, wrapped, faction, tier, coreGate)));
     }
+    //?}
 
+    //? if >=1.20.5 {
     /** Legacy sync codec (26.x syncs displays, not recipes — required by the registry anyway). */
     public static StreamCodec<RegistryFriendlyByteBuf, GatedRecipe> streamCodec(
             Supplier<RecipeSerializer<GatedRecipe>> serializer) {
@@ -137,6 +156,7 @@ public final class GatedRecipe implements CraftingRecipe {
                 (wrapped, faction, tier, coreGate) ->
                         new GatedRecipe(serializer, wrapped, faction, tier, coreGate));
     }
+    //?}
 
     // --- the gate ------------------------------------------------------------
 
@@ -242,6 +262,13 @@ public final class GatedRecipe implements CraftingRecipe {
         return List.of();
     }
     //?}
+
+    //? if <1.20.2 {
+    /*@Override
+    public Identifier getId() {
+        return id;
+    }
+    *///?}
 
     @Override
     public RecipeSerializer<GatedRecipe> getSerializer() {

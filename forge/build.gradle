@@ -4,14 +4,19 @@
 plugins {
     id 'net.minecraftforge.gradle'
     id 'net.minecraftforge.jarjar'
+    id 'net.minecraftforge.renamer' apply false
     id 'eclipse'
     id 'maven-publish'
 }
 
 // MC version comes from the Stonecutter node (e.g. :forge:26.1.2), not a global property.
 def mc = stonecutter.current.version
-def spaceApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
-def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def preComponents = stonecutter.eval(mc, '<1.20.5')
+if (preComponents) {
+    apply plugin: 'net.minecraftforge.renamer'
+}
+def spaceApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
 def forgeVersion = project.findProperty("forge_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
@@ -106,6 +111,9 @@ repositories {
 
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${forgeVersion}")
+    if (preComponents) {
+        annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+    }
     // EventBus 7's compile-time validator; Forge before 1.21.6 ships EventBus 6, which it cannot validate.
     if (stonecutter.eval(mc, '>=1.21.6')) {
         annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.6'
@@ -138,11 +146,31 @@ dependencies {
     // types and is never classloaded when the mod is absent. The loader metadata names it as optional
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${economyApiMc}:${rootProject.neroeconomy_version}"
-    compileOnly "za.co.neroland.nerospace:nerospace-forge-${spaceApiMc}:${rootProject.nerospace_version}"
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
+    compileOnly "za.co.neroland.nerospace:nerospace-forge-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
 }
 
 // Expand mods.toml from src/main/templates into generated resources.
+if (preComponents) {
+    renamer.mappings.from minecraft.dependency.toSrgFile
+    renamer.enableMixinRefmaps {
+        config 'nerofactions-common.mixins.json'
+        refMap = 'nerofactions.refmap.json'
+    }
+    tasks.named('jar', Jar) {
+        manifest.attributes('MixinConfigs': 'nerofactions-common.mixins.json')
+    }
+    def bundled = tasks.named('jarJar', Jar) {
+        archiveClassifier = 'dev-all'
+    }
+    renamer.classes('renameReleaseJar', bundled) {
+        mappings renamer.mixin.generatedMappings
+        archiveClassifier = 'all'
+    }
+    tasks.named('assemble') { dependsOn 'renameReleaseJar' }
+}
+
+
 def generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
     def props = [
         mod_id                    : rootProject.mod_id,

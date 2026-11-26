@@ -30,8 +30,24 @@ public final class CorporateTerminalBlock extends BaseEntityBlock {
 
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new Terminal(pos, state); }
 
+    //? if >=1.20.5 {
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.isEmpty()) {
+            InteractionResult handled = useHeldItem(held, state, level, pos, player, hand, hit);
+            if (handled != InteractionResult.PASS) {
+                return handled;
+            }
+        }
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (player instanceof ServerPlayer customer && level instanceof ServerLevel world) {
             CorporateCounter.deliver(customer, world, ItemStack.EMPTY);
         }
@@ -46,13 +62,21 @@ public final class CorporateTerminalBlock extends BaseEntityBlock {
         }
         return InteractionResult.SUCCESS;
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state,
             Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player instanceof ServerPlayer customer && level instanceof ServerLevel world) {
             CorporateCounter.deliver(customer, world, stack);
         }
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    /*private InteractionResult useHeldItem(ItemStack stack, BlockState state,
+            Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player instanceof ServerPlayer customer && level instanceof ServerLevel world) {
+            CorporateCounter.deliver(customer, world, stack);
+        }
+        return InteractionResult.SUCCESS;
     }
     *///?}
 

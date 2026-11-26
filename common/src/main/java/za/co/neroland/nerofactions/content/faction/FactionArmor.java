@@ -70,9 +70,11 @@ public enum FactionArmor {
 
     //? if >=1.21.2 {
     private final ArmorMaterial material;
-    //?} else {
+    //?} else if >=1.20.5 {
     /*private final RegistryEntry<ArmorMaterial> material;
     private final int durability;
+    *///?} else {
+    /*private final ArmorMaterial material;
     *///?}
     private final String name;
     private final OutpostFaction faction;
@@ -93,12 +95,14 @@ public enum FactionArmor {
         this.material = new ArmorMaterial(durability, Map.of(ArmorType.HELMET, helmet, ArmorType.CHESTPLATE, chestplate,
                 ArmorType.LEGGINGS, leggings, ArmorType.BOOTS, boots), 12, SoundEvents.ARMOR_EQUIP_IRON,
                 toughness, 0.0F, repair, ResourceKey.create(EquipmentAssets.ROOT_ID, id));
-        //?} else {
+        //?} else if >=1.20.5 {
         /*this.durability = durability;
         this.material = RegistrationProvider.get(Registries.ARMOR_MATERIAL, id.getNamespace()).register(name,
                 key -> new ArmorMaterial(Map.of(Type.HELMET, helmet, Type.CHESTPLATE, chestplate,
                         Type.LEGGINGS, leggings, Type.BOOTS, boots), 12, SoundEvents.ARMOR_EQUIP_IRON,
                         () -> Ingredient.of(repair), List.of(new ArmorMaterial.Layer(id)), toughness, 0.0F));
+        *///?} else {
+        /*this.material = new LegacyMaterial(id, stats, repair);
         *///?}
     }
 
@@ -157,12 +161,47 @@ public enum FactionArmor {
         //?} else if >=1.21.2 {
         /*return NeroFactionsItems.ITEMS.register(id,
                 key -> new ArmorItem(material, type, new Item.Properties().setId(key)));
-        *///?} else {
+        *///?} else if >=1.20.5 {
         /*ResourceKey<ArmorMaterial> materialKey = ResourceKey.create(Registries.ARMOR_MATERIAL, material.id());
         return NeroFactionsItems.ITEMS.register(id, key -> new ArmorItem(
                 ((MappedRegistry<ArmorMaterial>) BuiltInRegistries.ARMOR_MATERIAL)
                         .createRegistrationLookup().getOrThrow(materialKey),
                 type, new Item.Properties().durability(type.getDurability(durability))));
+        *///?} else {
+        /*return NeroFactionsItems.ITEMS.register(id,
+                key -> new ArmorItem(material, type, new Item.Properties()));
         *///?}
     }
+
+    //? if <1.20.5 {
+    /*private record LegacyMaterial(Identifier id, Stats stats, TagKey<Item> repair) implements ArmorMaterial {
+        @Override
+        public int getDurabilityForType(Type type) {
+            int base = switch (type) {
+                case HELMET -> 11;
+                case CHESTPLATE -> 16;
+                case LEGGINGS -> 15;
+                case BOOTS -> 13;
+            };
+            return base * stats.durability();
+        }
+
+        @Override
+        public int getDefenseForType(Type type) {
+            return switch (type) {
+                case HELMET -> stats.helmet();
+                case CHESTPLATE -> stats.chestplate();
+                case LEGGINGS -> stats.leggings();
+                case BOOTS -> stats.boots();
+            };
+        }
+
+        @Override public int getEnchantmentValue() { return 12; }
+        @Override public net.minecraft.sounds.SoundEvent getEquipSound() { return SoundEvents.ARMOR_EQUIP_IRON; }
+        @Override public Ingredient getRepairIngredient() { return Ingredient.of(repair); }
+        @Override public String getName() { return id.toString(); }
+        @Override public float getToughness() { return stats.toughness(); }
+        @Override public float getKnockbackResistance() { return 0.0F; }
+    }
+    *///?}
 }

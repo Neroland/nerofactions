@@ -68,9 +68,25 @@ public final class DeconstructorBlock extends BaseEntityBlock {
         }
     }
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.isEmpty()) {
+            InteractionResult handled = useHeldItem(held, state, level, pos, player, hand, hit);
+            if (handled != InteractionResult.PASS) {
+                return handled;
+            }
+        }
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (player instanceof ServerPlayer salvager) message(salvager, "instructions");
         return InteractionResult.SUCCESS;
     }
@@ -82,12 +98,18 @@ public final class DeconstructorBlock extends BaseEntityBlock {
         if (player instanceof ServerPlayer salvager) deconstruct(salvager, stack);
         return InteractionResult.SUCCESS;
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (player instanceof ServerPlayer salvager) deconstruct(salvager, stack);
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    /*private InteractionResult useHeldItem(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player instanceof ServerPlayer salvager) deconstruct(salvager, stack);
+        return InteractionResult.SUCCESS;
     }
     *///?}
 
@@ -114,7 +136,10 @@ public final class DeconstructorBlock extends BaseEntityBlock {
             return;
         }
         var matches = server.getRecipeManager().getRecipes().stream()
-                .map(holder -> holder.value()).filter(recipe -> recipe.getClass() == ShapedRecipe.class).map(ShapedRecipe.class::cast)
+                //? if >=1.20.2 {
+                .map(holder -> holder.value())
+                //?}
+                .filter(recipe -> recipe.getClass() == ShapedRecipe.class).map(ShapedRecipe.class::cast)
                 .map(recipe -> plan(player, input, recipe)).filter(plan -> plan != null).limit(2).toList();
         if (matches.size() != 1 || input.getCount() < matches.getFirst().batch()) {
             message(player, "unsupported");

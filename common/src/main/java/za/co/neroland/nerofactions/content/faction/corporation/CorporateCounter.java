@@ -84,8 +84,12 @@ public final class CorporateCounter {
             case STAMPED -> {
                 input.shrink(STAMP_GOLD);
                 player.getInventory().setChanged();
+                //? if >=1.20.5 {
                 player.getItemInHand(hand).hurtAndBreak(1, player,
                         hand == InteractionHand.MAIN_HAND ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+                //?} else {
+                /*player.getItemInHand(hand).hurtAndBreak(1, player, damaged -> damaged.broadcastBreakEvent(hand));
+                *///?}
                 give(player, new ItemStack(NeroFactionsItems.CORPORATE_WRIT.get()));
                 message(player, "stamped");
             }

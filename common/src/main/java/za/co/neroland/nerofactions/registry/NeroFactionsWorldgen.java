@@ -11,7 +11,11 @@ public final class NeroFactionsWorldgen {
             RegistrationProvider.get(Registries.STRUCTURE_TYPE, NeroFactionsCommon.MOD_ID);
 
     public static final RegistrationProvider.RegistryEntry<StructureType<OutpostStructure>> OUTPOST =
+            //? if >=1.20.5 {
             STRUCTURES.register("faction_outpost", key -> () -> OutpostStructure.CODEC);
+            //?} else {
+            /*STRUCTURES.register("faction_outpost", key -> OutpostStructure.CODEC::codec);
+            *///?}
 
     private NeroFactionsWorldgen() {
     }

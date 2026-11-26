@@ -45,6 +45,13 @@ class IntegrationsGuardTest {
 
     private static PlatformInfo stub(Set<String> loadedMods) {
         return new PlatformInfo() {
+            //? if <1.20.5 {
+            /*@Override
+            public void setLegacyVoidReach(net.minecraft.server.level.ServerPlayer player, int ticks) {
+                throw new UnsupportedOperationException("No world in the integration-detection tests");
+            }
+            *///?}
+
             @Override
             public String getPlatformName() {
                 return "Test";

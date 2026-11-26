@@ -54,4 +54,11 @@ public final class FabricPlatformInfo implements PlatformInfo {
     public Path getConfigDir() {
         return FabricLoader.getInstance().getConfigDir();
     }
+
+    //? if <1.20.5 {
+    /*@Override
+    public void setLegacyVoidReach(net.minecraft.server.level.ServerPlayer player, int ticks) {
+        Services.NETWORK.sendToPlayer(player, new za.co.neroland.nerofactions.network.LegacyVoidReachPayload(ticks));
+    }
+    *///?}
 }

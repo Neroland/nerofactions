@@ -12,12 +12,13 @@ plugins {
 
 // MC version comes from the Stonecutter node (e.g. :neoforge:26.1.2), not a global property.
 def mc = stonecutter.current.version
-def spaceApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
-def economyApiMc = mc.startsWith('1.20.') ? '1.21.1' : mc
+def preComponents = stonecutter.eval(mc, '<1.20.5')
+def spaceApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
+def economyApiMc = !preComponents && mc.startsWith('1.20.') ? '1.21.1' : mc
 def neoVersion = project.findProperty("neo_version_${mc}")
 def jeiVersion = project.findProperty("jei_version_${mc}")
 def emiFile = project.findProperty("emi_file_neoforge_${mc}")
-def nerolandcoreVersion = project.findProperty('nerolandcore_version')
+def nerolandcoreVersion = project.findProperty(mc == '1.20.5' ? 'nerolandcore_version_neoforge_1.20.5' : 'nerolandcore_version')
 // Minecraft range: 1.21.x cells are bounded to their API line (gradle.properties); 26.x keep [mc,).
 def mcCeiling = project.findProperty("mc_ceiling_${mc}")
 def mcFloor = project.findProperty("mc_floor_${mc}") ?: mc
@@ -122,8 +123,8 @@ dependencies {
     // types and is never classloaded when the mod is absent. The loader metadata names it as optional
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${economyApiMc}:${rootProject.neroeconomy_version}"
-    compileOnly "za.co.neroland.nerospace:nerospace-neoforge-${spaceApiMc}:${rootProject.nerospace_version}"
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-neoforge-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
+    compileOnly "za.co.neroland.nerospace:nerospace-neoforge-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
 }
 
 // Expand neoforge.mods.toml from src/main/templates into a generated resources dir
@@ -147,9 +148,41 @@ def generateModMetadata = tasks.register('generateModMetadata', ProcessResources
     inputs.properties(props)
     expand(props)
     from "${branchDir}/src/main/templates"
+    if (stonecutter.eval(mc, '<1.20.5')) {
+        filesMatching('META-INF/neoforge.mods.toml') {
+            name = 'mods.toml'
+            filter { line -> line.replace('type = "required"', 'mandatory = true')
+                                 .replace('type = "optional"', 'mandatory = false') }
+        }
+    }
     into layout.buildDirectory.dir('generated/sources/modMetadata')
 }
 sourceSets.main.resources.srcDir generateModMetadata
+
+// NeoForge 20.5's POM predates the ModDevGradle variants. The original userdev jar supplies the
+// game patches and the original POM supplies dependencies for the compile and test classpaths.
+if (mc == '1.20.5') {
+    dependencies.components.withModule('net.neoforged:neoforge') { details ->
+        if (details.id.version == neoVersion) {
+            details.withVariant('sources') {
+                withDependencies { clear() }
+            }
+            details.addVariant('legacyModDevBundle') {
+                withCapabilities { addCapability('net.neoforged', 'neoforge-moddev-bundle', neoVersion) }
+                withFiles { addFile("neoforge-${neoVersion}-userdev.jar") }
+            }
+            ['compile', 'runtime'].each { pomVariant ->
+                details.addVariant("legacyModDev-${pomVariant}", pomVariant) {
+                    withCapabilities {
+                        removeCapability('net.neoforged', 'neoforge')
+                        addCapability('net.neoforged', 'neoforge-dependencies', neoVersion)
+                    }
+                    withFiles { removeAllFiles() }
+                }
+            }
+        }
+    }
+}
 
 neoForge {
     version = neoVersion

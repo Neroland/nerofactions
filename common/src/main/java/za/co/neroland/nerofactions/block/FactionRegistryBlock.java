@@ -17,9 +17,18 @@ public final class FactionRegistryBlock extends Block {
         super(properties);
     }
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (player instanceof ServerPlayer online) {
             if (!za.co.neroland.nerofactions.config.NeroFactionsConfig.REGISTRY_ENABLED.get()) {
                 za.co.neroland.nerofactions.platform.VersionCompat.systemMessage(player,

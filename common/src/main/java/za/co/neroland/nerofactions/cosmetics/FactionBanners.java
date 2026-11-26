@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponents;
+//?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -20,7 +22,9 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BannerPattern;
+//? if >=1.20.5 {
 import net.minecraft.world.level.block.entity.BannerPatternLayers;
+//?}
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.content.FactionDefinition;
@@ -119,6 +123,7 @@ public final class FactionBanners {
     public static ItemStack build(HolderLookup.Provider registries, FactionDefinition faction) {
         BannerScheme scheme = schemeOrFallback(faction.id());
         ItemStack stack = new ItemStack(bannerItem(scheme.base()));
+        //? if >=1.20.5 {
         BannerPatternLayers.Builder layers = new BannerPatternLayers.Builder();
         HolderLookup.RegistryLookup<BannerPattern> lookup =
                 registries.lookupOrThrow(Registries.BANNER_PATTERN);
@@ -141,8 +146,44 @@ public final class FactionBanners {
         stack.set(DataComponents.BANNER_PATTERNS, layers.build());
         stack.set(DataComponents.CUSTOM_NAME,
                 Component.literal(faction.displayName() + " Banner"));
+        //?} else {
+        /*var layers = new net.minecraft.nbt.ListTag();
+        var patterns = BuiltInRegistries.BANNER_PATTERN;
+        for (Layer layer : scheme.layers()) {
+            var pattern = patterns.getOptional(layer.pattern());
+            if (pattern.isPresent()) {
+                addLayer(layers, pattern.get(), layer.colour());
+            } else {
+                NeroFactionsCommon.LOGGER.warn("[NeroFactions] Banner pattern {} is not registered; skipping that layer of the {} banner.",
+                        layer.pattern(), faction.id());
+            }
+        }
+        faction.cosmetics().flatMap(cosmetics -> patterns.getOptional(cosmetics.bannerPattern()))
+                .ifPresent(pattern -> addLayer(layers, pattern, DyeColor.WHITE));
+        stack.getOrCreateTagElement("BlockEntityTag").put("Patterns", layers);
+        stack.setHoverName(Component.literal(faction.displayName() + " Banner"));
+        *///?}
         return stack;
     }
+
+    //? if <1.20.5 {
+    /*public static void registerLegacyPatterns() {
+        var registry = za.co.neroland.nerolandcore.registry.RegistrationProvider.get(
+                Registries.BANNER_PATTERN, NeroFactionsCommon.MOD_ID);
+        for (OutpostFaction faction : OutpostFaction.values()) {
+            if (faction != OutpostFaction.NONE) {
+                registry.register(faction.getSerializedName(), key -> new BannerPattern(key.identifier().toString()));
+            }
+        }
+    }
+
+    private static void addLayer(net.minecraft.nbt.ListTag layers, BannerPattern pattern, DyeColor dye) {
+        var data = new net.minecraft.nbt.CompoundTag();
+        data.putString("Pattern", pattern.getHashname());
+        data.putInt("Color", dye.getId());
+        layers.add(data);
+    }
+    *///?}
 
     /**
      * The vanilla banner item in this base colour, resolved by its stable data id

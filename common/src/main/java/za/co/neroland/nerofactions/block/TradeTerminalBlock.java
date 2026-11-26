@@ -21,7 +21,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+//? if >=1.20.5 {
 import net.minecraft.world.item.trading.ItemCost;
+//?}
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
@@ -98,7 +100,7 @@ public class TradeTerminalBlock extends Block {
         }
         return InteractionResult.SUCCESS;
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
@@ -110,11 +112,38 @@ public class TradeTerminalBlock extends Block {
         }
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
     }
+    *///?} else {
+    /*private InteractionResult useHeldItem(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(za.co.neroland.nerofactions.registry.NeroFactionsItems.CORPORATE_WRIT.get())) {
+            return InteractionResult.PASS;
+        }
+        if (player instanceof ServerPlayer online) {
+            za.co.neroland.nerofactions.content.faction.corporation.CorporateCounter.redeem(online, stack);
+        }
+        return InteractionResult.SUCCESS;
+    }
     *///?}
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.isEmpty()) {
+            InteractionResult handled = useHeldItem(held, state, level, pos, player, hand, hit);
+            if (handled != InteractionResult.PASS) {
+                return handled;
+            }
+        }
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.SUCCESS;
         }
@@ -284,8 +313,13 @@ public class TradeTerminalBlock extends Block {
                 result = new ItemStack(BuiltInRegistries.ITEM.getValue(resultId.get()),
                         spec.resultCount());
             }
+            //? if >=1.20.5 {
             offers.add(new MerchantOffer(new ItemCost(cost, spec.costCount()), result,
                     spec.maxUses(), 1, 0.0F));
+            //?} else {
+            /*offers.add(new MerchantOffer(new ItemStack(cost, spec.costCount()), result,
+                    spec.maxUses(), 1, 0.0F));
+            *///?}
         }
         return offers;
     }

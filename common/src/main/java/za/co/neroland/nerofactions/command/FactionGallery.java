@@ -85,7 +85,17 @@ final class FactionGallery {
                 level.setBlockAndUpdate(bannerPos, bannerItem.getBlock().defaultBlockState());
                 var bannerEntity = level.getBlockEntity(bannerPos);
                 if (bannerEntity != null) {
+                    //? if >=1.20.5 {
                     bannerEntity.applyComponentsFromItemStack(banner);
+                    //?} else {
+                    /*var tag = bannerEntity.getUpdateTag();
+                    var patterns = banner.getTagElement("BlockEntityTag");
+                    if (patterns != null && patterns.contains("Patterns")) {
+                        tag.put("Patterns", patterns.get("Patterns").copy());
+                    }
+                    tag.putString("CustomName", Component.Serializer.toJson(banner.getHoverName()));
+                    bannerEntity.load(tag);
+                    *///?}
                     bannerEntity.setChanged();
                     level.sendBlockUpdated(bannerPos, level.getBlockState(bannerPos), level.getBlockState(bannerPos), 3);
                 }

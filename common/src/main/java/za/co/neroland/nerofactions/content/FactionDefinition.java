@@ -56,9 +56,27 @@ public record FactionDefinition(
                 "#90B4A0", "", Identifier.fromNamespaceAndPath("minecraft", "book"), "");
     }
 
-    private static final Codec<String> COLOR = Codec.STRING.validate(value ->
-            value.matches("#[0-9a-fA-F]{6}") ? com.mojang.serialization.DataResult.success(value)
-                    : com.mojang.serialization.DataResult.error(() -> "color must be #RRGGBB"));
+    private static final Codec<String> COLOR = Codec.STRING.flatXmap(
+            FactionDefinition::validateColor, FactionDefinition::validateColor);
+
+    private static com.mojang.serialization.DataResult<String> validateColor(String color) {
+        return color.matches("#[0-9a-fA-F]{6}") ? com.mojang.serialization.DataResult.success(color)
+                : com.mojang.serialization.DataResult.error(() -> "color must be #RRGGBB");
+    }
+
+    private static com.mojang.serialization.MapCodec<String> colorField(String fallback) {
+        //? if >=1.20.5 {
+        return COLOR.optionalFieldOf("color", fallback);
+        //?} else {
+        /*return Codec.PASSTHROUGH.optionalFieldOf("color").flatXmap(
+                input -> input.map(value -> value.read(COLOR))
+                        .orElseGet(() -> com.mojang.serialization.DataResult.success(fallback)),
+                color -> COLOR.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, color).map(element ->
+                        color.equals(fallback) ? java.util.Optional.empty()
+                                : java.util.Optional.of(new com.mojang.serialization.Dynamic<>(
+                                        com.mojang.serialization.JsonOps.INSTANCE, element))));
+        *///?}
+    }
 
     /** Placeholder until {@link FactionDefinitions} stamps the file-derived id on. */
     public static final Identifier UNNAMED =
@@ -77,7 +95,7 @@ public record FactionDefinition(
             TradeModifier.CODEC.listOf().optionalFieldOf("trade", List.of())
                     .forGetter(FactionDefinition::trade),
             Cosmetics.CODEC.optionalFieldOf("cosmetics").forGetter(FactionDefinition::cosmetics),
-            COLOR.optionalFieldOf("color", "#90B4A0").forGetter(FactionDefinition::color),
+            colorField("#90B4A0").forGetter(FactionDefinition::color),
             Codec.STRING.optionalFieldOf("motto", "").forGetter(FactionDefinition::motto),
             Identifier.CODEC.optionalFieldOf("icon", Identifier.fromNamespaceAndPath("minecraft", "book"))
                     .forGetter(FactionDefinition::icon),

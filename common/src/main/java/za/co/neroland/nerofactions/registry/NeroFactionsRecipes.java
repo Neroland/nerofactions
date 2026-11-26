@@ -47,7 +47,7 @@ public final class NeroFactionsRecipes {
             //? if >=26.1 {
             RecipeSerializer<GatedRecipe> serializer = new RecipeSerializer<>(
                     GatedRecipe.mapCodec(self::get), GatedRecipe.streamCodec(self::get));
-            //?} else {
+            //?} else if >=1.20.5 {
             /*// Before 26.1 a serializer is an interface: the same two codecs, served by an anonymous class.
             com.mojang.serialization.MapCodec<GatedRecipe> codec = GatedRecipe.mapCodec(self::get);
             net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, GatedRecipe> stream =
@@ -63,6 +63,8 @@ public final class NeroFactionsRecipes {
                     return stream;
                 }
             };
+            *///?} else {
+            /*RecipeSerializer<GatedRecipe> serializer = new za.co.neroland.nerofactions.crafting.LegacyGatedRecipeSerializer(self::get);
             *///?}
             self.set(serializer);
             return serializer;

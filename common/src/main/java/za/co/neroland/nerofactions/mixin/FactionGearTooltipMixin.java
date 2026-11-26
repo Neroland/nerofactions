@@ -20,8 +20,13 @@ import za.co.neroland.nerofactions.content.faction.FactionArmor;
 @Mixin(ItemStack.class)
 abstract class FactionGearTooltipMixin {
     @Inject(method = "getTooltipLines", at = @At("RETURN"), cancellable = true)
+    //? if >=1.20.5 {
     private void nerofactions$appendSetProgress(Item.TooltipContext context, Player player, TooltipFlag flag,
             CallbackInfoReturnable<List<Component>> result) {
+    //?} else {
+    /*private void nerofactions$appendSetProgress(Player player, TooltipFlag flag,
+            CallbackInfoReturnable<List<Component>> result) {
+    *///?}
         ItemStack stack = (ItemStack) (Object) this;
         FactionArmor set = null;
         for (FactionArmor candidate : FactionArmor.values()) {

@@ -99,7 +99,9 @@ pack authors, privacy, and the link module).
 
 ## Build targets
 
-- **Minecraft 1.20.5** on Fabric and **1.20.6** on Fabric, Forge and NeoForge.
+- **Minecraft 1.20 series:** 1.20 through 1.20.6 on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,
+  and 1.20.4 through 1.20.6 on NeoForge. NeoForge 1.20.5 uses loader 20.5.21-beta and Core 1.24.0.
+  Use Java 17 through 1.20.4 and Java 21 for 1.20.5 and 1.20.6.
 - **Requires Neroland Core 1.23.0 or newer** (below 2.0).
 - Mod id: `nerofactions` · package `za.co.neroland.nerofactions`
 - The build is the repo root, with a flattened cross-loader structure driven by Stonecutter:

@@ -72,8 +72,17 @@ public final class CommunityWorkbenchBlock extends BaseEntityBlock {
         }
     }
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player user, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player user,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (user instanceof ServerPlayer player && level.getBlockEntity(pos) instanceof Bench bench) {
             if (bench.canUse(player)) bench.open(player);
             else player.sendSystemMessage(Component.translatable("message.nerofactions.workbench.denied"));
@@ -190,8 +199,14 @@ public final class CommunityWorkbenchBlock extends BaseEntityBlock {
             output.store("Bench", UUIDUtil.CODEC, id);
             //? if >=1.21.6 {
             net.minecraft.world.ContainerHelper.saveAllItems(output, storage.getItems());
-            //?} else {
+            //?} else if >=1.20.3 {
             /*net.minecraft.world.ContainerHelper.saveAllItems(tag, storage.getItems(), registries);
+            *///?} else {
+            /*var stacks = net.minecraft.core.NonNullList.withSize(storage.getContainerSize(), net.minecraft.world.item.ItemStack.EMPTY);
+            for (int slot = 0; slot < stacks.size(); slot++) {
+                stacks.set(slot, storage.getItem(slot));
+            }
+            net.minecraft.world.ContainerHelper.saveAllItems(tag, stacks);
             *///?}
         }
 
@@ -204,11 +219,19 @@ public final class CommunityWorkbenchBlock extends BaseEntityBlock {
             ValueInput input = ValueInput.of(tag, registries);
         *///?}
             id = input.read("Bench", UUIDUtil.CODEC).orElse(id);
+            //? if >=1.20.3 {
             storage.getItems().clear();
+            //?}
             //? if >=1.21.6 {
             net.minecraft.world.ContainerHelper.loadAllItems(input, storage.getItems());
-            //?} else {
+            //?} else if >=1.20.3 {
             /*net.minecraft.world.ContainerHelper.loadAllItems(tag, storage.getItems(), registries);
+            *///?} else {
+            /*var stacks = net.minecraft.core.NonNullList.withSize(storage.getContainerSize(), net.minecraft.world.item.ItemStack.EMPTY);
+            net.minecraft.world.ContainerHelper.loadAllItems(tag, stacks);
+            for (int slot = 0; slot < stacks.size(); slot++) {
+                storage.setItem(slot, stacks.get(slot));
+            }
             *///?}
         }
     }

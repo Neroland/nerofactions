@@ -142,8 +142,7 @@ public final class ForgeFactionsEvents {
             za.co.neroland.nerofactions.link.FactionsLinkActions.clear();
             RetentionSweep.onServerStopped();
         });
-        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) ->
-                FactionsTicker.serverTick(event.getServer()));
+        registerServerTick();
         MinecraftForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {
             if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
                 QuestHooks.onJoin(joined);
@@ -154,6 +153,21 @@ public final class ForgeFactionsEvents {
                 InternalTriggers.entityKilled(event.getEntity(), event.getSource()));
         MinecraftForge.EVENT_BUS.addListener((RegisterCommandsEvent event) ->
                 FactionCommands.register(event.getDispatcher()));
+    }
+    *///?}
+
+    //? if >=1.20.5 && <1.21.6 {
+    /*private static void registerServerTick() {
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent.Post event) ->
+                FactionsTicker.serverTick(event.getServer()));
+    }
+    *///?} elif <1.20.5 {
+    /*private static void registerServerTick() {
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ServerTickEvent event) -> {
+            if (event.phase == TickEvent.Phase.END) {
+                FactionsTicker.serverTick(event.getServer());
+            }
+        });
     }
     *///?}
 }

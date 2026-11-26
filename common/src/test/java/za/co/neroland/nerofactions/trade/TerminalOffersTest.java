@@ -199,12 +199,12 @@ class TerminalOffersTest {
     void rivalSurchargeUsesTheCapForAllOffersAndRefusedTradersHaveNone() {
         FactionDefinition union = faction(List.of(ores(Map.of("member", 0.8D))), true);
         var offers = TerminalOffers.specs(union, FactionTier.MEMBER, RESOLVER, 30, 25, FactionAccess.SURCHARGE);
-        assertEquals(5, offers.getFirst().costCount());
-        assertEquals(4, offers.getLast().costCount());
+        assertEquals(5, offers.get(0).costCount());
+        assertEquals(4, offers.get(offers.size() - 1).costCount());
         assertEquals(13, TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 25, 10,
-                FactionAccess.SURCHARGE).getFirst().price());
+                FactionAccess.SURCHARGE).get(0).price());
         assertEquals(10, TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 0, 10,
-                FactionAccess.SURCHARGE).getFirst().price());
+                FactionAccess.SURCHARGE).get(0).price());
         assertTrue(TerminalOffers.specs(union, FactionTier.MEMBER, RESOLVER, 30, 25,
                 FactionAccess.REFUSE_RIVAL).isEmpty());
         assertTrue(TerminalOffers.creditOffers(union, FactionTier.MEMBER, 30, 25, 10,

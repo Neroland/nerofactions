@@ -5,7 +5,9 @@ import java.util.Optional;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+//? if >=1.20.5 {
 import net.minecraft.core.component.DataComponents;
+//?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,7 +16,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+//? if >=1.20.5 {
 import net.minecraft.world.item.component.LodestoneTracker;
+//?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,9 +59,25 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
         }
     }
 
+    //? if >=1.20.5 {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.isEmpty()) {
+            InteractionResult handled = useHeldItem(held, state, level, pos, player, hand, hit);
+            if (handled != InteractionResult.PASS) {
+                return handled;
+            }
+        }
+        if (hand != net.minecraft.world.InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
+    *///?}
         if (player instanceof ServerPlayer visitor) {
             visitor.sendSystemMessage(Component.translatable("message.nerofactions.navigation_beacon.use_compass"));
         }
@@ -72,13 +92,20 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
         if (player instanceof ServerPlayer visitor) bind(visitor, pos, hand, stack);
         return InteractionResult.SUCCESS;
     }
-    //?} else {
+    //?} else if >=1.20.5 {
     /*@Override
     protected net.minecraft.world.ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!stack.is(Items.COMPASS)) return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (player instanceof ServerPlayer visitor) bind(visitor, pos, hand, stack);
         return net.minecraft.world.ItemInteractionResult.SUCCESS;
+    }
+    *///?} else {
+    /*private InteractionResult useHeldItem(ItemStack stack, BlockState state, Level level,
+            BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!stack.is(Items.COMPASS)) return InteractionResult.PASS;
+        if (player instanceof ServerPlayer visitor) bind(visitor, pos, hand, stack);
+        return InteractionResult.SUCCESS;
     }
     *///?}
 
@@ -88,8 +115,15 @@ public final class NavigationBeaconBlock extends BaseEntityBlock {
             return;
         }
         ItemStack waypoint = stack.copyWithCount(1);
+        //? if >=1.20.5 {
         waypoint.set(DataComponents.LODESTONE_TRACKER,
                 new LodestoneTracker(Optional.of(GlobalPos.of(player.level().dimension(), pos)), false));
+        //?} else {
+        /*var lodestone = waypoint.getOrCreateTag();
+        lodestone.put("LodestonePos", net.minecraft.nbt.NbtUtils.writeBlockPos(pos));
+        lodestone.putString("LodestoneDimension", player.level().dimension().identifier().toString());
+        lodestone.putBoolean("LodestoneTracked", false);
+        *///?}
         if (stack.getCount() == 1) {
             player.setItemInHand(hand, waypoint);
         } else if (player.getInventory().add(waypoint)) {

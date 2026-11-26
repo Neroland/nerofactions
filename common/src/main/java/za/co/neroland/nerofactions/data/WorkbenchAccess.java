@@ -22,11 +22,19 @@ import za.co.neroland.nerolandcore.data.SavedDataRecovery;
 public final class WorkbenchAccess extends SavedData {
     private static final Identifier ID = Identifier.parse("nerofactions:workbench_access");
     private static final int MAX_GUESTS = 16;
+    private static final Codec<List<UUID>> GUESTS = UUIDUtil.CODEC.listOf().flatXmap(
+            WorkbenchAccess::checkGuests, WorkbenchAccess::checkGuests);
+
+    private static com.mojang.serialization.DataResult<List<UUID>> checkGuests(List<UUID> guests) {
+        return guests.size() <= MAX_GUESTS ? com.mojang.serialization.DataResult.success(guests)
+                : com.mojang.serialization.DataResult.error(() -> "Too many workbench guests");
+    }
+
     private record Grant(UUID bench, UUID owner, List<UUID> guests) {
         static final Codec<Grant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 UUIDUtil.CODEC.fieldOf("bench").forGetter(Grant::bench),
                 UUIDUtil.CODEC.fieldOf("owner").forGetter(Grant::owner),
-                UUIDUtil.CODEC.listOf(0, MAX_GUESTS).optionalFieldOf("guests", List.of()).forGetter(Grant::guests)
+                GUESTS.optionalFieldOf("guests", List.of()).forGetter(Grant::guests)
         ).apply(instance, Grant::new));
     }
 

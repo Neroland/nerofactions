@@ -10,7 +10,11 @@ import net.minecraft.resources.Identifier;
 public record StandingSnapshot(List<Row> factions, long cooldownUntil, int joinCooldownMinutes,
         int switchPenaltyPoints, boolean allowMultipleFactions) implements CustomPacketPayload {
     public static final int MAX_FACTIONS = 64;
+    //? if >=1.20.5 {
     public static final Type<StandingSnapshot> TYPE = new Type<>(Identifier.fromNamespaceAndPath("nerofactions", "standing"));
+    //?} else {
+    /*public static final Type<StandingSnapshot> TYPE = new Type<>(Identifier.fromNamespaceAndPath("nerofactions", "standing"), StandingSnapshot.class);
+    *///?}
     public static final StreamCodec<FriendlyByteBuf, StandingSnapshot> STREAM_CODEC = StreamCodec.of(
             StandingSnapshot::write, StandingSnapshot::read);
 

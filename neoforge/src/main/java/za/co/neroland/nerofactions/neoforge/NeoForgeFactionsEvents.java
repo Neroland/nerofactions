@@ -6,7 +6,9 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+//? if >=1.20.5 {
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+//?}
 
 import za.co.neroland.nerofactions.NeroFactionsCommon;
 import za.co.neroland.nerofactions.command.FactionCommands;
@@ -48,8 +50,16 @@ public final class NeoForgeFactionsEvents {
 
         // Cheap per-tick pass: /reload pickup (one reference comparison) + the decay day-roll
         // (self-throttled to once a minute inside the ticker).
+        //? if >=1.20.5 {
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) ->
                 FactionsTicker.serverTick(event.getServer()));
+        //?} else {
+        /*NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.TickEvent.ServerTickEvent event) -> {
+            if (event.phase == net.neoforged.neoforge.event.TickEvent.Phase.END) {
+                FactionsTicker.serverTick(event.getServer());
+            }
+        });
+        *///?}
 
         // Quest hooks that opened while the player was away (see QuestHooks).
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerLoggedInEvent event) -> {

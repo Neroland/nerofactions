@@ -25,4 +25,12 @@ public final class ExecutiveStamp extends Item {
         /*return net.minecraft.world.InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
         *///?}
     }
+
+    //? if <1.20.5 {
+    /*@Override
+    public void appendHoverText(net.minecraft.world.item.ItemStack stack, net.minecraft.world.level.Level level,
+            java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+        lines.add(net.minecraft.network.chat.Component.translatable("tooltip.nerofactions.executive_stamp"));
+    }
+    *///?}
 }
