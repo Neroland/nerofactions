@@ -134,15 +134,15 @@ dependencies {
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
     if (obfuscated) {
-        modCompileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
+        modCompileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${rootProject.property('nerospace_version')}"
     } else {
-        compileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
+        compileOnly "za.co.neroland.nerospace:nerospace-fabric-${spaceApiMc}:${rootProject.property('nerospace_version')}"
     }
     if (obfuscated) {
         // 1.21.x: NeroEconomy is an intermediary-named mod jar there, so Loom must remap it.
-        modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
+        modCompileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${rootProject.property('neroeconomy_version')}"
     } else {
-        compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
+        compileOnly "za.co.neroland.neroeconomy:neroeconomy-fabric-${economyApiMc}:${rootProject.property('neroeconomy_version')}"
     }
 }
 

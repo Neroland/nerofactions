@@ -146,8 +146,8 @@ dependencies {
     // types and is never classloaded when the mod is absent. The loader metadata names it as optional
     // only, and nothing of NeroEconomy ships in this jar. Resolved from mavenLocal() or NeroEconomy's
     // GitHub Packages repo (declared in stonecutter.gradle only when credentials are present).
-    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${economyApiMc}:${project.findProperty(preComponents ? 'neroeconomy_version_pre_components' : 'neroeconomy_version')}"
-    compileOnly "za.co.neroland.nerospace:nerospace-forge-${spaceApiMc}:${project.findProperty(preComponents ? 'nerospace_version_pre_components' : 'nerospace_version')}"
+    compileOnly "za.co.neroland.neroeconomy:neroeconomy-forge-${economyApiMc}:${rootProject.property('neroeconomy_version')}"
+    compileOnly "za.co.neroland.nerospace:nerospace-forge-${spaceApiMc}:${rootProject.property('nerospace_version')}"
 }
 
 // Expand mods.toml from src/main/templates into generated resources.

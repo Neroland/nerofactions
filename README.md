@@ -78,7 +78,7 @@ See the [changelog](CHANGELOG.md) for deferred content.
 
 - **Minecraft** 1.21.1, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2, 26.2 or 26.3,
   on **NeoForge**, **MinecraftForge/Forge** or **Fabric** (27 build cells).
-- **Neroland Core 1.17.5 or newer** — required, loads first. NeroFactions will refuse to
+- **Neroland Core 1.24.0 or newer** — required, loads first. NeroFactions will refuse to
   load against an older Core.
 - Java 25 for Minecraft 26.x; Java 21 for Minecraft 1.21.x.
 
@@ -102,7 +102,7 @@ pack authors, privacy, and the link module).
 - **Minecraft 1.20 series:** 1.20 through 1.20.6 on Fabric, 1.20 through 1.20.4 and 1.20.6 on Forge,
   and 1.20.4 through 1.20.6 on NeoForge. NeoForge 1.20.5 uses loader 20.5.21-beta and Core 1.24.0.
   Use Java 17 through 1.20.4 and Java 21 for 1.20.5 and 1.20.6.
-- **Requires Neroland Core 1.23.0 or newer** (below 2.0).
+- **Requires Neroland Core 1.24.0 or newer** (below 2.0).
 - Mod id: `nerofactions` · package `za.co.neroland.nerofactions`
 - The build is the repo root, with a flattened cross-loader structure driven by Stonecutter:
   - `common/` — shared, loader-agnostic source spliced into every loader node
