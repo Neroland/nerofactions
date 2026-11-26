@@ -285,7 +285,8 @@ jobs:
           MAVEN_SETTINGS
 
           status_for() {
-            curl --silent --show-error --retry 3 --output /dev/null --write-out '%{http_code}' \
+            curl --location --silent --show-error --retry 3 --max-redirs 5 \
+              --output /dev/null --write-out '%{http_code}' \
               --user "$GITHUB_ACTOR:$GITHUB_TOKEN" "$1"
           }
 
