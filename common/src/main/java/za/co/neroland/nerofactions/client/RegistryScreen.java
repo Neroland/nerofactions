@@ -5,9 +5,14 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.player.Inventory;
 import za.co.neroland.nerofactions.menu.RegistryMenu;
+import za.co.neroland.nerofactions.network.RewardTokens;
 import za.co.neroland.nerofactions.network.StandingSnapshot;
 
 public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
@@ -123,7 +128,7 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
         barX = x;
         barY = topPos + 143;
         barW = w;
-        wrapped(g, Component.translatable("gui.nerofactions.next_rewards", row.unlocks().isEmpty() ? "—" : row.unlocks()), x, topPos + 151, w, 2);
+        wrapped(g, Component.translatable("gui.nerofactions.next_rewards", nextRewards(row.unlocks())), x, topPos + 151, w, 2);
         var snapshot = FactionsClientState.standing();
         g.text(font, Component.translatable("gui.nerofactions.leave_cost", snapshot.switchPenaltyPoints(),
                 snapshot.joinCooldownMinutes()), leftPos + 8, topPos + panelHeight - 57, 0xFFFFD997, false);
@@ -160,6 +165,41 @@ public final class RegistryScreen extends FactionsScreenBase<RegistryMenu> {
         GaugeTooltips.standing(lines, row.displayName(), current, row.standing(), row.threshold(),
                 row.nextThreshold(), next, top, row.hostile());
         return lines;
+    }
+
+    /**
+     * Localised "next tier" reward list. The server sends {@link RewardTokens}; item names come
+     * from the client's own language (so every locale gets real item names), cosmetics from
+     * {@code gui.nerofactions.reward.cosmetic.<name>}. An older server's plain prose is shown as-is.
+     */
+    static Component nextRewards(String raw) {
+        if (raw == null || raw.isEmpty()) {
+            return Component.literal("—");
+        }
+        if (!RewardTokens.isTokenised(raw)) {
+            return Component.literal(raw);
+        }
+        MutableComponent out = Component.empty();
+        boolean first = true;
+        for (RewardTokens.Token token : RewardTokens.parse(raw)) {
+            if (!first) {
+                out.append(Component.translatableWithFallback("gui.nerofactions.reward.separator", ", "));
+            }
+            first = false;
+            if (token.isItem()) {
+                Identifier id = Identifier.tryParse(token.itemId());
+                Component name = id == null ? Component.literal(token.itemId())
+                        : BuiltInRegistries.ITEM.getOptional(id)
+                                .map(item -> new ItemStack(item).getHoverName())
+                                .orElseGet(() -> Component.literal(id.getPath().replace('_', ' ')));
+                out.append(Component.translatable("gui.nerofactions.reward.item", name, token.count()));
+            } else {
+                out.append(Component.translatableWithFallback(
+                        "gui.nerofactions.reward.cosmetic." + token.cosmetic(),
+                        token.cosmetic().replace('_', ' ')));
+            }
+        }
+        return first ? Component.literal("—") : out;
     }
 
     private void wrapped(GuiGraphicsExtractor g, Component text, int x, int y, int width, int maxLines) {

@@ -53,9 +53,9 @@ public final class StandingSync {
                             .filter(java.util.Objects::nonNull).map(f -> f.displayName())
                             .collect(java.util.stream.Collectors.joining(", "))),
                     bounded(tier == FactionTier.INNER_CIRCLE ? "" : faction.rewardsFor(FactionTier.values()[tier.ordinal() + 1])
-                            .stream().map(reward -> reward.item().map(id -> id.getPath().replace('_', ' ') + " ×" + reward.count())
-                                    .orElseGet(() -> reward.cosmetic().orElse("").replace('_', ' ')))
-                            .collect(java.util.stream.Collectors.joining(", ")))));
+                            .stream().map(reward -> reward.item().map(id -> RewardTokens.item(id.toString(), reward.count()))
+                                    .orElseGet(() -> RewardTokens.cosmetic(reward.cosmetic().orElse(""))))
+                            .collect(java.util.stream.Collectors.joining(RewardTokens.SEPARATOR)))));
         }
         Services.NETWORK.sendToPlayer(player, new StandingSnapshot(rows, membership.cooldownUntil(player.getUUID()),
                 NeroFactionsConfig.JOIN_COOLDOWN_MINUTES.get(), NeroFactionsConfig.SWITCH_PENALTY_POINTS.get(),

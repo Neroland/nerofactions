@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 //? if >=1.20.5 {
 import net.minecraft.core.component.DataComponents;
 //?}
@@ -105,8 +106,18 @@ public final class FactionBanners {
         TagKey<BannerPattern> tag = TagKey.create(Registries.BANNER_PATTERN,
                 id("pattern_item/" + faction.getSerializedName()));
         //? if >=26.1.2 {
+        // Resolved on the client from the server's synced tags. A server running an older
+        // NeroFactions (or none) does not send this tag; getOrThrow crashed the client join
+        // (MC-NEROFACTIONS-4). Fall back to an empty set so the item just provides no pattern.
         return new Item(properties.delayedComponent(DataComponents.PROVIDES_BANNER_PATTERNS,
-                registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN).getOrThrow(tag)));
+                registries -> registries.lookupOrThrow(Registries.BANNER_PATTERN).get(tag)
+                        .<HolderSet<BannerPattern>>map(set -> set)
+                        .orElseGet(() -> {
+                            NeroFactionsCommon.LOGGER.warn("[NeroFactions] Banner pattern tag {} is "
+                                    + "missing (server without matching NeroFactions?); the pattern "
+                                    + "item will provide no pattern.", tag.location());
+                            return HolderSet.empty();
+                        })));
         //?} else if >=1.21.5 {
         /*return new Item(properties.component(DataComponents.PROVIDES_BANNER_PATTERNS, tag));
         *///?} else {
